@@ -1,0 +1,82 @@
+name: "Deploy to k8s "
+description: "Deploy to K8s"
+inputs:
+  aws-access-key-id:
+    required: true
+    description: "key-id"
+  aws-secret-access-key:
+    required: true
+    description: "key-id"
+  aws-region:
+    required: true
+    description: "key-id"
+  repository:
+    required: true
+    description: "region"
+  token:
+    required: true
+    description: "git_token"
+  ref:
+    required: true
+    description: "reference" 
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region}}
+    - name: Checkout manifest repo
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        ref: ${{ inputs.ref }}
+    - name: Deploy to Production
+      if: ${{ github.ref == 'refs/heads/main' }}
+      id: deploy-production-yaml
+      env:
+        K8S_YAML_DIR: apps/securitization-backend
+      shell: bash
+      run: |
+        cd $K8S_YAML_DIR/overlays/production  
+        curl -s -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod u+x ./kustomize
+        ./kustomize edit set image image-celery=$ECR_REGISTRY/$ECR_REPOSITORY_CELERY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image image-celery-beat=$ECR_REGISTRY/$ECR_REPOSITORY_CELERYBEAT:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image image-faust=$ECR_REGISTRY/$ECR_REPOSITORY_FAUST:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image image-backend=$ECR_REGISTRY/$ECR_REPOSITORY_WEB:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize build . 
+    - name: Deploy to Staging
+      shell: bash
+      id: deploy-staging-yaml
+      if: ${{ github.ref == 'refs/heads/test-composite' }}
+      env:
+        K8S_YAML_DIR: apps/securitization-backend
+      run: |
+        cd $K8S_YAML_DIR/overlays/test-composite
+        curl -s -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod u+x ./kustomize
+        ./kustomize edit set image image-celery=$ECR_REGISTRY/$ECR_REPOSITORY_CELERY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image image-celery-beat=$ECR_REGISTRY/$ECR_REPOSITORY_CELERYBEAT:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image image-faust=$ECR_REGISTRY/$ECR_REPOSITORY_FAUST:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image image-backend=$ECR_REGISTRY/$ECR_REPOSITORY_WEB:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize build .
+    - name: Push the changes to git
+      shell: bash
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git pull
+        git add .
+        git commit -m "Update image version"
+        git push
+    - name: Checkout POST
+      uses: actions/checkout@v3
+      with:
+        repository: CardoAI/securitization-backend
+        token:  ${{ inputs.token }}
+        ref: test-composite

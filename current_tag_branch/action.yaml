@@ -1,0 +1,38 @@
+name: "Last successful commit"
+description: "This action returns the commit hash when a given workflow was last successful"
+inputs:
+  token: 
+    required: true
+    description: "github token"
+outputs:
+
+  success_tag:
+    description: "extract current tag"
+    value: ${{ steps.successful_build.outputs.tag }}
+  current_tag:
+    description: "extract current tag"
+    value: ${{ steps.current.outputs.current_tag }}
+runs:
+  using: composite
+  steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Current tag
+        shell: bash
+        run: echo "::set-output name=current_tag::${GITHUB_SHA::7}" 
+        id: current
+      - uses: oltisa/last-successful-build-action@v2
+        id: last_successful_commit
+        with:
+          token: "${{ inputs.token }}"
+          branch: "${{ steps.extract_branch.outputs.branch }}"
+          workflow: "securitization-backend"
+      - name: Last successful workflow-run tag
+        shell: bash
+        env:
+          image: ${{steps.last_successful_commit.outputs.sha}}
+        run: echo "::set-output name=tag::${image::7}"
+        id: successful_build
+    
