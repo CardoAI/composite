@@ -18,7 +18,13 @@ inputs:
     description: "git_token"
   ref:
     required: true
-    description: "reference" 
+    description: "reference"
+  image_name:
+    required: true
+    description: "image name"
+  K8S_YAML_DIR:
+    required: true
+    description: "directory"
 
 runs:
   using: composite
@@ -35,21 +41,7 @@ runs:
         repository: ${{ inputs.repository }}
         token: ${{ inputs.token }}
         ref: ${{ inputs.ref }}
-    - name: Deploy to Production
-      if: ${{ github.ref == 'refs/heads/main' }}
-      id: deploy-production-yaml
-      env:
-        K8S_YAML_DIR: apps/securitization-backend
-      shell: bash
-      run: |
-        cd $K8S_YAML_DIR/overlays/production  
-        curl -s -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-        chmod u+x ./kustomize
-        ./kustomize edit set image image-celery=$ECR_REGISTRY/$ECR_REPOSITORY_CELERY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize edit set image image-celery-beat=$ECR_REGISTRY/$ECR_REPOSITORY_CELERYBEAT:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize edit set image image-faust=$ECR_REGISTRY/$ECR_REPOSITORY_FAUST:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize edit set image image-backend=$ECR_REGISTRY/$ECR_REPOSITORY_WEB:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize build . 
+ 
     - name: Deploy to Staging
       shell: bash
       id: deploy-staging-yaml
@@ -57,13 +49,10 @@ runs:
       env:
         K8S_YAML_DIR: apps/securitization-backend
       run: |
-        cd $K8S_YAML_DIR/overlays/test-composite
+        cd ${{ K8S_YAML_DIR}}/overlays/test-composite  
         curl -s -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
         chmod u+x ./kustomize
-        ./kustomize edit set image image-celery=$ECR_REGISTRY/$ECR_REPOSITORY_CELERY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize edit set image image-celery-beat=$ECR_REGISTRY/$ECR_REPOSITORY_CELERYBEAT:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize edit set image image-faust=$ECR_REGISTRY/$ECR_REPOSITORY_FAUST:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        ./kustomize edit set image image-backend=$ECR_REGISTRY/$ECR_REPOSITORY_WEB:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        ./kustomize edit set image ${{ inputs.image_name }}=$ECR_REGISTRY/${{ inputs.image_name }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
         ./kustomize build .
     - name: Push the changes to git
       shell: bash
