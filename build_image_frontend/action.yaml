@@ -1,0 +1,54 @@
+name: "build tag and push image"
+description: "This action build tag and push image"
+inputs:
+  TAG: 
+    required: true
+    description: "last_successful_commi_tag"
+  SHA:
+    required: true
+    description: "current tag"
+  service:
+    description: "service to build"
+    required: true
+  location:
+    description: "location of dockerfile"
+    required: true
+  arguments:
+    description: "build arguments"
+    required: true
+outputs:
+
+  image:
+    description: "output of build image without cache"
+    value: ${{ steps.build-image.outputs.image }}
+  image_cache:
+    description: "output of build image with cache"
+    value: ${{ steps.build-image-cache.outputs.image-cache }}
+runs:
+  using: composite
+  steps:
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      shell: bash
+      env:
+       TAG: ${{inputs.TAG}}
+       SHA: ${{inputs.SHA}}
+      if: ${{ env.TAG == env.SHA }}
+      run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} -f ${{ inputs.location }} --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${{env.TAG}}  ${{ inputs.arguments }}
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image-cache
+      shell: bash
+      env:
+        TAG: ${{inputs.TAG}}
+        SHA: ${{inputs.SHA}}
+      if: ${{ env.TAG != env.SHA }}
+      run: |
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${{env.TAG}}
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} -f ${{ inputs.location }} --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${{env.TAG}}  ${{ inputs.arguments }}
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+          
