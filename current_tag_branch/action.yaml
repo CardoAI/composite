@@ -4,6 +4,9 @@ inputs:
   token: 
     required: true
     description: "github token"
+  name-workflow: 
+    required: true
+    description:  "name of workflow"
 outputs:
 
   success_tag:
@@ -28,7 +31,7 @@ runs:
         with:
           token: "${{ inputs.token }}"
           branch: "${{ steps.extract_branch.outputs.branch }}"
-          workflow: "securitization-backend"
+          workflow: "${{ inputs.name-workflow }}"
       - name: Last successful workflow-run tag
         shell: bash
         env:
