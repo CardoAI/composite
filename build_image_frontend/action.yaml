@@ -15,7 +15,7 @@ inputs:
     required: true
   arguments:
     description: "build arguments"
-    required: true
+    required: false
 outputs:
 
   image:
