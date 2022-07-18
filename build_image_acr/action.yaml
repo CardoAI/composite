@@ -45,6 +45,6 @@ runs:
         SHA: ${{inputs.SHA}}
       if: ${{ env.TAG != env.SHA }}
       run: |
-        docker pull ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.REPOSITORY_NAME }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        docker pull ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.REPOSITORY_NAME }}:${GITHUB_REF#refs/heads/}--${{env.TAG}}
         docker build -f ${{ inputs.location }} .  -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.REPOSITORY_NAME }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} --cache-from ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.REPOSITORY_NAME }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}  ${{ inputs.arguments }}
         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.REPOSITORY_NAME }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
