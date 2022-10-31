@@ -24,9 +24,9 @@ runs:
         id: extract_branch
       - name: Current tag
         shell: bash
-        run: echo "::set-output name=current_tag::${GITHUB_SHA::7}" 
+        run: echo "current_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
         id: current
-      - uses: oltisa/last-successful-build-action@v2
+      - uses: oltisa/last-succ-build@v2
         id: last_successful_commit
         with:
           token: "${{ inputs.token }}"
@@ -36,6 +36,6 @@ runs:
         shell: bash
         env:
           image: ${{steps.last_successful_commit.outputs.sha}}
-        run: echo "::set-output name=tag::${image::7}"
+        run: echo "tag:={image::7}" >> $GITHUB_OUTPUT
         id: successful_build
     
