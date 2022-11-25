@@ -1,0 +1,50 @@
+name: "build tag and push image"
+description: "This action build tag and push image"
+inputs:
+  TAG: 
+    required: true
+    description: "last_successful_commi_tag"
+  SHA:
+    required: true
+    description: "current tag"
+  service:
+    description: "service to build"
+    required: true
+  location:
+    description: "location of dockerfile"
+    required: true
+  arguments:
+    description: "build arguments"
+    required: false
+outputs:
+  image:
+    description: "output of build image without cache"
+    value: ${{ steps.build-image.outputs.image }}
+  image_cache:
+    description: "output of build image with cache"
+    value: ${{ steps.build-image-cache.outputs.image-cache }}
+runs:
+  using: composite
+  steps:
+
+    - name: Build, tag, and push image to Azure ACR
+      id: build-image
+      shell: bash
+      env:
+       TAG: ${{inputs.TAG}}
+       SHA: ${{inputs.SHA}}
+      if: ${{ env.TAG == env.SHA }}
+      run: |
+        docker build -f ${{ inputs.location }} .  -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  ${{ inputs.arguments }}
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+    - name: Build, tag, and push image to Azure ACR
+      id: build-image-cache
+      shell: bash
+      env:
+        TAG: ${{inputs.TAG}}
+        SHA: ${{inputs.SHA}}
+      if: ${{ env.TAG != env.SHA }}
+      run: |
+        docker pull ${{ env.REGISTRY_NAME }}.azurecr.io/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}
+        docker build -f ${{ inputs.location }} .  -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} --cache-from ${{ env.REGISTRY_NAME }}.azurecr.io/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}  ${{ inputs.arguments }}
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
