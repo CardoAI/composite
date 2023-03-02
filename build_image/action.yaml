@@ -1,44 +1,55 @@
-name: "build tag and push image"
-description: "This action build tag and push image"
+name: 'build tag and push image'
+description: 'This action build tag and push image'
 inputs:
-  TAG: 
+  TAG:
     required: true
-    description: "last_successful_commi_tag"
+    description: 'last_successful_commi_tag'
   SHA:
     required: true
-    description: "current tag"
+    description: 'current tag'
   service:
-    description: "service to build"
+    description: 'service to build'
     required: true
   location:
-    description: "location of dockerfile"
+    description: 'location of dockerfile'
     required: true
   arguments:
-    description: "build arguments"
+    description: 'build arguments'
     required: false
 outputs:
-
   image:
-    description: "output of build image without cache"
+    description: 'output of build image without cache'
     value: ${{ steps.build-image.outputs.image }}
   image_cache:
-    description: "output of build image with cache"
+    description: 'output of build image with cache'
     value: ${{ steps.build-image-cache.outputs.image-cache }}
 runs:
   using: composite
   steps:
-
+    - name: Print environment variable
+      run: echo ${{ github.ref }}
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       shell: bash
       env:
-       TAG: ${{inputs.TAG}}
-       SHA: ${{inputs.SHA}}
+        TAG: ${{inputs.TAG}}
+        SHA: ${{inputs.SHA}}
       if: ${{ env.TAG == env.SHA }}
       run: |
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  ${{ inputs.arguments }}
         docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
         echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}"
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image-sha
+      shell: bash
+      env:
+        TAG: ${{inputs.TAG}}
+        SHA: ${{inputs.SHA}}
+      if: ${{ github.ref == 'refs/heads/docker_sha_image' }}
+      run: |
+        docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
+        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-cache
       shell: bash
