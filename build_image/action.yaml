@@ -1,6 +1,9 @@
 name: 'build tag and push image'
 description: 'This action build tag and push image'
 inputs:
+  ECR_REGISTRY:
+    required: true
+    description: 'ECR registry'
   TAG:
     required: true
     description: 'last_successful_commi_tag'
@@ -28,7 +31,7 @@ runs:
   steps:
     - name: Print registry
       shell: bash
-      run: echo ---------------------"${ECR_REGISTRY}"
+      run: echo ---------------------${{ inputs.ECR_REGISTRY }}
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-sha
       shell: bash
@@ -37,9 +40,9 @@ runs:
         SHA: ${{inputs.SHA}}
       if: ${{ env.TAG == env.SHA }}
       run: |
-        docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
-        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        echo "image=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+        docker build -f ${{ inputs.location }} .  -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
+        docker push ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        echo "image=${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-sha-cache
       shell: bash
@@ -48,7 +51,7 @@ runs:
         SHA: ${{inputs.SHA}}
       if: ${{ env.TAG != env.SHA }}
       run: |
-        docker pull $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
-        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        echo "image=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+        docker pull ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        docker build -f ${{ inputs.location }} .  -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
+        docker push ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        echo "image=${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
