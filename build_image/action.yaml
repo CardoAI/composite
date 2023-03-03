@@ -56,7 +56,7 @@ runs:
       env:
         TAG: ${{inputs.TAG}}
         SHA: ${{inputs.SHA}}
-      if: ${{ github.ref == 'refs/heads/docker_sha_image' and env.TAG == env.SHA }}
+      if: ${{ github.ref == 'refs/heads/docker_sha_image' && env.TAG == env.SHA }}
       run: |
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
         docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
@@ -67,7 +67,7 @@ runs:
       env:
         TAG: ${{inputs.TAG}}
         SHA: ${{inputs.SHA}}
-      if: ${{ github.ref == 'refs/heads/docker_sha_image' and env.TAG != env.SHA }}
+      if: ${{ github.ref == 'refs/heads/docker_sha_image' && env.TAG != env.SHA }}
       run: |
         docker pull $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
