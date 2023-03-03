@@ -26,8 +26,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Print environment variable
-      run: echo ${{ github.ref }}
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       shell: bash
@@ -39,17 +37,6 @@ runs:
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  ${{ inputs.arguments }}
         docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
         echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}"
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image-sha
-      shell: bash
-      env:
-        TAG: ${{inputs.TAG}}
-        SHA: ${{inputs.SHA}}
-      if: ${{ github.ref == 'refs/heads/docker_sha_image' }}
-      run: |
-        docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
-        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-cache
       shell: bash
