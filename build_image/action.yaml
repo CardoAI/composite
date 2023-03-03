@@ -31,7 +31,7 @@ runs:
   steps:
     - name: Print registry
       shell: bash
-      run: echo ---------------------"${{ inputs.ECR_REGISTRY }}""
+      run: echo ---------------------"${{ inputs.ECR_REGISTRY }}"
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-sha
       shell: bash
