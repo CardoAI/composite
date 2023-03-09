@@ -45,7 +45,7 @@ runs:
         SHA: ${{inputs.SHA}}
       if: ${{ env.TAG != env.SHA }}
       run: |
-        docker pull $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}
+        # docker pull $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} ${{ inputs.arguments }}
         docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
         echo "image-cache=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
