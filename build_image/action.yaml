@@ -55,4 +55,4 @@ runs:
     - name: Remove untagged docker images
       id: remove-untagged-images
       shell: bash
-      run: docker rmi $(docker images | grep '<none>' | awk '{print $3}')
+      run: docker image prune -af
