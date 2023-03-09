@@ -36,7 +36,7 @@ runs:
       run: |
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  ${{ inputs.arguments }}
         docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}"
+        echo "image=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-cache
       shell: bash
@@ -48,4 +48,4 @@ runs:
         docker pull $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}
         docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} --cache-from $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}  ${{ inputs.arguments }}
         docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        echo "::set-output name=image-cache::$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}"
+        echo "image-cache=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
