@@ -8,11 +8,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::686474074286:role/github_runner_role
-        aws-region: ${{ inputs.aws-region}}
     - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+      id: ecr-login
+      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ env.aws_region }}) ${{ env.docker_registry_id }}.dkr.ecr.${{ env.aws_region }}.amazonaws.com
