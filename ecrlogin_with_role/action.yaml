@@ -3,11 +3,15 @@ description: 'Login to ECR'
 inputs:
   aws-region:
     required: true
-    description: 'key-id'
+    description: 'AWS region'
+  aws-id:
+    required: true
+    description: 'AWS id'
 
 runs:
   using: composite
   steps:
     - name: Login to Amazon ECR
+      shell: bash
       id: ecr-login
-      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ env.aws_region }}) ${{ env.docker_registry_id }}.dkr.ecr.${{ env.aws_region }}.amazonaws.com
+      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
