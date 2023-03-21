@@ -1,0 +1,18 @@
+name: 'Login ACR'
+description: 'Login to ACR'
+inputs:
+  aws-region:
+    required: true
+    description: 'key-id'
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::686474074286:role/github_runner_role
+        aws-region: ${{ inputs.aws-region}}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
