@@ -1,0 +1,34 @@
+name: 'build tag and push image'
+description: 'This action build tag and push image'
+inputs:
+  ECR_REGISTRY:
+    required: true
+    description: 'ECR registry'
+  service:
+    description: 'service to build'
+    required: true
+  location:
+    description: 'location of dockerfile'
+    required: true
+  arguments:
+    description: 'build arguments'
+    required: false
+outputs:
+  image:
+    description: 'output of build image without cache'
+    value: ${{ steps.build-image-sha.outputs.image }}
+runs:
+  using: composite
+  steps:
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image-sha
+      shell: bash
+      run: |
+        # docker pull ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        docker build -f ${{ inputs.location }} .  -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
+        docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        echo "image=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+    - name: Remove untagged docker images
+      id: remove-untagged-images
+      shell: bash
+      run: docker image prune -af
