@@ -14,4 +14,6 @@ runs:
     - name: Login to Amazon ECR
       shell: bash
       id: ecr-login
-      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+      run: |
+        docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+        aws ecr describe-repositories
