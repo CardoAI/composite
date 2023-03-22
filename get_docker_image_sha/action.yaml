@@ -7,6 +7,10 @@ inputs:
   ecr-repository:
     required: true
     description: 'repository name'
+outputs:
+  image-sha:
+    description: 'output of docker image sha'
+    value: ${{ steps.get-docker-image-sha.outputs.image-sha }}
 
 runs:
   using: composite
