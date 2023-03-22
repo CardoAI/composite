@@ -51,7 +51,7 @@ runs:
         # docker pull ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
         docker build -f ${{ inputs.location }} .  -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        echo "image=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+        echo "image-cache=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
     - name: Remove untagged docker images
       id: remove-untagged-images
       shell: bash
