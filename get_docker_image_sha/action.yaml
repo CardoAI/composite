@@ -7,9 +7,6 @@ inputs:
   ecr-repository:
     required: true
     description: 'repository name'
-  image-tag:
-    required: true
-    description: 'image tag name'
 outputs:
   image-sha:
     description: 'output of the docker image sha'
@@ -20,4 +17,4 @@ runs:
     - name: Get docker image sha
       id: get-docker-image-sha
       shell: bash
-      run: echo "image-sha=$(aws ecr describe-images --registry-id ${{ inputs.aws-id }} --repository-name ${{ inputs.ecr-repository }} --image-ids imageTag=${{ inputs.image-tag }} | jq '.imageDetails[0].imageDigest' | sed 's/.*://' | tr -d '"')" >> $GITHUB_OUTPUT
+      run: echo "image-sha=$(aws ecr describe-images --registry-id ${{ inputs.aws-id }} --repository-name ${{ inputs.ecr-repository }} --image-ids imageTag=${GITHUB_REF#refs/heads/} | jq '.imageDetails[0].imageDigest' | sed 's/.*://' | tr -d '"')" >> $GITHUB_OUTPUT
