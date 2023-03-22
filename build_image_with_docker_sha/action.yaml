@@ -13,6 +13,10 @@ inputs:
   arguments:
     description: 'build arguments'
     required: false
+outputs:
+  image:
+    description: 'output of build image without cache'
+    value: ${{ steps.build-image-sha.outputs.image }}
 runs:
   using: composite
   steps:

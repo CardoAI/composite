@@ -20,4 +20,3 @@ runs:
       shell: bash
       run: |
         echo "image-sha=$(aws ecr describe-images --registry-id ${{ inputs.aws-id }} --repository-name ${{ inputs.ecr-repository }} --image-ids imageTag=${GITHUB_REF#refs/heads/} | jq '.imageDetails[0].imageDigest' | sed 's/.*://' | tr -d '"')" >> $GITHUB_OUTPUT
-        echo $ {{ steps.get-docker-image-sha.outputs.* }}
