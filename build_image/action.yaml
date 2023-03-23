@@ -19,39 +19,15 @@ inputs:
   arguments:
     description: 'build arguments'
     required: false
-outputs:
-  image:
-    description: 'output of build image without cache'
-    value: ${{ steps.build-image.outputs.image }}
-  image_cache:
-    description: 'output of build image with cache'
-    value: ${{ steps.build-image-cache.outputs.image-cache }}
 runs:
   using: composite
   steps:
     - name: Build, tag, and push image to Amazon ECR
       id: build-image-sha
       shell: bash
-      env:
-        TAG: ${{inputs.TAG}}
-        SHA: ${{inputs.SHA}}
-      if: ${{ env.TAG == env.SHA }}
       run: |
-        docker build -f ${{ inputs.location }} .  -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
+        docker build -f ${{ inputs.location }} . --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }}
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        echo "image=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image-sha-cache
-      shell: bash
-      env:
-        TAG: ${{inputs.TAG}}
-        SHA: ${{inputs.SHA}}
-      if: ${{ env.TAG != env.SHA }}
-      run: |
-        # docker pull ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        docker build -f ${{ inputs.location }} .  -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}  ${{ inputs.arguments }}
-        docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        echo "image-cache=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
     - name: Remove untagged docker images
       id: remove-untagged-images
       shell: bash
