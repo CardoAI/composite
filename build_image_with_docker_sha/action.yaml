@@ -20,7 +20,6 @@ runs:
       id: build-image-sha
       shell: bash
       run: |
-        # docker pull ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
         docker build -f ${{ inputs.location }} . --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }}
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
     - name: Remove untagged docker images
