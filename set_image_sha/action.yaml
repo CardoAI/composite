@@ -17,4 +17,5 @@ runs:
       id: set-image-sha
       shell: bash
       run: |
+        cd $(eval echo $(echo $K8S_YAML_DIR | jq -r ".${GITHUB_REF#refs/heads/}"))
         /tmp/kustomize edit set image ${{ inputs.image-name }}=${{ env.ECR_REGISTRY }}/${{ inputs.ecr-repository }}:${GITHUB_REF#refs/heads/}@sha256:${{ inputs.image-sha }}
