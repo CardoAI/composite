@@ -1,0 +1,20 @@
+name: 'set image sha'
+description: 'This action sets the image sha inot kustomization file'
+inputs:
+  image-name:
+    required: true
+    description: 'image name'
+  image-sha:
+    required: true
+    description: 'image name'
+  ecr-repository:
+    required: true
+    description: 'repository name'
+runs:
+  using: composite
+  steps:
+    - name: Set image sha
+      id: set-image-sha
+      shell: bash
+      run: |
+        /tmp/kustomize edit set image ${{ inputs.image-name }}=${{ env.ECR_REGISTRY }}/${{ inputs.ecr-repository }}:${GITHUB_REF#refs/heads/}@sha256:${{ inputs.image-sha }}
