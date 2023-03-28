@@ -2,7 +2,6 @@ name: 'lint and test'
 description: 'This action will lint and test the code'
 inputs:
   requirements:
-    required: true
     description: 'requirements namefile'
 runs:
   using: composite
