@@ -5,6 +5,8 @@ inputs:
     description: 'requirements namefile'
   lint:
     description: 'lint condition'
+  test:
+    description: 'test condition'
 runs:
   using: composite
   steps:
@@ -26,5 +28,6 @@ runs:
         make lint
     - name: Test with pytest
       shell: bash
+      if: ${{ inputs.test }}
       run: |
         make test
