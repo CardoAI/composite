@@ -21,7 +21,8 @@ runs:
       shell: bash
       if: ${{ inputs.virtualenv }}
       run: |
-        . /app/${{ inputs.virtualenv }}/bin/activate
+        cd /app
+        . ${{ inputs.virtualenv }}/bin/activate
     - name: Install dependencies
       shell: bash
       if: ${{ inputs.requirements }}
