@@ -26,9 +26,9 @@ inputs:
     description: 'Name of the ECR repository'
   celery-beat-image-name:
     description: 'Name of the image used in k8s deployment'
-  faust-consumer-repo:
+  consumer-repo:
     description: 'Name of the ECR repository'
-  faust-consumer-image-name:
+  consumer-image-name:
     description: 'Name of the image used in k8s deployment'
 runs:
   using: composite
@@ -97,18 +97,18 @@ runs:
         image-sha: ${{ steps.get-docker-image-sha-celery-beat.outputs.image-sha }}
     - name: Get docker image sha
       uses: CardoAI/composite/get_docker_image_sha@main
-      id: get-docker-image-sha-faust-consumer
-      if: ${{ inputs.faust-consumer-repo && inputs.faust-consumer-image-name }}
+      id: get-docker-image-sha-consumer
+      if: ${{ inputs.consumer-repo && inputs.consumer-image-name }}
       with:
         aws-id: ${{ env.AWS_ID }}
-        ecr-repository: ${{ inputs.faust-consumer-repo }}
+        ecr-repository: ${{ inputs.consumer-repo }}
     - name: Set image sha
       uses: CardoAI/composite/set_image_sha@main
-      if: ${{ steps.get-docker-image-sha-faust-consumer.outputs.image-sha }}
+      if: ${{ steps.get-docker-image-sha-consumer.outputs.image-sha }}
       with:
-        image-name: ${{ inputs.faust-consumer-image-name }}
-        ecr-repository: ${{ inputs.faust-consumer-repo }}
-        image-sha: ${{ steps.get-docker-image-sha-faust-consumer.outputs.image-sha }}
+        image-name: ${{ inputs.consumer-image-name }}
+        ecr-repository: ${{ inputs.consumer-repo }}
+        image-sha: ${{ steps.get-docker-image-sha-consumer.outputs.image-sha }}
     - name: Commit and Push
       uses: CardoAI/composite/pull_commit_push@main
     - name: Checkout POST dev
