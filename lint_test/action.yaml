@@ -19,24 +19,12 @@ runs:
     #   uses: actions/setup-python@v4
     #   with:
     #     python-version: '3.10'
-    - name: Activate virtual environments and install dependecies
+    - name: Lint and Test
       shell: bash
       if: ${{ inputs.requirements && inputs.virtualenv }}
       run: |
         . /app/${{ inputs.virtualenv }}/bin/activate
         python -m pip install --upgrade pip
         pip install -r ${{ inputs.requirements }}
-        # if [ "${{ inputs.lint }}" ]; then make lint; fi
-        # if [ "${{ inputs.test }}" ]; then make test; fi
-    - name: Lint
-      shell: bash
-      if: ${{ inputs.virtualenv && inputs.lint }}
-      run: |
-        . /app/${{ inputs.virtualenv }}/bin/activate
-        make lint
-    - name: Test
-      shell: bash
-      if: ${{ inputs.virtualenv && inputs.test }}
-      run: |
-        . /app/${{ inputs.virtualenv }}/bin/activate
-        make test
+        if [ "${{ inputs.lint }}" ]; then make lint; fi
+        if [ "${{ inputs.test }}" ]; then make test; fi
