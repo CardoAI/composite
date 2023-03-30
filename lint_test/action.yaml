@@ -35,6 +35,7 @@ runs:
       shell: bash
       if: ${{ inputs.lint }}
       run: |
+        pwd
         make lint
     - name: Test with pytest
       shell: bash
