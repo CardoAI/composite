@@ -2,8 +2,10 @@ name: 'lint and test'
 description: 'This action will lint and test the code'
 inputs:
   requirements:
+    required: true
     description: 'requirements namefile'
   virtualenv:
+    required: true
     description: 'virtualenv name'
   lint:
     description: 'lint condition'
@@ -19,27 +21,9 @@ runs:
     #     python-version: '3.10'
     - name: Enable virtualenv
       shell: bash
-      if: ${{ inputs.virtualenv }}
       run: |
         . /app/${{ inputs.virtualenv }}/bin/activate
-        pip -V
-        pip install -r ${{ inputs.requirements }}
-    - name: Install dependencies
-      shell: bash
-      if: ${{ inputs.requirements && !inputs.virtualenv }}
-      run: |
         python -m pip install --upgrade pip
-        pip -V
         pip install -r ${{ inputs.requirements }}
-    - name: Lint with black and isort
-      shell: bash
-      if: ${{ inputs.lint }}
-      run: |
-        pwd
-        ls
-        make lint
-    - name: Test with pytest
-      shell: bash
-      if: ${{ inputs.test }}
-      run: |
-        make test
+        if ${{ inputs.lint }}; then make lint; fi
+        if ${{ inputs.test }}; then make test; fi
