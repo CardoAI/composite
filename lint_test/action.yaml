@@ -26,5 +26,5 @@ runs:
         . /app/${{ inputs.virtualenv }}/bin/activate
         python -m pip install --upgrade pip
         pip install -r ${{ inputs.requirements }}
-        if [${{ inputs.lint }}]; then make lint; fi
-        if [${{ inputs.test }}]; then make test; fi
+        if [ "${{ inputs.lint }}" ]; then make lint; fi
+        if [ "${{ inputs.test }}" ]; then make test; fi
