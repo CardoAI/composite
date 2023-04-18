@@ -1,5 +1,5 @@
 name: 'set image sha'
-description: 'This action sets the image sha inot kustomization file'
+description: 'This action sets the image sha into kustomization file'
 inputs:
   image-name:
     required: true
