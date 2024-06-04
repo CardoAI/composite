@@ -1,0 +1,115 @@
+name: 'Inspect Docker Image'
+description: 'Scans image with Amazon Inspector'
+
+inputs:
+  TAG:
+    required: true
+    description: 'Last successful commit tag'
+  SHA:
+    required: true
+    description: 'Current tag'
+  service:
+    description: 'Service to build'
+    required: true
+  location:
+    description: 'Location of Dockerfile'
+    required: true
+  arguments:
+    description: 'Build arguments'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Build, tag, and push image to Amazon ECR without cache
+      id: build-image
+      shell: bash
+      env:
+        TAG: ${{ inputs.TAG }}
+        SHA: ${{ inputs.SHA }}
+        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      if: ${{ env.TAG == env.SHA }}
+      run: |
+        docker build -f ${{ inputs.location }} . -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} ${{ inputs.arguments }}
+        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        echo "image=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+    - name: Build, tag, and push image to Amazon ECR with cache
+      id: build-image-cache
+      shell: bash
+      env:
+        TAG: ${{ inputs.TAG }}
+        SHA: ${{ inputs.SHA }}
+        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      if: ${{ env.TAG != env.SHA }}
+      run: |
+        docker build -f ${{ inputs.location }} . --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${env.TAG} -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} ${{ inputs.arguments }}
+        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        echo "image-cache=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+    - name: Save Docker image to TAR file
+      shell: bash
+      run: |
+        TAR_FILE="${{ inputs.service }}-${GITHUB_SHA::7}.tar"
+        docker save -o ${TAR_FILE} $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
+        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+        echo "Docker image saved as ${TAR_FILE}"
+        ls -la
+        pwd
+
+    - name: Sanitize artifact name
+      id: sanitize-artifact-name
+      shell: bash
+      run: |
+        SANITIZED_NAME=$(echo "${{ inputs.service }}-tar" | sed 's/[:\/]/-/g')
+        echo "SANITIZED_NAME=${SANITIZED_NAME}" >> $GITHUB_ENV
+
+    - name: Upload TAR file as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.SANITIZED_NAME }}
+        path: ${{ env.TAR_FILE }}
+
+    - name: Set up AWS credentials
+      shell: bash
+      run: |
+        aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
+        echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
+        echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+
+    - name: Inspector Scan
+      id: inspector
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
+      with:
+        artifact_type: 'container'
+        artifact_path: ${{ env.TAR_FILE }}
+        display_vulnerability_findings: "enabled"
+        critical_threshold: 0
+        # high_threshold: 1
+        # medium_threshold: 1
+        # low_threshold: 1
+        # other_threshold: 1
+
+    - name: Display CycloneDX SBOM (JSON)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.artifact_sbom }}
+
+    - name: Display Inspector vulnerability scan results (JSON)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
+
+    - name: Display Inspector vulnerability scan results (Markdown)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
+
+    - name: On vulnerability threshold exceeded
+      shell: bash
+      run: |
+        if [ ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }} -eq 1 ]; then
+          echo "Vulnerability threshold exceeded. Failing the job."
+          exit 1
+        else
+          echo "Vulnerability threshold not exceeded. Continuing."
+        fi
