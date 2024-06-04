@@ -1,0 +1,50 @@
+name: 'Inspect Docker Image'
+description: 'Scans image with Amazon Inspector'
+
+inputs:
+  tar_file:
+    description: 'Path to the TAR file containing the Docker image'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up AWS credentials
+      shell: bash
+      run: |
+        aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
+        echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
+        echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+
+    - name: Inspector Scan
+      id: inspector
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
+      with:
+        artifact_type: 'container'
+        artifact_path: ${{ inputs.tar_file }}
+        display_vulnerability_findings: "enabled"
+        critical_threshold: 0
+
+    - name: Display CycloneDX SBOM (JSON)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.artifact_sbom }}
+
+    - name: Display Inspector vulnerability scan results (JSON)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
+
+    - name: Display Inspector vulnerability scan results (Markdown)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
+
+    - name: On vulnerability threshold exceeded
+      shell: bash
+      run: |
+        if [ ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }} -eq 1 ]; then
+          echo "Vulnerability threshold exceeded. Failing the job."
+          exit 1
+        else
+          echo "Vulnerability threshold not exceeded. Continuing."
+        fi

@@ -1,0 +1,33 @@
+name: 'Save Docker Image to TAR'
+description: 'Saves a Docker image to a TAR file and uploads it as an artifact'
+
+inputs:
+  image:
+    description: 'Docker image to save'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Save Docker image to TAR file
+      shell: bash
+      run: |
+        TAR_FILE="${{ inputs.image }}.tar"
+        docker save -o ${TAR_FILE} ${{ inputs.image }}
+        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+        echo "Docker image saved as ${TAR_FILE}"
+        ls -la
+        pwd
+
+    - name: Sanitize artifact name
+      id: sanitize-artifact-name
+      shell: bash
+      run: |
+        SANITIZED_NAME=$(echo "${{ inputs.image }}-tar" | sed 's/[:\/]/-/g')
+        echo "SANITIZED_NAME=${SANITIZED_NAME}" >> $GITHUB_ENV
+
+    - name: Upload TAR file as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.SANITIZED_NAME }}
+        path: ${{ env.TAR_FILE }}
