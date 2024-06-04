@@ -17,6 +17,7 @@ runs:
         echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
         echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+      shell: bash
 
     - name: Inspector Scan
       id: inspector
@@ -26,12 +27,15 @@ runs:
           artifact_path: ${{ inputs.image }}
           display_vulnerability_findings: "enabled"
           critical_threshold: 0
+      shell: bash
 
     - name: Display Inspector vulnerability scan results (JSON)
       run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
+      shell: bash
 
     - name: Display Inspector vulnerability scan results (Markdown)
       run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
+      shell: bash
 
     - name: On vulnerability threshold exceeded
       run: |
@@ -41,3 +45,4 @@ runs:
         else
           echo "Vulnerability threshold not exceeded. Continuing."
         fi
+      shell: bash
