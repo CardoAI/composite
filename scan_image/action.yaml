@@ -18,7 +18,7 @@ runs:
         echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
         echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
 
-name: Inspector Scan
+     - name: Inspector Scan
         uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
         with:
           artifact_type: 'container'
