@@ -17,10 +17,10 @@ runs:
         echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
         echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
-
-     - name: Inspector Scan
-        uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
-        with:
+    - name: Inspector Scan
+      id: inspector
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
+      with:
           artifact_type: 'container'
           artifact_path: ${{ inputs.image }}
           display_vulnerability_findings: "enabled"
