@@ -9,6 +9,11 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Download TAR file
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ inputs.tar_file }}
+
     - name: Set up AWS credentials
       shell: bash
       run: |
@@ -17,12 +22,13 @@ runs:
         echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
         echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+
     - name: Inspector Scan
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
       with:
         artifact_type: 'container'
-        artifact_path: ${{ env.TAR_FILE }}
+        artifact_path: ./${{ inputs.tar_file }}  # Adjust the path here if needed
         display_vulnerability_findings: "enabled"
         critical_threshold: 0
 
