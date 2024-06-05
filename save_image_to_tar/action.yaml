@@ -35,3 +35,11 @@ runs:
       with:
         name: ${{ env.SANITIZED_NAME }}
         path: ${{ env.TAR_FILE }}
+outputs:
+  sanitized_name:
+    description: 'The sanitized name of the TAR file'
+    value: ${{ steps.sanitize-artifact-name.outputs.SANITIZED_NAME }}
+
+steps:
+  - name: Echo Sanitized Name
+    run: echo "Sanitized Name: ${{ steps.sanitize-artifact-name.outputs.SANITIZED_NAME }}"
