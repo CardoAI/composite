@@ -15,8 +15,7 @@ runs:
     - name: Save Docker image to TAR file
       shell: bash
       run: |
-        TAR_FILE="image.tar"
-        docker save -o ${TAR_FILE} <image_name>
-        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+        TAR_FILE="${{ inputs.tar_file }}"
+        docker save -o "${TAR_FILE}" "${{ inputs.image }}"
         echo "Docker image saved as ${TAR_FILE}"
-        ls -la ${TAR_FILE}
+        ls -la "${TAR_FILE}"
