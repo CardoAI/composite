@@ -27,3 +27,8 @@ runs:
       id: remove-untagged-images
       shell: bash
       run: docker image prune -af
+outputs: 
+ image-tag:
+    description: 'image tag'
+    value: ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+
