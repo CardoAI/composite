@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: |
         echo "${{ inputs.arguments }}"
-        IMAGE_TAG=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} docker build -f ${{ inputs.location }} . --cache-from  -t $IMAGE_TAG ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
+        IMAGE_TAG="${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" docker build -f ${{ inputs.location }} . --cache-from  -t $IMAGE_TAG ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
 
         echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
