@@ -22,7 +22,7 @@ runs:
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
       with:
         artifact_type: 'container'
-        artifact_path: ${{ inputs.image }}
+        artifact_path: ${{ inputs.tar_file }}
         display_vulnerability_findings: "enabled"
         critical_threshold: 0
 
