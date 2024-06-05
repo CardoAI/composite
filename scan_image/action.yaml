@@ -1,32 +1,27 @@
-name: 'Inspect Docker Image'
-description: 'Scans image with Amazon Inspector'
+name: "Inspect Docker Image"
+description: "Scans image with Amazon Inspector"
 
 inputs:
   image:
-    description: 'Path to the image name that is going to be scanned'
+    description: "Path to the image name that is going to be scanned"
     required: true
 
 runs:
   using: composite
   steps:
-    - name: Docker image TAR & Set up AWS credentials
-      shell: bash
-      run: |
-        docker pull ${{ inputs.image }}
-        docker save -o image.tar ${{ inputs.image }}
-
-        aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
-        echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
-        echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
-        echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
-        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: $AWS_REGION
+        web-identity-token-file: $AWS_WEB_IDENTITY_TOKEN_FILE
+        role-to-assume: $AWS_ROLE_ARN
 
     - name: Inspector Scan
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
       with:
-        artifact_type: 'archive'
-        artifact_path: ./image.tar  # Adjust the path here if needed
+        artifact_type: "container"
+        artifact_path: ${{ inputs.image }} # Adjust the path here if needed
         display_vulnerability_findings: "enabled"
         critical_threshold: 0
 
