@@ -33,13 +33,11 @@ runs:
     - name: Upload TAR file as artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.SANITIZED_NAME }}
-        path: ${{ env.TAR_FILE }}
+        name: ${{ steps.sanitize-artifact-name.outputs.SANITIZED_NAME }}
+        path: ${{ steps.sanitize-artifact-name.outputs.SANITIZED_NAME }}
+
 outputs:
   sanitized_name:
     description: 'The sanitized name of the TAR file'
     value: ${{ steps.sanitize-artifact-name.outputs.SANITIZED_NAME }}
 
-steps:
-  - name: Echo Sanitized Name
-    run: echo "Sanitized Name: ${{ steps.sanitize-artifact-name.outputs.SANITIZED_NAME }}"
