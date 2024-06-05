@@ -21,16 +21,16 @@ runs:
       shell: bash
       run: |
         echo "${{ inputs.arguments }}"
-        IMAGE_TAG="${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" docker build -f ${{ inputs.location }} . --cache-from  -t $IMAGE_TAG ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
+        docker build -f ${{ inputs.location }} . --cache-from ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-
-        echo "image_tag=$(echo $IMAGE_TAG)" >> $GITHUB_OUTPUT
+        
+        echo "image-tag=${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
     - name: Remove untagged docker images
       id: remove-untagged-images
       shell: bash
       run: docker image prune -af
 outputs: 
-  image-tag:
+ image-tag:
     description: 'image tag'
-    value: ${{ steps.build-image-sha.outputs.image_tag }}
+    value: ${{ steps.build-image-sha.outputs.image-tag }}
 
