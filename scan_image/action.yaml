@@ -12,9 +12,9 @@ runs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-region: $AWS_REGION
-        web-identity-token-file: $AWS_WEB_IDENTITY_TOKEN_FILE
-        role-to-assume: $AWS_ROLE_ARN
+        aws-region: eu-central-1
+        web-identity-token-file: /var/run/secrets/eks.amazonaws.com/serviceaccount/token
+        role-to-assume: arn:aws:iam::686474074286:role/cardoai-sw-dv-sw-iam-role-staging-cluster-gh-runners-irsa
 
     - name: Inspector Scan
       id: inspector
