@@ -15,10 +15,9 @@ runs:
     - name: Save Docker image to TAR file
       shell: bash
       run: |
-        IMAGE="${{ inputs.image }}"
+        echo "Saving image ${{ inputs.image }} to TAR file..."
         TAR_FILE="${{ inputs.tar_file }}"
-        echo "Saving image ${IMAGE} to TAR file..."
-        docker save -o ${TAR_FILE} ${IMAGE}
+        docker save -o ${TAR_FILE} ${{ inputs.image }}
         echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
         echo "Docker image saved as ${TAR_FILE}"
         ls -la
@@ -28,7 +27,7 @@ runs:
       id: sanitize-artifact-name
       shell: bash
       run: |
-        SANITIZED_NAME=$(echo "${{ inputs.tar_file }}" | sed 's/[:\/]/-/g')
+        SANITIZED_NAME=$(echo "${{ inputs.image }}-tar" | sed 's/[:\/]/-/g')
         echo "SANITIZED_NAME=${SANITIZED_NAME}" >> $GITHUB_ENV
 
     - name: Upload TAR file as artifact
