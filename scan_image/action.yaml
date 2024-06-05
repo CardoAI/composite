@@ -11,10 +11,8 @@ runs:
   steps:
     - name: Docker image TAR & Set up AWS credentials
       shell: bash
-      env:
-        TAR_FILE: image.tar
       run: |
-        docker save -o $TAR_FILE ${{ inputs.image }}
+        docker save -o image.tar ${{ inputs.image }}
 
         aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
         echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
@@ -24,12 +22,10 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      env:
-        TAR_FILE: image.tar
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
       with:
         artifact_type: 'container'
-        artifact_path: ./$TAR_FILE  # Adjust the path here if needed
+        artifact_path: ./image.tar  # Adjust the path here if needed
         display_vulnerability_findings: "enabled"
         critical_threshold: 0
 
