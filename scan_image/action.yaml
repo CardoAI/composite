@@ -25,7 +25,7 @@ runs:
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
       with:
-        artifact_type: 'container'
+        artifact_type: 'archive'
         artifact_path: ./image.tar  # Adjust the path here if needed
         display_vulnerability_findings: "enabled"
         critical_threshold: 0
