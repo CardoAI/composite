@@ -13,6 +13,7 @@ inputs:
   arguments:
     description: 'build arguments'
     required: false
+    
 runs:
   using: composite
   steps:
@@ -24,7 +25,9 @@ runs:
         docker build -f ${{ inputs.location }} . --cache-from ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
         
-        echo "image-tag=$(echo ${{ env.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+        image_tag="${{ env.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
+        echo "Computed image_tag: $image_tag"
+        echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
     - name: Remove untagged docker images
       id: remove-untagged-images
       shell: bash
