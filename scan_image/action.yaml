@@ -12,6 +12,7 @@ runs:
     - name: Docker image TAR & Set up AWS credentials
       shell: bash
       run: |
+        docker pull ${{ inputs.image }}
         docker save -o image.tar ${{ inputs.image }}
 
         aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
