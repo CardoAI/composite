@@ -15,7 +15,7 @@ runs:
       - name: Save Docker image to TAR file
         shell: bash
         run: |
-          IFS=':' read -r IMAGE TAG <<< "${{ inputs.image }}"
+          IFS=':' read -r IMAGE TAG <<< "${{ matrix.image }}"
           echo "Saving image ${IMAGE}:${TAG} to TAR file..."
           TAR_FILE="${IMAGE}-${TAG}.tar"
           docker save -o ${TAR_FILE} 686474074286.dkr.ecr.eu-central-1.amazonaws.com/${IMAGE}:${TAG}
@@ -28,7 +28,7 @@ runs:
         id: sanitize-artifact-name
         shell: bash
         run: |
-          SANITIZED_NAME=$(echo "${{ inputs.image }}-tar" | sed 's/[:\/]/-/g')
+          SANITIZED_NAME=$(echo "${{ matrix.image }}-tar" | sed 's/[:\/]/-/g')
           echo "SANITIZED_NAME=${SANITIZED_NAME}" >> $GITHUB_ENV
 
       - name: Upload TAR file as artifact
