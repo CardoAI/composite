@@ -1,15 +1,19 @@
 name: 'Build Image'
-description: 'Build a Docker image and output the tag'
+description: 'This action builds and tags an image'
 inputs:
   ECR_REGISTRY:
     required: true
     description: 'ECR registry'
   service:
-    required: true
     description: 'Service to build'
-  location:
     required: true
+  location:
     description: 'Location of Dockerfile'
+    required: true
+  arguments:
+    description: 'Build arguments'
+    required: false
+    
 runs:
   using: composite
   steps:
@@ -17,8 +21,15 @@ runs:
       id: build-image
       shell: bash
       run: |
+        echo "${{ inputs.arguments }}"
+        docker build -f ${{ inputs.location }} . --cache-from ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
+        
         image_tag="${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
-        docker build -f ${{ inputs.location }} . -t $image_tag
+        echo "Computed image_tag: $image_tag"
         echo "image-tag=$image_tag" >> $GITHUB_ENV
-        outputs:
-                image-tag: ${{ steps.build-image.outputs.image-tag }}      
+        echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
+
+outputs:
+  image-tag:
+    description: 'Image tag'
+    value: ${{ steps.build-image.outputs.image-tag }}
