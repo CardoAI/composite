@@ -1,0 +1,26 @@
+name: 'push-to-ecr'
+description: 'This action pushes a Docker image to Amazon ECR'
+inputs:
+  ECR_REGISTRY:
+    required: true
+    description: 'ECR registry'
+  service:
+    description: 'service to push'
+    required: true
+  image-tag:
+    description: 'image tag to push'
+    required: true
+    
+runs:
+  using: composite
+  steps:
+    - name: Tag and push image to Amazon ECR
+      id: push-image
+      shell: bash
+      run: |
+        docker tag ${{ inputs.service }}:${{ inputs.image-tag }} ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${{ inputs.image-tag }}
+        docker push ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${{ inputs.image-tag }}
+    - name: Remove untagged docker images
+      id: remove-untagged-images
+      shell: bash
+      run: docker image prune -af

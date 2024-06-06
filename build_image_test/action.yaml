@@ -1,0 +1,30 @@
+name: 'build-docker-image'
+description: 'This action builds a Docker image'
+inputs:
+  service:
+    description: 'service to build'
+    required: true
+  location:
+    description: 'location of dockerfile'
+    required: true
+  arguments:
+    description: 'build arguments'
+    required: false
+    
+runs:
+  using: composite
+  steps:
+    - name: Build Docker image
+      id: build-image-sha
+      shell: bash
+      run: |
+        echo "${{ inputs.arguments }}"
+        docker build -f ${{ inputs.location }} . --cache-from ${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
+        
+        image_tag="${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
+        echo "Computed image_tag: $image_tag"
+        echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
+outputs: 
+  image-tag:
+    description: 'image tag'
+    value: ${{ steps.build-image-sha.outputs.image-tag }}
