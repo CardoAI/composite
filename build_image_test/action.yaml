@@ -24,11 +24,6 @@ runs:
         image_tag="${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
         echo "Computed image_tag: $image_tag"
         echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
-
-    - name: Remove untagged docker images
-      id: remove-untagged-images
-      shell: bash
-      run: docker image prune -af
 outputs: 
   image-tag:
     description: 'image tag'
