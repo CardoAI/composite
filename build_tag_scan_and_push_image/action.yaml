@@ -1,0 +1,93 @@
+name: 'Build, Tag, Scan, and Push Image'
+description: 'This action builds, tags, scans, and pushes an image to Amazon ECR'
+inputs:
+  ECR_REGISTRY:
+    required: true
+    description: 'ECR registry'
+  service:
+    description: 'Service to build'
+    required: true
+  location:
+    description: 'Location of Dockerfile'
+    required: true
+  arguments:
+    description: 'Build arguments'
+    required: false
+    
+runs:
+  using: composite
+  steps:
+    - name: Build and tag image
+      id: build-image
+      shell: bash
+      run: |
+        echo "${{ inputs.arguments }}"
+        docker build -f ${{ inputs.location }} . --cache-from ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
+        
+        image_tag="${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
+        echo "Computed image_tag: $image_tag"
+        echo "image-tag=$image_tag" >> $GITHUB_ENV
+
+    - name: Save Docker image to TAR file
+      shell: bash
+      run: |
+        TAR_FILE="${{ inputs.service }}.tar"
+        docker save -o ${TAR_FILE} ${{ env.image-tag }}
+        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+        echo "Docker image saved as ${TAR_FILE}"
+
+    - name: Set up AWS credentials
+      shell: bash
+      run: |
+        aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
+        echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
+        echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+
+    - name: Inspector Scan
+      id: inspector
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
+      with:
+        artifact_type: 'container'
+        artifact_path: ${{ env.TAR_FILE }}
+        display_vulnerability_findings: "enabled"
+        critical_threshold: 0
+
+    - name: Display CycloneDX SBOM (JSON)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.artifact_sbom }}
+
+    - name: Display Inspector vulnerability scan results (JSON)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
+
+    - name: Display Inspector vulnerability scan results (Markdown)
+      shell: bash
+      run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
+
+    - name: Check vulnerability threshold
+      shell: bash
+      run: |
+        if [ ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }} -eq 1 ]; then
+          echo "Vulnerability threshold exceeded. Failing the job."
+          exit 1
+        else
+          echo "Vulnerability threshold not exceeded. Continuing."
+        fi
+
+    - name: Push image to ECR
+      id: push-image
+      shell: bash
+      run: |
+        docker push ${{ env.image-tag }}
+
+    - name: Remove untagged docker images
+      id: remove-untagged-images
+      shell: bash
+      run: docker image prune -af
+
+outputs: 
+  image-tag:
+    description: 'Image tag'
+    value: ${{ steps.build-image.outputs.image-tag }}
