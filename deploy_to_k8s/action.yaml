@@ -1,0 +1,115 @@
+name: 'Deploy to k8s'
+description: 'Deploy to K8s'
+inputs:
+  repository:
+    required: true
+    description: 'region'
+  token:
+    required: true
+    description: 'git_token'
+  ref:
+    required: true
+    description: 'reference'
+  frontend-repo:
+    description: 'Name of the ECR repository'
+  frontend-image-name:
+    description: 'Name of the image used in k8s deployment'
+  backend-repo:
+    description: 'Name of the ECR repository'
+  backend-image-name:
+    description: 'Name of the image used in k8s deployment'
+  celery-repo:
+    description: 'Name of the ECR repository'
+  celery-image-name:
+    description: 'Name of the image used in k8s deployment'
+  celery-beat-repo:
+    description: 'Name of the ECR repository'
+  celery-beat-image-name:
+    description: 'Name of the image used in k8s deployment'
+  consumer-repo:
+    description: 'Name of the ECR repository'
+  consumer-image-name:
+    description: 'Name of the image used in k8s deployment'
+runs:
+  using: composite
+  steps:
+    - name: Checkout manifest repo
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        ref: ${{ inputs.ref }}
+    - name: Get docker image sha
+      uses: CardoAI/composite/get_docker_image_sha@main
+      id: get-docker-image-sha-frontend
+      if: ${{ inputs.frontend-repo && inputs.frontend-image-name }}
+      with:
+        aws-id: ${{ env.AWS_ID }}
+        ecr-repository: ${{ inputs.frontend-repo }}
+    - name: Set image sha
+      uses: CardoAI/composite/set_image_sha@main
+      if: ${{ steps.get-docker-image-sha-frontend.outputs.image-sha }}
+      with:
+        image-name: ${{ inputs.frontend-image-name }}
+        ecr-repository: ${{ inputs.frontend-repo }}
+        image-sha: ${{ steps.get-docker-image-sha-frontend.outputs.image-sha }}
+    - name: Get docker image sha
+      uses: CardoAI/composite/get_docker_image_sha@main
+      id: get-docker-image-sha-backend
+      if: ${{ inputs.backend-repo && inputs.backend-image-name }}
+      with:
+        aws-id: ${{ env.AWS_ID }}
+        ecr-repository: ${{ inputs.backend-repo }}
+    - name: Set image sha
+      uses: CardoAI/composite/set_image_sha@main
+      if: ${{ steps.get-docker-image-sha-backend.outputs.image-sha }}
+      with:
+        image-name: ${{ inputs.backend-image-name }}
+        ecr-repository: ${{ inputs.backend-repo }}
+        image-sha: ${{ steps.get-docker-image-sha-backend.outputs.image-sha }}
+    - name: Get docker image sha
+      uses: CardoAI/composite/get_docker_image_sha@main
+      id: get-docker-image-sha-celery
+      if: ${{ inputs.celery-repo && inputs.celery-image-name }}
+      with:
+        aws-id: ${{ env.AWS_ID }}
+        ecr-repository: ${{ inputs.celery-repo }}
+    - name: Set image sha
+      uses: CardoAI/composite/set_image_sha@main
+      if: ${{ steps.get-docker-image-sha-celery.outputs.image-sha }}
+      with:
+        image-name: ${{ inputs.celery-image-name }}
+        ecr-repository: ${{ inputs.celery-repo }}
+        image-sha: ${{ steps.get-docker-image-sha-celery.outputs.image-sha }}
+    - name: Get docker image sha
+      uses: CardoAI/composite/get_docker_image_sha@main
+      id: get-docker-image-sha-celery-beat
+      if: ${{ inputs.celery-beat-repo && inputs.celery-beat-image-name }}
+      with:
+        aws-id: ${{ env.AWS_ID }}
+        ecr-repository: ${{ inputs.celery-beat-repo }}
+    - name: Set image sha
+      uses: CardoAI/composite/set_image_sha@main
+      if: ${{ steps.get-docker-image-sha-celery-beat.outputs.image-sha }}
+      with:
+        image-name: ${{ inputs.celery-beat-image-name }}
+        ecr-repository: ${{ inputs.celery-beat-repo }}
+        image-sha: ${{ steps.get-docker-image-sha-celery-beat.outputs.image-sha }}
+    - name: Get docker image sha
+      uses: CardoAI/composite/get_docker_image_sha@main
+      id: get-docker-image-sha-consumer
+      if: ${{ inputs.consumer-repo && inputs.consumer-image-name }}
+      with:
+        aws-id: ${{ env.AWS_ID }}
+        ecr-repository: ${{ inputs.consumer-repo }}
+    - name: Set image sha
+      uses: CardoAI/composite/set_image_sha@main
+      if: ${{ steps.get-docker-image-sha-consumer.outputs.image-sha }}
+      with:
+        image-name: ${{ inputs.consumer-image-name }}
+        ecr-repository: ${{ inputs.consumer-repo }}
+        image-sha: ${{ steps.get-docker-image-sha-consumer.outputs.image-sha }}
+    - name: Commit and Push
+      uses: CardoAI/composite/pull_commit_push@main
+    - name: Checkout POST dev
+      uses: actions/checkout@v3

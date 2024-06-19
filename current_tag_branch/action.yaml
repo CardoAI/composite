@@ -1,14 +1,13 @@
 name: "Last successful commit"
 description: "This action returns the commit hash when a given workflow was last successful"
 inputs:
-  token: 
+  token:
     required: true
     description: "github token"
-  name-workflow: 
+  name-workflow:
     required: true
-    description:  "name of workflow"
+    description: "name of workflow"
 outputs:
-
   success_tag:
     description: "extract current tag"
     value: ${{ steps.successful_build.outputs.tag }}
@@ -18,24 +17,23 @@ outputs:
 runs:
   using: composite
   steps:
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-        id: extract_branch
-      - name: Current tag
-        shell: bash
-        run: echo "current_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-        id: current
-      - uses: oltisa/last-succ-build@main
-        id: last_successful_commit
-        with:
-          token: "${{ inputs.token }}"
-          branch: "${{ steps.extract_branch.outputs.branch }}"
-          workflow: "${{ inputs.name-workflow }}"
-      - name: Last successful workflow-run tag
-        shell: bash
-        env:
-          image: ${{steps.last_successful_commit.outputs.sha}}
-        run: echo "tag=${image::7}" >> $GITHUB_OUTPUT
-        id: successful_build
-    
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=${GITHUB_REF#refs/heads/}" >> $env:GITHUB_OUTPUT
+      id: extract_branch
+    - name: Current tag
+      shell: bash
+      run: echo "current_tag=${GITHUB_SHA::7}" >> $env:GITHUB_OUTPUT
+      id: current
+    - uses: oltisa/last_successful_build@main
+      id: last_successful_commit
+      with:
+        token: "${{ inputs.token }}"
+        branch: "${{ steps.extract_branch.outputs.branch }}"
+        workflow: "${{ inputs.name-workflow }}"
+    - name: Last successful workflow-run tag
+      shell: bash
+      env:
+        image: ${{steps.last_successful_commit.outputs.sha}}
+      run: echo "tag=${image::7}" >> $env:GITHUB_OUTPUT
+      id: successful_build
