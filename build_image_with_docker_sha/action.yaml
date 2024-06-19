@@ -21,7 +21,8 @@ runs:
       id: build-image-sha
       shell: bash
       run: |
-        echo "${{ inputs.location }}" "${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}" 
+        echo "${{ inputs.location }}" "${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
+        echo "echo ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
         docker buildx build . --cache-from ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} --build-arg BUILDKIT_INLINE_CACHE=1
         docker push ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
 
