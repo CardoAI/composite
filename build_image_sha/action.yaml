@@ -22,7 +22,7 @@ runs:
       shell: bash
       run: |
         echo "${{ inputs.arguments }}"
-        docker build -f ${{ inputs.location }} . --cache-from ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
+        DOCKER_BUILDKIT=1 docker build -f ${{ inputs.location }} . --cache-from ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1
         
         image_tag="${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
         echo "Computed image_tag: $image_tag"
