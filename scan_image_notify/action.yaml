@@ -1,0 +1,82 @@
+name: "Scan Image"
+description: "This action scans an image"
+inputs:
+  service:
+    description: "Service name"
+    required: true
+  amazon-inspector-version:
+    description: "Amazon Inspector Version"
+    required: true
+    default: v1.1.2
+  continue-on-fail:
+    description: "Continue on fail if any threshold is not fulfilled"
+    required: true
+    default: "false"
+  image-tag:
+    description: "Image tag"
+    required: true
+  critical-threshold:
+    required: true
+    description: "Critical threshold during scan"
+    default: "1"
+  high-threshold:
+    required: true
+    description: "High threshold during scan"
+    default: "0"
+  medium-threshold:
+    required: true
+    description: "Medium threshold during scan"
+    default: "0"
+  low-threshold:
+    required: true
+    description: "Low threshold during scan"
+    default: "0"
+  other-threshold:
+    required: true
+    description: "Other threshold during scan"
+    default: "0"
+
+runs:
+  using: composite
+  steps:
+    - name: Save Docker image to TAR file
+      id: save-tar
+      shell: bash
+      run: |
+        TAR_FILE="${{ inputs.service }}.tar"
+        docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
+        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+        echo "Docker image saved as ${TAR_FILE}"
+
+    - name: Set up AWS credentials
+      shell: bash
+      run: |
+        aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
+        echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
+        echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
+        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+
+    - name: Inspector Scan
+      id: inspector
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@${{ inputs.amazon-inspector-version }}
+      with:
+        artifact_type: "container"
+        artifact_path: ${{ env.TAR_FILE }}
+        display_vulnerability_findings: "enabled"
+        critical_threshold: ${{ inputs.critical-threshold }}
+        high_threshold: ${{ inputs.high-threshold }}
+        medium_threshold: ${{ inputs.medium-threshold }}
+        low_threshold: ${{ inputs.low-threshold }}
+        other_threshold: ${{ inputs.other-threshold }}
+
+    - name: Check vulnerability threshold
+      shell: bash
+      continue-on-error: ${{ inputs.continue-on-fail }}
+      run: |
+        if [ ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }} -eq 1 ]; then
+          echo "Vulnerability threshold exceeded. Failing the job."
+          exit 1
+        else
+          echo "Vulnerability threshold not exceeded. Continuing."
+        fi
