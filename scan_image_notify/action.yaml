@@ -4,10 +4,6 @@ inputs:
   service:
     description: "Service name"
     required: true
-  amazon-inspector-version:
-    description: "Amazon Inspector Version"
-    required: true
-    default: v1.1.2
   continue-on-fail:
     description: "Continue on fail if any threshold is not fulfilled"
     required: true
@@ -59,7 +55,7 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@${{ inputs.amazon-inspector-version }}
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.2
       with:
         artifact_type: "container"
         artifact_path: ${{ env.TAR_FILE }}
