@@ -114,6 +114,4 @@ git add .
 git commit -m ":robot: [:zap: Update image version]" --allow-empty
 git status
 
-# git push && \
-#   echo -e "<--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<" || \
-#   echo "X--- Git: Failed to push to $GITOPS_REPOSITORY@$GITOPS_BRANCH, try to rerun deployment step ---X"
+git push && echo -e "<--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"
