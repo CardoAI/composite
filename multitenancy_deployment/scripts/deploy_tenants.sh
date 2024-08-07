@@ -112,6 +112,5 @@ git config user.email $GITOPS_EMAIL
 git pull
 git add .
 git commit -m ":robot: [:zap: Update image version]" --allow-empty
-git status
 
 git push && echo -e "<--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"

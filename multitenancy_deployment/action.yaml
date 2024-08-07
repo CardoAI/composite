@@ -33,10 +33,6 @@ runs:
         token: ${{ inputs.gitops-token }}
         ref: ${{ inputs.gitops-branch }}
 
-    - name: LS
-      shell: bash
-      run: ls -a
-
     - name: Extract tenant names and deploy
       id: deploy_tenants
       env:
@@ -50,5 +46,5 @@ runs:
       shell: bash
       run: $GITHUB_ACTION_PATH/scripts/deploy_tenants.sh
 
-    - name: Checkout on repo
+    - name: Checkout on main repo
       uses: actions/checkout@v3
