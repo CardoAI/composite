@@ -16,6 +16,8 @@ export GITOPS_EMAIL=test
 
 cd $SCRIPTPATH
 
-$SCRIPTPATH/../scripts/deploy_tenants.sh
+# CAREFUL THIS WILL DO COMMITS TO THE BRANCHHHHH
+
+# $SCRIPTPATH/../scripts/deploy_tenants.sh
 
 cd $BASE_DIRECTORY
