@@ -33,6 +33,10 @@ runs:
         token: ${{ inputs.gitops-token }}
         ref: ${{ inputs.gitops-branch }}
 
+    - name: LS
+      shell: bash
+      run: ls
+
     - name: Extract tenant names and deploy
       id: deploy_tenants
       env:
