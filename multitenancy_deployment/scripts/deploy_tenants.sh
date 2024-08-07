@@ -99,6 +99,7 @@ for TENANT in $TENANT_LIST; do
 
     # subshell so we don't have to switch path back to base
     ( cd $KUSTOMIZE_FILEPATH && kustomize edit set image $IMAGE=$IMAGE_VALUE@$IMAGE_DIGEST )
+    echo "> Image replaced: $IMAGE=$IMAGE_VALUE@$IMAGE_DIGEST"
 
   done
 
