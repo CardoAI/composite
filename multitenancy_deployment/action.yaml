@@ -49,3 +49,6 @@ runs:
         GITOPS_EMAIL: ${{ inputs.gitops-email }}
       shell: bash
       run: $GITHUB_ACTION_PATH/scripts/deploy_tenants.sh
+
+    - name: Checkout on repo
+      uses: actions/checkout@v3

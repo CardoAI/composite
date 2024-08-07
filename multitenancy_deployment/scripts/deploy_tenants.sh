@@ -98,16 +98,12 @@ for TENANT in $TENANT_LIST; do
     IMAGE_DIGEST=$(echo $IMAGE_DETAILS | jq -r ".imageDigest")
 
     # subshell so we don't have to switch path back to base
-    ( cd $KUSTOMIZE_FILEPATH && kustomize edit set image $IMAGE=$IMAGE_VALUE@$IMAGE_DIGEST )
+    # /tmp/kustomize to support the runner path of kustomize
+    ( cd $KUSTOMIZE_FILEPATH && /tmp/kustomize edit set image $IMAGE=$IMAGE_VALUE@$IMAGE_DIGEST )
 
   done
 
   echo -e ">--- Tenant: $TENANT ---<\n"
-
-
-  # Example deployment command, replace with your actual deployment logic
-  # e.g., /tmp/kustomize edit set image ...
-  # /tmp/kustomize edit set image $IMAGE=$IMAGE_VALUE
 done
 
 # Push the changes to GitOps
