@@ -11,15 +11,15 @@ resources:
 - mongodb-deployment.yaml
 - mongodb-service.yaml
 images:
-- digest: sha256:1d995d20ecd31162fe098547922a64168275861d78f41114273c6e9f079f28e5
+- digest: sha256:af1e22bc4694fb3f4519e9bd723726de5cc967961916bef057b1c958b69d074e
   name: image-backend
   newName: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
   newTag: development
-- digest: sha256:1d995d20ecd31162fe098547922a64168275861d78f41114273c6e9f079f28e5
+- digest: sha256:af1e22bc4694fb3f4519e9bd723726de5cc967961916bef057b1c958b69d074e
   name: image-frontend
   newName: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
   newTag: development
-- digest: sha256:1d995d20ecd31162fe098547922a64168275861d78f41114273c6e9f079f28e5
+- digest: sha256:af1e22bc4694fb3f4519e9bd723726de5cc967961916bef057b1c958b69d074e
   name: test-image
   newName: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
   newTag: development
