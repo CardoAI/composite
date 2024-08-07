@@ -114,4 +114,4 @@ git pull
 git add .
 git commit -m ":robot: [:zap: Update image version]" --allow-empty
 
-git push && echo -e "<--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"
+git push && echo -e ">--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"
