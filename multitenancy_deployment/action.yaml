@@ -35,7 +35,7 @@ runs:
 
     - name: LS
       shell: bash
-      run: ls
+      run: ls -a
 
     - name: Extract tenant names and deploy
       id: deploy_tenants
