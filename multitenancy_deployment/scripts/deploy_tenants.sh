@@ -98,8 +98,7 @@ for TENANT in $TENANT_LIST; do
     IMAGE_DIGEST=$(echo $IMAGE_DETAILS | jq -r ".imageDigest")
 
     # subshell so we don't have to switch path back to base
-    # /tmp/kustomize to support the runner path of kustomize
-    ( cd $KUSTOMIZE_FILEPATH && /tmp/kustomize edit set image $IMAGE=$IMAGE_VALUE@$IMAGE_DIGEST )
+    ( cd $KUSTOMIZE_FILEPATH && kustomize edit set image $IMAGE=$IMAGE_VALUE@$IMAGE_DIGEST )
 
   done
 
