@@ -33,9 +33,6 @@ runs:
         token: ${{ inputs.gitops-token }}
         ref: ${{ inputs.gitops-branch }}
 
-    - name: Checkout manifest repo
-      uses: actions/checkout@v3
-
     - name: LS
       shell: bash
       run: ls -a
