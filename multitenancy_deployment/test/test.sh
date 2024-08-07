@@ -16,6 +16,6 @@ export GITOPS_EMAIL=test
 
 cd $SCRIPTPATH
 
-$SCRIPTPATH/../deploy_tenants.sh
+$SCRIPTPATH/../scripts/deploy_tenants.sh
 
 cd $BASE_DIRECTORY
