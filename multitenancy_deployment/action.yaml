@@ -33,6 +33,9 @@ runs:
         token: ${{ inputs.gitops-token }}
         ref: ${{ inputs.gitops-branch }}
 
+    - name: Checkout manifest repo
+      uses: actions/checkout@v3
+
     - name: LS
       shell: bash
       run: ls -a
@@ -48,4 +51,4 @@ runs:
         GITOPS_USERNAME: ${{ inputs.gitops-username }}
         GITOPS_EMAIL: ${{ inputs.gitops-email }}
       shell: bash
-      run: bash .github/actions/multitenancy_deployment/helpers/deploy_tenants.sh
+      run: bash ./multitenancy_deployment/helpers/deploy_tenants.sh
