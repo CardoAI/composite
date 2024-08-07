@@ -51,4 +51,4 @@ runs:
         GITOPS_USERNAME: ${{ inputs.gitops-username }}
         GITOPS_EMAIL: ${{ inputs.gitops-email }}
       shell: bash
-      run: $GITHUB_ACTION_PATH/scripts/deploy.sh
+      run: $GITHUB_ACTION_PATH/scripts/deploy_tenants.sh
