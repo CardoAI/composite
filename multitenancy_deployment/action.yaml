@@ -48,4 +48,4 @@ runs:
         GITOPS_USERNAME: ${{ inputs.gitops-username }}
         GITOPS_EMAIL: ${{ inputs.gitops-email }}
       shell: bash
-      run: bash ./multitenancy_deployment/helpers/deploy_tenants.sh
+      run: bash .github/actions/multitenancy_deployment/helpers/deploy_tenants.sh
