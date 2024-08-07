@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+  # MONGODB
+resources:
+- deployment.yaml
+- secret.yaml
+- service.yaml
+- celery.yaml
+- ingress-internal.yaml
+- mongodb-volume.yaml
+- mongodb-deployment.yaml
+- mongodb-service.yaml
+images:
+- digest: sha256:1d995d20ecd31162fe098547922a64168275861d78f41114273c6e9f079f28e5
+  name: image-backend
+  newName: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
+  newTag: development
+- digest: sha256:1d995d20ecd31162fe098547922a64168275861d78f41114273c6e9f079f28e5
+  name: image-frontend
+  newName: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
+  newTag: development
+- digest: sha256:1d995d20ecd31162fe098547922a64168275861d78f41114273c6e9f079f28e5
+  name: test-image
+  newName: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
+  newTag: development

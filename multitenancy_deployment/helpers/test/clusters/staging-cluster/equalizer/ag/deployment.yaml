@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: abl-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: abl-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      name: abl-backend
+      labels:
+        app: abl-backend
+    spec:
+      serviceAccountName: abl-backend
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: abl-backend
+              topologyKey: "kubernetes.io/hostname"
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: abl-backend
+                topologyKey: "topology.kubernetes.io/zone"
+      containers:
+        - name: abl-backend
+          image: image-backend
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: abl-backend-secret
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: "/app/appsettings.json"
+              name: environment
+              subPath: appsettings.json
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              httpHeaders:
+                - name: accept
+                  value: application/json
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 60
+            successThreshold: 1 # Must be 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              httpHeaders:
+                - name: accept
+                  value: application/json
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 60
+            failureThreshold: 5
+            successThreshold: 5
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: 8080
+              httpHeaders:
+                - name: accept
+                  value: application/json
+            initialDelaySeconds: 10
+            failureThreshold: 5
+            successThreshold: 1 # Must be 1
+            periodSeconds: 10
+            timeoutSeconds: 60
+          resources:
+            requests:
+              memory: "1000Mi"
+            limits:
+              memory: "1200Mi"
+
+      volumes:
+        - name: environment
+          secret:
+            secretName: abl-backend-secret
+            items:
+              - key: ALLCONFIGS
+                path: appsettings.json
