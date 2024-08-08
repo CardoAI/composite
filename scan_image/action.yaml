@@ -1,13 +1,37 @@
-name: 'Scan Image'
-description: 'This action scans an image'
+name: "Scan Image"
+description: "This action scans an image"
 inputs:
   service:
-    description: 'Service name'
+    description: "Service name"
     required: true
   image-tag:
-    description: 'Image tag'
+    description: "Image tag"
     required: true
-    
+  display-vulnerability-findings:
+    description: "Display Vulnerability Findings"
+    required: true
+    default: "enabled"
+  critical-threshold:
+    required: true
+    description: "Critical threshold during scan"
+    default: "1"
+  high-threshold:
+    required: true
+    description: "High threshold during scan"
+    default: "0"
+  medium-threshold:
+    required: true
+    description: "Medium threshold during scan"
+    default: "0"
+  low-threshold:
+    required: true
+    description: "Low threshold during scan"
+    default: "0"
+  other-threshold:
+    required: true
+    description: "Other threshold during scan"
+    default: "0"
+
 runs:
   using: composite
   steps:
@@ -27,16 +51,20 @@ runs:
         echo "AWS_REGION=eu-central-1" >> $GITHUB_ENV
         echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
-        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV    
-        
+        echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
+
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.0.0
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.2
       with:
-        artifact_type: 'container'
+        artifact_type: "container"
         artifact_path: ${{ env.TAR_FILE }}
-        display_vulnerability_findings: "enabled"
-        critical_threshold: 0
+        display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
+        critical_threshold: ${{ inputs.critical-threshold }}
+        high_threshold: ${{ inputs.high-threshold }}
+        medium_threshold: ${{ inputs.medium-threshold }}
+        low_threshold: ${{ inputs.low-threshold }}
+        other_threshold: ${{ inputs.other-threshold }}
 
     - name: Check vulnerability threshold
       shell: bash
