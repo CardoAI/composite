@@ -38,13 +38,6 @@ runs:
         display_vulnerability_findings: "enabled"
         critical_threshold: 0
 
-    - name: Display CycloneDX SBOM (JSON)
-      run: cat ${{ steps.inspector.outputs.artifact_sbom }}
-    - name: Display Inspector vulnerability scan results (JSON)
-      run: cat ${{ steps.inspector.outputs.inspector_scan_results }}
-    - name: Display Inspector vulnerability scan results (Markdown)
-      run: cat ${{ steps.inspector.outputs.inspector_scan_results_markdown }}
-
     - name: Check vulnerability threshold
       shell: bash
       run: |
