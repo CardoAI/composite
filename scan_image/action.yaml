@@ -15,8 +15,8 @@ runs:
       id: save-tar
       shell: bash
       run: |
-        echo "${{ inputs.service }}""
-        echo "${{ inputs.image-tag }}""
+        echo "${{ inputs.service }}"
+        echo "${{ inputs.image-tag }}"
         TAR_FILE="${{ inputs.service }}.tar"
         docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
         echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
