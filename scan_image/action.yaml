@@ -55,7 +55,7 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.2
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.3
       with:
         artifact_type: "container"
         artifact_path: ${{ env.TAR_FILE }}
