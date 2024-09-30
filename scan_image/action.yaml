@@ -18,7 +18,7 @@ inputs:
   high-threshold:
     required: true
     description: "High threshold during scan"
-    default: "0"
+    default: "2"
   medium-threshold:
     required: true
     description: "Medium threshold during scan"
