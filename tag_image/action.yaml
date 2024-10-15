@@ -1,14 +1,14 @@
 name: "Tag image"
 description: "This action tag image"
 inputs:
-  EU_ECR_REGISTRY:
+  image-tag:
     required: true
-    description: "ECR registry"
-  US_ECR_REGISTRY:
+    description: "image tag"
+  ECR_REGISTRY:
+    description: "ECR registry id"
     required: true
-    description: "ECR registry"
-  service:
-    description: "service to build"
+  ECR_REPOSITORY:
+    description: "ECR repository name"
     required: true
 
 runs:
@@ -18,8 +18,8 @@ runs:
       id: tag-image
       shell: bash
       run: |
-        docker tag ${{env.EU_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
-        image_tag="${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
+        docker tag ${{ inputs.image-tag }} ${{env.ECR_REGISTRY}}/${{ inputs.ECR_REPOSITORY }}:${GITHUB_REF#refs/heads/}
+        image_tag="${{env.ECR_REGISTRY}}/${{ inputs.ECR_REPOSITORY }}:${GITHUB_REF#refs/heads/}"
         echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
 outputs:
   image-tag:
