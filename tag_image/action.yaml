@@ -18,8 +18,8 @@ runs:
       id: tag-image
       shell: bash
       run: |
-        docker tag ${{ inputs.image-tag }} ${{env.ECR_REGISTRY}}/${{ inputs.ECR_REPOSITORY }}:${GITHUB_REF#refs/heads/}
-        image_tag="${{env.ECR_REGISTRY}}/${{ inputs.ECR_REPOSITORY }}:${GITHUB_REF#refs/heads/}"
+        docker tag ${{ inputs.image-tag }} ${{ inputs.ECR_REGISTRY }}/${{ inputs.ECR_REPOSITORY }}:${GITHUB_REF#refs/heads/}
+        image_tag="${{ inputs.ECR_REGISTRY }}/${{ inputs.ECR_REPOSITORY }}:${GITHUB_REF#refs/heads/}"
         echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
 outputs:
   image-tag:
