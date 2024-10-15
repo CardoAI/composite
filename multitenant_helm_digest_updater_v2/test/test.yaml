@@ -1,0 +1,20 @@
+development:
+  ag:
+    path: clusters/staging-cluster/equalizer/ag
+    valuesFile: image-values.yaml
+    services:
+      - faustConsumer
+      - backend
+      - idFrontend
+      - celery
+      - idpFrontend
+  kkr:
+    path: clusters/staging-cluster/equalizer/kkr
+    images:
+      image-backend: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:main
+  opyn:
+    path: clusters/staging-cluster/equalizer/opyn
+    images:
+      image-backend: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:development
+      image-frontend: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:development
+      test-image: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:development
