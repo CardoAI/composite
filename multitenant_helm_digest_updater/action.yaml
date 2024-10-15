@@ -2,7 +2,7 @@ name: "Deploy to Kubernetes"
 description: "GitHub composite which executes deployments on Kubernetes"
 inputs:
   branch-configuration:
-    description: "Branch configuration to modify kustomization. YAML configuration"
+    description: "Branch configuration to modify helm value digests. YAML configuration"
     required: true
 
   gitops-repository:
