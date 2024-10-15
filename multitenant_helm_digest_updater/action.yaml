@@ -7,7 +7,7 @@ inputs:
 
   gitops-repository:
     required: true
-    description: "GitOps Repositry that is meant to store kustomization files"
+    description: "GitOps Repositry that is meant to store gitops files"
   gitops-token:
     required: true
     description: "Github Token for GitOps Repository"
