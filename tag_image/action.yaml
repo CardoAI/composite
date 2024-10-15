@@ -20,7 +20,6 @@ runs:
       run: |
         docker tag ${{env.EU_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
         image_tag="${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
-        echo "Computed image_tag: $image_tag"
         echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
 outputs:
   image-tag:
