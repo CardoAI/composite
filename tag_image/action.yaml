@@ -1,0 +1,29 @@
+name: "Tag image"
+description: "This action tag image"
+inputs:
+  EU_ECR_REGISTRY:
+    required: true
+    description: "ECR registry"
+  US_ECR_REGISTRY:
+    required: true
+    description: "ECR registry"
+  service:
+    description: "service to build"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Tag image
+      id: tag-image
+      shell: bash
+      run: |
+        docker tag ${{env.EU_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        docker push ${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}
+        image_tag="${{env.US_ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
+        echo "Computed image_tag: $image_tag"
+        echo "image-tag=$image_tag" >> $GITHUB_OUTPUT
+outputs:
+  image-tag:
+    description: "image tag"
+    value: ${{ steps.tag-image.outputs.image-tag }}
