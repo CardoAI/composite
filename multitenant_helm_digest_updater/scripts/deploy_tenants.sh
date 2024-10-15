@@ -122,12 +122,12 @@ for TENANT in $TENANT_LIST; do
   echo -e ">--- Tenant: $TENANT ---<\n"
 done
 
-# # Push the changes to GitOps
-# echo -e "<--- Git: Pushing changes to $GITOPS_REPOSITORY@$GITOPS_BRANCH --->"
-# git config user.name $GITOPS_USERNAME
-# git config user.email $GITOPS_EMAIL
-# git pull
-# git add .
-# git commit -m ":robot: [:zap: Update image version]" --allow-empty
+# Push the changes to GitOps
+echo -e "<--- Git: Pushing changes to $GITOPS_REPOSITORY@$GITOPS_BRANCH --->"
+git config user.name $GITOPS_USERNAME
+git config user.email $GITOPS_EMAIL
+git pull
+git add .
+git commit -m ":robot: [:zap: Update image version]" --allow-empty
 
-# git push && echo -e ">--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"
+git push && echo -e ">--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"
