@@ -1,0 +1,50 @@
+name: "Deploy to Kubernetes"
+description: "GitHub composite which executes deployments on Kubernetes"
+inputs:
+  branch-configuration:
+    description: "Branch configuration to modify kustomization. YAML configuration"
+    required: true
+
+  gitops-repository:
+    required: true
+    description: "GitOps Repositry that is meant to store kustomization files"
+  gitops-token:
+    required: true
+    description: "Github Token for GitOps Repository"
+  gitops-branch:
+    required: true
+    description: "Github Branch of repository"
+  gitops-username:
+    required: true
+    default: github-actions
+    description: "GitHub username that will be used to push to GitOps"
+  gitops-email:
+    required: true
+    default: github-actions@github.com
+    description: "GitHub email that will be used to push to GitOps"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout manifest repo
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.gitops-repository }}
+        token: ${{ inputs.gitops-token }}
+        ref: ${{ inputs.gitops-branch }}
+
+    - name: Extract tenant names and deploy
+      id: deploy_tenants
+      env:
+        BRANCH_CONFIGURATION: ${{ inputs.branch-configuration }}
+        GITHUB_BRANCH: ${{ github.ref_name }}
+
+        GITOPS_BRANCH: ${{ inputs.gitops-branch }}
+        GITOPS_REPOSITORY: ${{ inputs.gitops-repository }}
+        GITOPS_USERNAME: ${{ inputs.gitops-username }}
+        GITOPS_EMAIL: ${{ inputs.gitops-email }}
+      shell: bash
+      run: $GITHUB_ACTION_PATH/scripts/deploy_tenants.sh
+
+    - name: Checkout on main repo
+      uses: actions/checkout@v3

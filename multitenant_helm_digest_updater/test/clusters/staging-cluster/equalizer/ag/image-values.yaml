@@ -1,0 +1,15 @@
+faustConsumer:
+  image:
+    tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:main@sha256:3be2cf2c5c216c2e99181cec6431eadcd85a206ceee20d497805218c603b5eba
+backend:
+  image:
+    tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:main@sha256:3be2cf2c5c216c2e99181cec6431eadcd85a206ceee20d497805218c603b5eba
+idFrontend:
+  image:
+    tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:main@sha256:3be2cf2c5c216c2e99181cec6431eadcd85a206ceee20d497805218c603b5eba
+celery:
+  image:
+    tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:main@sha256:3be2cf2c5c216c2e99181cec6431eadcd85a206ceee20d497805218c603b5eba
+idpFrontend:
+  image:
+    tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails:main@sha256:3be2cf2c5c216c2e99181cec6431eadcd85a206ceee20d497805218c603b5eba
