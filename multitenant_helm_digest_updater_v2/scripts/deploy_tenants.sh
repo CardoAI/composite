@@ -9,6 +9,7 @@ set -e
 : "${GITOPS_BRANCH:?Error: GITOPS_BRANCH is not set.}"
 : "${GITOPS_USERNAME:?Error: GITOPS_USERNAME is not set.}"
 : "${GITOPS_EMAIL:?Error: GITOPS_EMAIL is not set.}"
+: "${GITHUB_ACTION_RUN_URL:?Error: GITHUB_ACTION_RUN_URL is not set.}"
 
 # Check if the branch exists in the configuration
 BRANCH_EXISTS=$(echo -e "${BRANCH_CONFIGURATION}" | yq eval ".${GITHUB_BRANCH}" -)
@@ -116,5 +117,5 @@ git config user.name "$GITOPS_USERNAME"
 git config user.email "$GITOPS_EMAIL"
 git pull
 git add .
-git commit -m ":robot: [:zap: Update image version]" --allow-empty
+git commit -m ":robot: Action URL: $GITHUB_ACTION_RUN_URL" --allow-empty
 git push && echo -e ">--- Git: Changes pushed to $GITOPS_REPOSITORY@$GITOPS_BRANCH ---<"

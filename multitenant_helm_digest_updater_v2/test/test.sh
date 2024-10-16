@@ -13,6 +13,7 @@ export GITOPS_BRANCH=test
 export GITOPS_REPOSITORY=test
 export GITOPS_USERNAME=test
 export GITOPS_EMAIL=test
+export GITHUB_ACTION_RUN_URL=test
 
 cd $SCRIPTPATH
 
