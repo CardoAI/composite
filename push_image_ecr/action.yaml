@@ -1,12 +1,6 @@
 name: 'Push Image'
 description: 'This action pushes an image to Amazon ECR'
 inputs:
-  ECR_REGISTRY:
-    required: true
-    description: 'ECR registry'
-  service:
-    description: 'Service name'
-    required: true
   image-tag:
     description: 'Image tag'
     required: true
