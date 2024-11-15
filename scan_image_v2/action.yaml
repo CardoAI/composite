@@ -1,0 +1,56 @@
+name: "Scan Image"
+description: "This action scans an image"
+inputs:
+  artifact_path:
+    description: "Artifact path"
+    required: true
+  display-vulnerability-findings:
+    description: "Display Vulnerability Findings"
+    required: true
+    default: "enabled"
+  critical-threshold:
+    required: true
+    description: "Critical threshold during scan"
+    default: "2"
+  high-threshold:
+    required: true
+    description: "High threshold during scan"
+    default: "3"
+  medium-threshold:
+    required: true
+    description: "Medium threshold during scan"
+    default: "0"
+  low-threshold:
+    required: true
+    description: "Low threshold during scan"
+    default: "0"
+  other-threshold:
+    required: true
+    description: "Other threshold during scan"
+    default: "0"
+
+runs:
+  using: composite
+  steps:
+    - name: Inspector Scan
+      id: inspector
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
+      with:
+        artifact_type: "container"
+        artifact_path: ${{ inputs.artifact_path }}
+        display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
+        critical_threshold: ${{ inputs.critical-threshold }}
+        high_threshold: ${{ inputs.high-threshold }}
+        medium_threshold: ${{ inputs.medium-threshold }}
+        low_threshold: ${{ inputs.low-threshold }}
+        other_threshold: ${{ inputs.other-threshold }}
+
+    - name: Check vulnerability threshold
+      shell: bash
+      run: |
+        if [ ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }} -eq 1 ]; then
+          echo "Vulnerability threshold exceeded. Failing the job."
+          exit 1
+        else
+          echo "Vulnerability threshold not exceeded. Continuing."
+        fi
