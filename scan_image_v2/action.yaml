@@ -1,9 +1,6 @@
 name: "Scan Image"
 description: "This action scans an image"
 inputs:
-  aws-region:
-    description: AWS Inspector Region
-    required: true
   artifact_path:
     description: "Artifact path"
     required: true
@@ -35,11 +32,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-region: ${{ inputs.aws-region }}
-
     - name: Inspector Scan
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
