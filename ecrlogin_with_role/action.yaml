@@ -1,12 +1,12 @@
-name: 'Login ECR'
-description: 'Login to ECR'
+name: "Login ECR"
+description: "Login to ECR"
 inputs:
   aws-region:
     required: true
-    description: 'AWS region'
+    description: "AWS region"
   aws-id:
     required: true
-    description: 'AWS id'
+    description: "AWS id"
 
 runs:
   using: composite
@@ -14,6 +14,8 @@ runs:
     - name: Login to Amazon ECR
       shell: bash
       id: ecr-login
+      env:
+        REGISTRY: ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
       run: |
-        pip install awscli
-        docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+        docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) $REGISTRY
+        echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
