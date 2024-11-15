@@ -43,7 +43,7 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.5
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
       with:
         artifact_type: "container"
         artifact_path: ${{ inputs.artifact_path }}
