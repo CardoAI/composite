@@ -8,6 +8,11 @@ inputs:
     required: true
     description: "AWS id"
 
+outputs:
+  registry:
+    description: "AWS ECR Registry"
+    value: ${{ steps.ecr-login.outputs.registry }}
+
 runs:
   using: composite
   steps:
