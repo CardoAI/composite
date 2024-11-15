@@ -32,6 +32,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+
     - name: Inspector Scan
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
