@@ -1,6 +1,9 @@
 name: "Scan Image"
 description: "This action scans an image"
 inputs:
+  aws-region:
+    description: AWS Inspector Region
+    required: true
   artifact_path:
     description: "Artifact path"
     required: true
