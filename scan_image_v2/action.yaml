@@ -39,10 +39,11 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: ${{ inputs.aws-region }}
+        role-chaining: true
 
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.5
       with:
         artifact_type: "container"
         artifact_path: ${{ inputs.artifact_path }}
