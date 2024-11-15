@@ -37,6 +37,8 @@ runs:
   steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws-region }}
 
     - name: Inspector Scan
       id: inspector
