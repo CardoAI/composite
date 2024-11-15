@@ -36,10 +36,9 @@ runs:
   using: composite
   steps:
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v3
       with:
         aws-region: ${{ inputs.aws-region }}
-        role-chaining: true
 
     - name: Inspector Scan
       id: inspector
