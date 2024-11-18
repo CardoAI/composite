@@ -21,7 +21,6 @@ runs:
   using: composite
   steps:
     - name: Build
-      id: build-image
       shell: bash
       run: |
         docker build -f ${{ inputs.dockerfile }} ${{ inputs.dockerArgs }} --cache-from ${{ inputs.image }} -t ${{ inputs.image }} ${{ inputs.context }}
