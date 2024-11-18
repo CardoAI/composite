@@ -1,52 +1,28 @@
-name: 'build tag and push image'
-description: 'This action build tag and push image'
+name: "Docker build"
+description: "This action build the image"
 inputs:
-  TAG:
+  dockerfile:
     required: true
-    description: 'last_successful_commi_tag'
-  SHA:
+    description: "DockerFile"
+  dockerArgs:
+    required: false
+    description: "Build args"
+  image:
+    description: "Image"
     required: true
-    description: 'current tag'
-  service:
-    description: 'service to build'
-    required: true
-  location:
-    description: 'location of dockerfile'
-    required: true
-  arguments:
-    description: 'build arguments'
+  context:
+    description: "Build context"
     required: false
 outputs:
   image:
-    description: 'output of build image without cache'
+    description: "Output of build image"
     value: ${{ steps.build-image.outputs.image }}
-  image_cache:
-    description: 'output of build image with cache'
-    value: ${{ steps.build-image-cache.outputs.image-cache }}
 runs:
   using: composite
   steps:
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Build
       id: build-image
       shell: bash
-      env:
-        TAG: ${{inputs.TAG}}
-        SHA: ${{inputs.SHA}}
-      if: ${{ env.TAG == env.SHA }}
       run: |
-        docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}  ${{ inputs.arguments }}
-        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        echo "image=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image-cache
-      shell: bash
-      env:
-        TAG: ${{inputs.TAG}}
-        SHA: ${{inputs.SHA}}
-      if: ${{ env.TAG != env.SHA }}
-      run: |
-        # docker pull $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}}
-        # docker build -f ${{ inputs.location }} .  -t $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} ${{ inputs.arguments }}
-        docker build -f ${{ inputs.location }} . --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${{env.TAG}} -t ${{env.ECR_REGISTRY}}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7} ${{ inputs.arguments }}
-        docker push $ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}
-        echo "image-cache=$ECR_REGISTRY/${{ inputs.service }}:${GITHUB_REF#refs/heads/}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        docker build -f ${{ inputs.dockerfile }} ${{ inputs.dockerArgs }} --cache-from ${{ inputs.image }} -t ${{ inputs.image }} ${{ inputs.context }}
+        echo "image=$IMAGE" >> $GITHUB_OUTPUT
