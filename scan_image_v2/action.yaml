@@ -4,7 +4,7 @@ inputs:
   aws-region:
     description: AWS Inspector Region
     required: true
-  artifact_path:
+  artifact-path:
     description: "Artifact path"
     required: true
   display-vulnerability-findings:
@@ -42,10 +42,10 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.5
       with:
         artifact_type: "container"
-        artifact_path: ${{ inputs.artifact_path }}
+        artifact_path: ${{ inputs.artifact-path }}
         display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
         critical_threshold: ${{ inputs.critical-threshold }}
         high_threshold: ${{ inputs.high-threshold }}
