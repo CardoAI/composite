@@ -40,6 +40,7 @@ runs:
       id: creds
       with:
         aws-region: ${{ inputs.aws-region }}
+        role-session-name: GithubActionsScanImage
         output-credentials: true
 
     - name: Inspector Scan
