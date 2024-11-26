@@ -37,7 +37,7 @@ runs:
   steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
-      id: aws-credentials
+      id: creds
       with:
         aws-region: ${{ inputs.aws-region }}
         output-credentials: true
@@ -46,9 +46,9 @@ runs:
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
       env:
-        AWS_SESSION_TOKEN: ${{ steps.aws-credentials.outputs.aws-session-token }}
-        AWS_ACCESS_KEY_ID: ${{ steps.aws-credentials.outputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ steps.aws-credentials.outputs.aws-secret-access-key }}
+        AWS_SESSION_TOKEN: ${{ steps.creds.outputs.aws-session-token }}
+        AWS_ACCESS_KEY_ID: ${{ steps.creds.outputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ steps.creds.outputs.aws-secret-access-key }}
       with:
         artifact_type: "container"
         artifact_path: ${{ inputs.artifact-path }}
