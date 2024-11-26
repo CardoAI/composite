@@ -16,7 +16,7 @@ inputs:
 outputs:
   image:
     description: "Output of build image"
-    value: ${{ steps.build-image.outputs.image }}
+    value: ${{ inputs.image }}
 runs:
   using: composite
   steps:
@@ -25,4 +25,3 @@ runs:
       shell: bash
       run: |
         docker build -f ${{ inputs.dockerfile }} ${{ inputs.dockerArgs }} --cache-from ${{ inputs.image }} -t ${{ inputs.image }} ${{ inputs.context }}
-        echo "image=$IMAGE" >> $GITHUB_OUTPUT
