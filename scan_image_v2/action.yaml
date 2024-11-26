@@ -43,6 +43,10 @@ runs:
         role-session-name: GithubActionsScanImage
         output-credentials: true
 
+    - name: TEST
+      shell: bash
+      run: aws sts get-caller-identity
+
     - name: Inspector Scan
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
