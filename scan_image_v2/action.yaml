@@ -3,7 +3,8 @@ description: "This action scans an image"
 inputs:
   aws-region:
     description: AWS Inspector Region
-    required: true
+    required: false
+    default: ""
   artifact-path:
     description: "Artifact path"
     required: true
@@ -39,7 +40,7 @@ runs:
       shell: bash
       run: |
         aws sts assume-role-with-web-identity --role-arn $AWS_ROLE_ARN --role-session-name GHSession --web-identity-token file://$AWS_WEB_IDENTITY_TOKEN_FILE --duration-seconds 3600 > creds.json
-        echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
+        echo "AWS_REGION=${{ inputs.aws-region || $AWS_REGION }}" >> $GITHUB_ENV
         echo "AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)" >> $GITHUB_ENV
         echo "AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)" >> $GITHUB_ENV
         echo "AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)" >> $GITHUB_ENV
