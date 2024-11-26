@@ -4,6 +4,7 @@ inputs:
   service:
     description: "Service name"
     required: true
+    default: artifact
   image-tag:
     description: "Image tag"
     required: true
