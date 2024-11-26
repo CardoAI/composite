@@ -45,9 +45,9 @@ runs:
       id: inspector
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
       env:
-        AWS_SESSION_TOKEN: ${{ steps.aws-credentials.aws-session-token }}
-        AWS_ACCESS_KEY_ID: ${{ steps.aws-credentials.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ steps.aws-credentials.aws-secret-access-key }}
+        AWS_SESSION_TOKEN: ${{ steps.aws-credentials.outputs.aws-session-token }}
+        AWS_ACCESS_KEY_ID: ${{ steps.aws-credentials.outputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ steps.aws-credentials.outputs.aws-secret-access-key }}
       with:
         artifact_type: "container"
         artifact_path: ${{ inputs.artifact-path }}
