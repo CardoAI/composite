@@ -36,6 +36,15 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Save Docker image to TAR file
+      id: save-tar
+      shell: bash
+      run: |
+        TAR_FILE="${{ inputs.service }}.tar"
+        docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
+        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+        echo "Docker image saved as ${TAR_FILE}"
+
     - name: Set up AWS credentials
       shell: bash
       run: |
@@ -50,7 +59,7 @@ runs:
       uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.1.4
       with:
         artifact_type: "container"
-        artifact_path: ${{ inputs.image-tag }}
+        artifact_path: ${{ env.TAR_FILE }}
         display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
         critical_threshold: ${{ inputs.critical-threshold }}
         high_threshold: ${{ inputs.high-threshold }}
