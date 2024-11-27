@@ -42,9 +42,9 @@ runs:
       env:
         TAR_FILE: ${{ inputs.service }}.tar
       run: |
-        docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
-        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
-        echo "Docker image saved as ${TAR_FILE}"
+        docker save -o $TAR_FILE ${{ inputs.image-tag }}
+        echo "TAR_FILE=$TAR_FILE" >> $GITHUB_ENV
+        echo "Docker image saved as $TAR_FILE"
 
     - name: Set up AWS credentials
       shell: bash
