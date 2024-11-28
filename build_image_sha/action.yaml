@@ -1,19 +1,19 @@
-name: 'Build Image'
-description: 'This action builds and tags an image'
+name: "Build Image"
+description: "This action builds and tags an image"
 inputs:
   ECR_REGISTRY:
     required: true
-    description: 'ECR registry'
+    description: "ECR registry"
   service:
-    description: 'Service to build'
+    description: "Service to build"
     required: true
   location:
-    description: 'Location of Dockerfile'
+    description: "Location of Dockerfile"
     required: true
   arguments:
-    description: 'Build arguments'
+    description: "Build arguments"
     required: false
-    
+
 runs:
   using: composite
   steps:
@@ -29,5 +29,8 @@ runs:
 
 outputs:
   image-tag:
-    description: 'Image tag'
+    description: "Image tag"
+    value: ${{ steps.build-image.outputs.image-tag }}
+  image:
+    description: "Image tag"
     value: ${{ steps.build-image.outputs.image-tag }}
