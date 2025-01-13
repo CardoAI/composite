@@ -15,11 +15,11 @@ inputs:
   critical-threshold:
     required: true
     description: "Critical threshold during scan"
-    default: "2"
+    default: "1"
   high-threshold:
     required: true
     description: "High threshold during scan"
-    default: "3"
+    default: "1"
   medium-threshold:
     required: true
     description: "Medium threshold during scan"
