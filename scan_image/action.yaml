@@ -47,7 +47,7 @@ runs:
 
     - name: Set up AWS credentials
       shell: bash
-      run: aws configure export-credentials --profile swe --format env-no-export >> $GITHUB_ENV
+      run: aws configure export-credentials --format env-no-export >> $GITHUB_ENV
 
     - name: Inspector Scan
       id: inspector
