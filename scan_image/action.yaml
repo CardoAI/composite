@@ -66,6 +66,7 @@ runs:
         medium_threshold: ${{ inputs.medium-threshold }}
         low_threshold: ${{ inputs.low-threshold }}
         other_threshold: ${{ inputs.other-threshold }}
+        sbomgen_version: "1.5.5"
 
     - name: Check vulnerability threshold
       shell: bash
