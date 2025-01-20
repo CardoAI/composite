@@ -40,15 +40,15 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Save Docker image to TAR file
-      id: save-tar
-      shell: bash
-      run: |
-        TAR_FILE=${{ inputs.service }}.tar
-        echo ${{ inputs.image-tag }}
-        docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
-        echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
-        echo "Docker image saved as ${TAR_FILE}"
+    # - name: Save Docker image to TAR file
+    #   id: save-tar
+    #   shell: bash
+    #   run: |
+    #     TAR_FILE=${{ inputs.service }}.tar
+    #     echo ${{ inputs.image-tag }}
+    #     docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
+    #     echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
+    #     echo "Docker image saved as ${TAR_FILE}"
 
     - name: Set up AWS credentials
       shell: bash
