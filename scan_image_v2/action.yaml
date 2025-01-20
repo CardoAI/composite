@@ -45,6 +45,7 @@ runs:
       shell: bash
       run: |
         TAR_FILE=${{ inputs.service }}.tar
+        echo ${{ inputs.image-tag }}
         docker save -o ${TAR_FILE} ${{ inputs.image-tag }}
         echo "TAR_FILE=${TAR_FILE}" >> $GITHUB_ENV
         echo "Docker image saved as ${TAR_FILE}"
@@ -60,7 +61,7 @@ runs:
       uses: CardoAI/composite/vulnerability-scan-github-action-for-amazon-inspector@main
       with:
         artifact_type: 'container'
-        artifact_path: ${{ env.TAR_FILE }}
+        artifact_path: ${{ inputs.image-tag }}
         display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
         critical_threshold: ${{ inputs.critical-threshold }}
         high_threshold: ${{ inputs.high-threshold }}
