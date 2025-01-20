@@ -57,7 +57,7 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: composite/scan_image_test@main
+      uses: CardoAI/composite/scan_image_test@main
       with:
         artifact_type: 'container'
         artifact_path: ${{ env.TAR_FILE }}
