@@ -58,7 +58,7 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: CardoAI/composite/vulnerability-scan-github-action-for-amazon-inspector@main
+      uses: CardoAI/composite/vulnerability-scan-github-action-for-amazon-inspector@scan_action_v2
       with:
         artifact_type: 'container'
         artifact_path: ${{ inputs.image-tag }}
