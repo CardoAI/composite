@@ -1,41 +1,41 @@
-name: "Scan Image"
-description: "This action scans an image"
+name: 'Scan Image'
+description: 'This action scans an image'
 inputs:
   service:
-    description: "Service name"
+    description: 'Service name'
     required: true
     default: artifact
   aws-region:
-    description: "AWS Inspector scan region"
+    description: 'AWS Inspector scan region'
     required: true
     default: eu-central-1
   image-tag:
-    description: "Image tag"
+    description: 'Image tag'
     required: true
   display-vulnerability-findings:
-    description: "Display Vulnerability Findings"
+    description: 'Display Vulnerability Findings'
     required: true
-    default: "enabled"
+    default: 'enabled'
   critical-threshold:
     required: true
-    description: "Critical threshold during scan"
-    default: "3"
+    description: 'Critical threshold during scan'
+    default: '3'
   high-threshold:
     required: true
-    description: "High threshold during scan"
-    default: "8"
+    description: 'High threshold during scan'
+    default: '8'
   medium-threshold:
     required: true
-    description: "Medium threshold during scan"
-    default: "0"
+    description: 'Medium threshold during scan'
+    default: '0'
   low-threshold:
     required: true
-    description: "Low threshold during scan"
-    default: "0"
+    description: 'Low threshold during scan'
+    default: '0'
   other-threshold:
     required: true
-    description: "Other threshold during scan"
-    default: "0"
+    description: 'Other threshold during scan'
+    default: '0'
 
 runs:
   using: composite
@@ -57,9 +57,9 @@ runs:
 
     - name: Inspector Scan
       id: inspector
-      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.2.0
+      uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.5.5
       with:
-        artifact_type: "container"
+        artifact_type: 'container'
         artifact_path: ${{ env.TAR_FILE }}
         display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
         critical_threshold: ${{ inputs.critical-threshold }}
