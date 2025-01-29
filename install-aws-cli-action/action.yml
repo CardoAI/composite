@@ -1,0 +1,63 @@
+name: "install-aws-cli-action"
+description: "Install AWS CLI on a Linux host"
+branding:
+  icon: "download-cloud"
+  color: "orange"
+inputs:
+  version:
+    description: "1=latest version of v1, 2=latest version of v2, #.#.#=specific version"
+    required: false
+    default: "2"
+  verbose:
+    description: "Prints ls commands to see changes in the filesystem"
+    required: false
+    default: "false"
+  lightsailctl:
+    description: "Install lightsailctl plugin"
+    required: false
+    default: "false"
+  arch:
+    description: Allowed values are - amd64, arm64
+    required: false
+    default: amd64
+  bindir:
+    description: Bin directory full path, defaults to /usr/local/bin
+    required: false
+    default: /usr/local/bin
+  installrootdir:
+    description: Install directory full path, defaults to /usr/local
+    required: false
+    default: /usr/local
+  rootdir:
+    description: Root directory full path, defaults to PWD
+    required: false
+    default: ""
+  workdir:
+    description: Working directory full path, all files are downloaded and extracted in this directory
+    required: false
+    default: "" 
+outputs:
+  version:
+    description: "The AWS CLI version that was installed"
+    value: ${{ steps.set-output.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: set-env-vars
+      run: |
+        echo "AWS_CLI_VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+        echo "AWS_CLI_ARCH=${{ inputs.arch }}" >> $GITHUB_ENV        
+        echo "VERBOSE=${{ inputs.verbose }}" >> $GITHUB_ENV
+        echo "LIGHTSAILCTL=${{ inputs.lightsailctl }}" >> $GITHUB_ENV
+        echo "BINDIR=${{ inputs.bindir }}" >> $GITHUB_ENV
+        echo "INSTALLROOTDIR=${{ inputs.installrootdir }}" >> $GITHUB_ENV
+        echo "ROOTDIR=${{ inputs.rootdir }}" >> $GITHUB_ENV
+        echo "WORKDIR=${{ inputs.workdir }}" >> $GITHUB_ENV
+      shell: bash
+    - id: install-aws-cli
+      run: sudo --preserve-env ${GITHUB_ACTION_PATH}/entrypoint.sh
+      shell: bash
+    - id: set-output
+      run: echo "version=$(aws --version)" >> $GITHUB_OUTPUT
+      shell: bash
