@@ -1,12 +1,12 @@
-name: 'get docker image sha'
-description: 'This action retrives the docker image sha'
+name: "get docker image sha"
+description: "This action retrives the docker image sha"
 inputs:
   aws-id:
     required: true
-    description: 'aws id'
+    description: "aws id"
   ecr-repository:
     required: true
-    description: 'repository name'
+    description: "repository name"
 runs:
   using: composite
   steps:
@@ -14,9 +14,8 @@ runs:
       id: get-docker-image-sha
       shell: bash
       run: |
-        pip install awscli
         echo "image-sha=$(aws ecr describe-images --registry-id ${{ inputs.aws-id }} --repository-name ${{ inputs.ecr-repository }} --image-ids imageTag=${GITHUB_REF#refs/heads/} | jq '.imageDetails[0].imageDigest' | sed 's/.*://' | tr -d '"')" >> $GITHUB_OUTPUT
 outputs:
   image-sha:
-    description: 'output of docker image sha'
+    description: "output of docker image sha"
     value: ${{ steps.get-docker-image-sha.outputs.image-sha }}
