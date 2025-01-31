@@ -23,3 +23,4 @@ runs:
         pwd
         echo ${{ inputs.image-name }}=${{ env.ECR_REGISTRY }}/${{ inputs.ecr-repository }}:${GITHUB_REF#refs/heads/}@${{ inputs.image-sha }}
         kustomize edit set image ${{ inputs.image-name }}=${{ env.ECR_REGISTRY }}/${{ inputs.ecr-repository }}:${GITHUB_REF#refs/heads/}@${{ inputs.image-sha }}
+        cat kustomization.yaml
