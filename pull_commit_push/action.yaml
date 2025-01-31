@@ -1,5 +1,5 @@
-name: 'pull commit and push'
-description: 'This action push the new changes'
+name: "pull commit and push"
+description: "This action push the new changes"
 runs:
   using: composite
   steps:
@@ -10,5 +10,6 @@ runs:
         git config user.email github-actions@github.com
         git pull
         git add .
+        git status
         git commit -m ":robot: [:zap: Update image version]" --allow-empty
         git push
