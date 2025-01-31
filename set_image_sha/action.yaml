@@ -20,4 +20,6 @@ runs:
         #curl -s -o /tmp/kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
         #chmod u+x /tmp/kustomize
         cd $(eval echo $(echo $K8S_YAML_DIR | jq -r ".${GITHUB_REF#refs/heads/}"))
+        pwd
+        echo ${{ inputs.image-name }}=${{ env.ECR_REGISTRY }}/${{ inputs.ecr-repository }}:${GITHUB_REF#refs/heads/}@${{ inputs.image-sha }}
         kustomize edit set image ${{ inputs.image-name }}=${{ env.ECR_REGISTRY }}/${{ inputs.ecr-repository }}:${GITHUB_REF#refs/heads/}@${{ inputs.image-sha }}
