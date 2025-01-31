@@ -14,7 +14,9 @@ runs:
       id: get-docker-image-sha
       shell: bash
       run: |
-        echo "image-sha=$(aws ecr describe-images --registry-id ${{ inputs.aws-id }} --repository-name ${{ inputs.ecr-repository }} --image-ids imageTag=${GITHUB_REF#refs/heads/} --query 'imageDetails[0].imageDigest' --output json)" >> $GITHUB_OUTPUT
+        IMAGE_DETAILS=$(aws ecr describe-images --registry-id ${{ inputs.aws-id }} --repository-name ${{ inputs.ecr-repository }} --image-ids imageTag=${GITHUB_REF#refs/heads/} --query 'imageDetails[0]' --output json)
+        IMAGE_DIGEST=$(echo $IMAGE_DETAILS | jq -r ".imageDigest")
+        echo "image-sha=$IMAGE_DIGEST" >> $GITHUB_OUTPUT
 outputs:
   image-sha:
     description: "output of docker image sha"
