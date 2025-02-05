@@ -105,7 +105,7 @@ for TENANT in $TENANT_LIST; do
       continue
     fi
 
-    yq eval -i ".${SERVICE}.image.digest = \"$IMAGE_DIGEST\"" "$VALUES_FILEPATH" && echo "> Service $SERVICE: Digest updated" || echo "> Service $SERVICE: Digest could not be updated"
+    ( yq eval -i ".${SERVICE}.image.digest = \"$IMAGE_DIGEST\"" "$VALUES_FILEPATH" && echo "> Service $SERVICE: Digest updated" ) || ( echo "> Service $SERVICE: Digest could not be updated" && exit 1 )
   done
 
   echo -e ">--- Tenant: $TENANT ---<\n"
