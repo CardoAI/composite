@@ -13,6 +13,7 @@ inputs:
   context:
     description: "Build context"
     required: false
+    default: "."
 outputs:
   image:
     description: "Output of build image"
