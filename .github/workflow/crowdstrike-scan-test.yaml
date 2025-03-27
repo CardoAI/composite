@@ -1,0 +1,26 @@
+name: Crowdstrike scan test
+on:
+  workflow_dispatch:
+env:
+  EU_AWS_ID: 686474074286
+  EU_AWS_REGION: eu-central-1
+  EU_ECR_REGISTRY: $EU_AWS_ID.dkr.ecr.eu-central-1.amazonaws.com
+jobs:
+  build:
+    name: Build Images
+    runs-on: ${{ vars.DEFAULT_GITHUB_RUNNER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: EU ECR login
+        uses: CardoAI/composite/ecrlogin_with_role@main
+        with:
+          aws-region: ${{ env.EU_AWS_REGION }}
+          aws-id: ${{ env.EU_AWS_ID }}
+
+      - name: Scan Image
+        uses: CardoAI/composite/scan_image_v2@main
+        id: scan-image
+        with:
+          image-tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/equalizer-core-api:main
