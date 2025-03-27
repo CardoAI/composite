@@ -1,41 +1,12 @@
 name: "Scan Image"
 description: "This action scans an image"
 inputs:
-  service:
-    description: "Service name"
-    required: true
-    default: artifact
   aws-region:
     description: "AWS Inspector scan region"
-    required: true
     default: eu-central-1
   image-tag:
     description: "Image tag"
     required: true
-  display-vulnerability-findings:
-    description: "Display Vulnerability Findings"
-    required: true
-    default: "enabled"
-  critical-threshold:
-    required: true
-    description: "Critical threshold during scan"
-    default: "2"
-  high-threshold:
-    required: true
-    description: "High threshold during scan"
-    default: "0"
-  medium-threshold:
-    required: true
-    description: "Medium threshold during scan"
-    default: "0"
-  low-threshold:
-    required: true
-    description: "Low threshold during scan"
-    default: "0"
-  other-threshold:
-    required: true
-    description: "Other threshold during scan"
-    default: "0"
 
 runs:
   using: composite
@@ -46,26 +17,26 @@ runs:
         aws configure export-credentials --format env-no-export >> $GITHUB_ENV
         echo "AWS_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
 
-    - name: Inspector Scan
-      id: inspector
-      #uses: aws-actions/vulnerability-scan-github-action-for-amazon-inspector@v1.2.0
-      uses: CardoAI/composite/vulnerability-scan-github-action-for-amazon-inspector@main
-      with:
-        artifact_type: "container"
-        artifact_path: ${{ inputs.image-tag }}
-        display_vulnerability_findings: ${{ inputs.display-vulnerability-findings }}
-        critical_threshold: ${{ inputs.critical-threshold }}
-        high_threshold: ${{ inputs.high-threshold }}
-        medium_threshold: ${{ inputs.medium-threshold }}
-        low_threshold: ${{ inputs.low-threshold }}
-        other_threshold: ${{ inputs.other-threshold }}
-
-    - name: Check vulnerability threshold
+    - name: Split image-tag into container repository and tag
       shell: bash
       run: |
-        if [ ${{ steps.inspector.outputs.vulnerability_threshold_exceeded }} -eq 1 ]; then
-          echo "Vulnerability threshold exceeded. Failing the job."
-          exit 1
-        else
-          echo "Vulnerability threshold not exceeded. Continuing."
-        fi
+        # Split the image tag based on the colon (:) delimiter
+        image_tag="${{ inputs.image-tag }}"   # Get the image tag passed from the matrix
+        container_repo=$(echo "$image_tag" | cut -d':' -f1)  # First part before the colon
+        tag=$(echo "$image_tag" | cut -d':' -f2)               # Second part after the colon
+
+        echo "Container repository: $container_repo"
+        echo "Image tag: $tag"
+
+        # Set them as GitHub environment variables for use in further steps
+        echo "CONTAINER_REPO=$container_repo" >> $GITHUB_ENV
+        echo "IMAGE_TAG=$tag" >> $GITHUB_ENV
+
+    - name: CrowdStrike Container Image Scan
+      uses: crowdstrike/container-image-scan-action@v1.1.0
+      env:
+        FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
+        FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
+        FALCON_CLOUD_REGION: "${{ inputs.aws-region }}"
+        CONTAINER_REPO: "${{ env.CONTAINER_REPO }}"
+        CONTAINER_TAG: "${{ env.IMAGE_TAG }}"
