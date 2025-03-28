@@ -7,6 +7,12 @@ inputs:
   image-tag:
     description: "Image tag"
     required: true
+  falcon-client-id:
+    description: "Falcon Client ID"
+    required: true
+  falcon-client-secret:
+    description: "Falcon Client Secret"
+    required: true
 
 runs:
   using: composite
@@ -35,8 +41,8 @@ runs:
     - name: CrowdStrike Container Image Scan
       uses: crowdstrike/container-image-scan-action@v1.1.0
       env:
-        FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
-        FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
+        FALCON_CLIENT_ID: "${{ inputs.falcon-client-id }}"
+        FALCON_CLIENT_SECRET: "${{ inputs.falcon-client-secret }}"
         FALCON_CLOUD_REGION: "${{ inputs.aws-region }}"
         CONTAINER_REPO: "${{ env.CONTAINER_REPO }}"
         CONTAINER_TAG: "${{ env.IMAGE_TAG }}"

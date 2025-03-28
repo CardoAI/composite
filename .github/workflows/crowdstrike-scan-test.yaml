@@ -24,3 +24,5 @@ jobs:
         id: scan-image
         with:
           image-tag: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/equalizer-core-api:main
+          falcon-client-id: ${{ secrets.FALCON_CLIENT_ID }}
+          falcon-client-secret: ${{ secrets.FALCON_CLIENT_SECRET }}
