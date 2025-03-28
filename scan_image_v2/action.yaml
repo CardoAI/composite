@@ -38,6 +38,11 @@ runs:
         echo "CONTAINER_REPO=$container_repo" >> $GITHUB_ENV
         echo "IMAGE_TAG=$tag" >> $GITHUB_ENV
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
     - name: CrowdStrike Container Image Scan
       uses: crowdstrike/container-image-scan-action@v1.1.0
       env:
