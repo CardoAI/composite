@@ -49,5 +49,5 @@ runs:
         FALCON_CLIENT_ID: "${{ inputs.falcon-client-id }}"
         FALCON_CLIENT_SECRET: "${{ inputs.falcon-client-secret }}"
         FALCON_CLOUD_REGION: "${{ inputs.aws-region }}"
-        CONTAINER_REPO: "${{ env.CONTAINER_REPO }}"
-        CONTAINER_TAG: "${{ env.IMAGE_TAG }}"
+        container_repository: "${{ env.CONTAINER_REPO }}"
+        container_tag: "${{ env.IMAGE_TAG }}"
