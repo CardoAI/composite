@@ -1,0 +1,27 @@
+name: "Scan TF repo"
+description: "This action scans a repo"
+inputs:
+  falcon_client_id:
+    description: "Falcon Client ID"
+    required: true
+  falcon_client_secret:
+    description: "Falcon Client Secret"
+    required: true
+  falcon_region:
+    description: "CrowdStrike API region. Allowed values are us-1, us-2, eu-1, us-gov-1, us-gov-2"
+    default: eu-1
+  path:
+    description: "Path to the IaC directory to scan"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Run FCS IaC Scan
+      uses: crowdstrike/fcs-action@v1.0.6
+      with:
+        falcon_client_id: "${{ inputs.falcon_client_id }}"
+        falcon_region: "${{ inputs.falcon_region }}"
+        path: "${{ inputs.path }}"
+      env:
+        FALCON_CLIENT_SECRET: "${{ inputs.falcon_client_secret }}"
