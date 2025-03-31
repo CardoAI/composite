@@ -10,6 +10,7 @@ jobs:
     name: Build Images
     runs-on: ${{ vars.DEFAULT_GITHUB_RUNNER }}
     strategy:
+      fail-fast: false
       matrix:
         image:
           - name: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/abl_backend:main
