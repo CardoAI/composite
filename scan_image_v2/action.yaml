@@ -47,7 +47,7 @@ runs:
       uses: crowdstrike/container-image-scan-action@v1.1.0
       with:
         falcon_client_id: "${{ inputs.falcon-client-id }}"
-        crowdstrike_region: "${{ inputs.aws-region }}"
+        crowdstrike_region: "eu-1"
         container_repository: "${{ env.CONTAINER_REPO }}"
         container_tag: "${{ env.IMAGE_TAG }}"
       env:
