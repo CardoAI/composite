@@ -50,5 +50,6 @@ runs:
         crowdstrike_region: "eu-1"
         container_repository: "${{ env.CONTAINER_REPO }}"
         container_tag: "${{ env.IMAGE_TAG }}"
+        crowdstrike_score: 100000
       env:
         FALCON_CLIENT_SECRET: "${{ inputs.falcon-client-secret }}"
