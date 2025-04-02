@@ -18,7 +18,9 @@ runs:
   using: composite
   steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        repository: CardoAI/swe-infrastructure
 
     - name: print folders
       shell: bash
@@ -30,6 +32,6 @@ runs:
       with:
         falcon_client_id: "${{ inputs.falcon_client_id }}"
         falcon_region: "${{ inputs.falcon_region }}"
-        path: "./cardoai-us/cardoai-us-infra"
+        path: "./"
       env:
         FALCON_CLIENT_SECRET: "${{ inputs.falcon_client_secret }}"
