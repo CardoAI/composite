@@ -1,0 +1,116 @@
+name: 'Update GitHub Runner Base Image & Build/Push Updated Images to ECR'
+description: 'Updates Dockerfiles with the latest GitHub Actions runner version and builds & pushes updated images to Amazon ECR.'
+inputs:
+  dockerfiles_dir:
+    description: 'Directory containing Dockerfiles'
+    required: true
+  ecr_registry:
+    description: 'Amazon ECR registry URL'
+    required: true
+  repo_name:
+    description: 'ECR repository name'
+    required: true
+  aws-id:
+    required: true
+    description: "AWS id"
+  aws_region:
+    description: 'AWS region'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Get latest runner version
+      id: get_version
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y jq
+        latest_version=$(curl -s https://api.github.com/repos/actions/runner/releases/latest | jq -r .tag_name)
+
+        version=${latest_version#v}
+        echo "Found runner version: $version"
+        echo "::set-output name=version::$version"
+
+    - name: Update Dockerfiles if needed and capture updated files
+      id: update_dockerfiles
+      shell: bash
+      run: |
+        DOCKERFILES_DIR="${{ inputs.dockerfiles_dir }}"
+        NEW_VERSION="${{ steps.get_version.outputs.version }}"
+        CHANGES_MADE=false
+        CHANGED_FILES=""
+
+        echo "Scanning all files in $DOCKERFILES_DIR for actions-runner references..."
+        while IFS= read -r FILE; do
+          if grep -qE '^FROM ghcr.io/actions/actions-runner:[0-9]+\.[0-9]+\.[0-9]+' "$FILE"; then
+            CURRENT_VERSION=$(grep -oP 'FROM ghcr.io/actions/actions-runner:\K[0-9]+\.[0-9]+\.[0-9]+' "$FILE")
+            echo "Processing $FILE: Found version $CURRENT_VERSION"
+            if [ "$CURRENT_VERSION" != "$NEW_VERSION" ]; then
+              NEW_LINE="FROM ghcr.io/actions/actions-runner:${NEW_VERSION} AS base"
+              sed -i "s|^FROM ghcr.io/actions/actions-runner:.* AS base|$NEW_LINE|" "$FILE"
+              CHANGES_MADE=true
+              if [ -z "$CHANGED_FILES" ]; then
+                CHANGED_FILES="$FILE"
+              else
+                CHANGED_FILES="$CHANGED_FILES,$FILE"
+              fi
+              echo "  Updated to version $NEW_VERSION"
+            else
+              echo "  Already at the latest version."
+            fi
+          fi
+        done < <(find "$DOCKERFILES_DIR" -type f)
+
+        if [ "$CHANGES_MADE" = true ]; then
+          echo "Changes detected. Committing and pushing updates..."
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add "$DOCKERFILES_DIR"
+          git commit -m "Update GitHub Actions runner version to ${NEW_VERSION}"
+          git push
+        else
+          echo "No updates needed for Dockerfiles."
+        fi
+
+        echo "::set-output name=updated_files::$CHANGED_FILES"
+
+    - name: Login to Amazon ECR
+      shell: bash
+      id: ecr-login
+      env:
+        REGISTRY: ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+      run: |
+        docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) $REGISTRY
+
+    - name: Build and Push Images for Updated Dockerfiles
+      shell: bash
+      env:
+        ECR_REGISTRY: ${{ inputs.ecr_registry }}
+        REPO_NAME: ${{ inputs.repo_name }}
+      run: |
+        UPDATED_FILES="${{ steps.update_dockerfiles.outputs.updated_files }}"
+        if [ -z "$UPDATED_FILES" ]; then
+          echo "No Dockerfiles were updated. Skipping build step."
+          exit 0
+        fi
+
+        IFS=',' read -ra FILE_ARRAY <<< "$UPDATED_FILES"
+        for file in "${FILE_ARRAY[@]}"; do
+          echo "--------------------------------------"
+          echo "Building image from updated file: $file"
+
+          IMAGE_TAG=$(basename "$file")
+          IMAGE_TAG=${IMAGE_TAG%.*}  # Remove any file extension if present
+          echo "Using image tag: $IMAGE_TAG"
+
+          docker build -t "$IMAGE_TAG:latest" -f "$file" .
+
+          FULL_IMAGE_NAME="$ECR_REGISTRY/$REPO_NAME:$IMAGE_TAG"
+          docker tag "$IMAGE_TAG:latest" "$FULL_IMAGE_NAME"
+
+          docker push "$FULL_IMAGE_NAME"
+          echo "Image pushed: $FULL_IMAGE_NAME"
+        done
