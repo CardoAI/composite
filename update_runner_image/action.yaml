@@ -72,7 +72,9 @@ runs:
           echo "Changes detected. Committing and pushing updates..."
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git pull    
           git add "$DOCKERFILES_DIR"
+          git status
           git commit -m "Update GitHub Actions runner version to ${NEW_VERSION}"
           git push
         else
