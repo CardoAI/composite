@@ -13,7 +13,7 @@ inputs:
   aws-id:
     required: true
     description: "AWS id"
-  aws_region:
+  aws-region:
     description: 'AWS region'
     required: true
 outputs:
