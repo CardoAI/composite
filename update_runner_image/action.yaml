@@ -16,6 +16,10 @@ inputs:
   aws_region:
     description: 'AWS region'
     required: true
+outputs:
+  registry:
+    description: "AWS ECR Registry"
+    value: ${{ steps.ecr-login.outputs.registry }}
 
 runs:
   using: "composite"
@@ -84,6 +88,7 @@ runs:
         REGISTRY: ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
       run: |
         docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) $REGISTRY
+        echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
 
     - name: Build and Push Images for Updated Dockerfiles
       shell: bash
