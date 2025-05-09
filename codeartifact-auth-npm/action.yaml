@@ -20,9 +20,12 @@ inputs:
 
 outputs:
   token:
-    description: Short‑lived authorization token for login
+    description: Short‑lived auth token
+    value: ${{ steps.get-token.outputs.token }}
   registry:
-    description: Fully‑qualified  registry URL for the repository
+    description: Fully‑qualified npm registry URL
+    value: ${{ steps.get-token.outputs.registry }}
+
 
 runs:
   using: "composite"
