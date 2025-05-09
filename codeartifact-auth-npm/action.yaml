@@ -31,17 +31,29 @@ runs:
   using: "composite"
   steps:
 
-    - name: Get CodeArtifact auth token and registry URL
+
+    - name: Get CodeArtifact auth token & registry URL
       id: get-token
       shell: bash
       run: |
-        set -eo pipefail
+        set -euo pipefail
 
+        # 1) short‑lived auth token
         TOKEN=$(aws codeartifact get-authorization-token \
-          --domain "${{ inputs.domain }}" \
-          --domain-owner "${{ inputs.domain-owner }}" \
-          --region "${{ inputs.region }}" \
+          --domain        "${{ inputs.domain }}" \
+          --domain-owner  "${{ inputs.domain-owner }}" \
+          --region        "${{ inputs.region }}" \
           --query authorizationToken --output text)
 
-        echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
-        echo "registry=https://${{ inputs.domain-owner }}.d.codeartifact.${{ inputs.region }}.amazonaws.com/npm/${{ inputs.repository }}/" >> "$GITHUB_OUTPUT"
+        # 2) official NPM endpoint (always includes “<domain>-<accountId>”)
+        REGISTRY=$(aws codeartifact get-repository-endpoint \
+          --domain        "${{ inputs.domain }}" \
+          --domain-owner  "${{ inputs.domain-owner }}" \
+          --repository    "${{ inputs.repository }}" \
+          --format npm \
+          --region        "${{ inputs.region }}" \
+          --query repositoryEndpoint --output text)
+
+        # 3) expose them as this step’s outputs
+        echo "token=$TOKEN"       >> "$GITHUB_OUTPUT"
+        echo "registry=${REGISTRY}/" >> "$GITHUB_OUTPUT"
