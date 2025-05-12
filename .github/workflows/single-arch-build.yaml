@@ -1,4 +1,4 @@
-name: Build Image
+name: Build Single Arch Image
 
 on:
   workflow_call:
