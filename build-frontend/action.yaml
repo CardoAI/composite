@@ -1,0 +1,11 @@
+name: "Build frontend"
+description: "This action builds frontend"
+
+runs:
+  using: composite
+  steps:
+    - name: Build
+      id: build-frontend
+      shell: bash
+      run: |
+        . build.sh
