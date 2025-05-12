@@ -8,19 +8,18 @@ inputs:
   distribution-id:
     description: "CloudFront distribution ID to invalidate"
     required: true
-  # assume-role-arn:
-  #   description: "IAM role to assume using OIDC"
-  #   required: true
+  assume-role-arn:
+    description: "IAM role to assume using OIDC"
+    required: true
 
 runs:
   using: "composite"
   steps:
-    # - name: Configure AWS credentials using OIDC
-    #   uses: aws-actions/configure-aws-credentials@v4
-    #   with:
-    #     role-to-assume: "${{ inputs.assume-role-arn }}"
-    #     aws-region: "${{ inputs.aws-region }}"
-    #     audience: sts.amazonaws.com
+    - name: Configure AWS credentials using OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: "${{ inputs.assume-role-arn }}"
+        aws-region: "${{ inputs.aws-region }}"
 
     - name: Create CloudFront invalidation
       id: create_invalidation
