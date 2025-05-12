@@ -19,6 +19,10 @@ on:
         description: The directory containing the Dockerfile.
         type: string
         default: '.'
+      context:
+        description: The context for the Dockerfile.
+        type: string
+        default: '.'
       tag:
         description: The tag to use for the image.
         type: string
@@ -86,7 +90,7 @@ jobs:
           FULL_IMAGE="${{ inputs.registry }}/${{ inputs.image }}:${{ inputs.tag }}-${{ inputs.architecture }}"
           echo "Building image ${FULL_IMAGE}"
 
-          docker buildx build --platform ${{ inputs.os }}/${{ inputs.architecture }} --tag ${FULL_IMAGE} --load ${{ inputs.build-args }} -f ${{ inputs.directory }}/Dockerfile .
+          docker buildx build --platform ${{ inputs.os }}/${{ inputs.architecture }} --tag ${FULL_IMAGE} --load ${{ inputs.build-args }} -f ${{ inputs.directory }}/Dockerfile ${{ inputs.context }}
           echo "Image ${FULL_IMAGE} for platform ${{ inputs.architecture }} built!"
           echo "FULL_IMAGE=${FULL_IMAGE}" >> $GITHUB_ENV
 
