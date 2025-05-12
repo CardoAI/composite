@@ -25,6 +25,9 @@ outputs:
   registry:
     description: Fully‑qualified npm registry URL
     value: ${{ steps.get-token.outputs.registry }}
+  dockerArgs:
+    description: Complete `--build-arg` string for Docker builds
+    value: ${{ steps.prepare-docker-args.outputs.dockerArgs }}
 
 
 runs:
@@ -57,7 +60,7 @@ runs:
         # 3) expose them as this step’s outputs
         echo "token=$TOKEN"       >> "$GITHUB_OUTPUT"
         echo "registry=${REGISTRY}/" >> "$GITHUB_OUTPUT"
-        
+
     - name: Prepare final Docker args
       id: prepare-docker-args
       shell: bash
