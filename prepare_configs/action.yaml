@@ -1,0 +1,135 @@
+name: 'Prepare docker configs'
+description: 'Action to prepare jsons that will be used to build docker images'
+inputs:
+  sha:
+    required: true
+    description: 'Commit SHA to checkout'
+  folders:
+    description: 'List of folders to check for Dockerfiles'
+    required: true
+  branch:
+    description: 'Branch being used'
+    required: true
+
+outputs:
+  ecr_repos:
+    description: 'Full JSON with parsed os and architecture'
+    value: ${{ steps.vars.outputs.ALL_ECR_REPOS }}
+  ecr_repos_no_platforms:
+    description: 'Full JSON but only comma-separated architecture for manifest'
+    value: ${{ steps.vars.outputs.ALL_ECR_REPOS_NO_PLATFORMS }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.sha }}
+    - name: Parse config.yaml files
+      id: vars
+      shell: bash
+      run: |
+        #! /bin/bash
+        # Split input folders string into array
+        IFS=',' read -ra FOLDERS <<< "${{ github.event.inputs.folder  }}"
+
+        # Initialize json string for all ECR repositories
+        ALL_ECR_REPOS="["
+        FIRST_ENTRY=true
+
+        # Create another without platforms
+        ALL_ECR_REPOS_NO_PLATFORMS="["
+        FIRST_ENTRY_NO_PLATFORMS=true
+
+        for ((i=0; i<${#FOLDERS[@]}; i++)); do
+            export folder="${FOLDERS[$i]}"
+            echo "Processing folder: $folder"
+
+            # Extract image information
+            export TAG="$(yq e '.image.tag' "$folder/config.yaml")-${{ inputs.branch }}"
+            export BUILD_ARGS=$(yq e '.image.extraArgs // [] | join(" ")' "$folder/config.yaml")
+            PLATFORMS=$(yq e -o=json -I=0 '.image.platforms | map({"os": split("/")[0], "architecture": split("/")[1]})' "$folder/config.yaml")
+            
+            # comma-separate the platforms arch to find tags later
+            export architecture=$(echo "$PLATFORMS" | jq -r '[.[] | .architecture] | join(",")')
+            
+            # Extract ECR repositories without os and architecture
+            FOLDER_ECR_REPOS_NO_PLATFORMS=$(yq -o=json -I=0 '.ecrRepositories | map({
+              "name": .name,
+              "folder": strenv(folder),
+              "tag": strenv(TAG),
+              "build_args": strenv(BUILD_ARGS),
+              "architecture": strenv(architecture),
+              "branch": .branch,
+              "region": .aws.region,
+              "account_id": .aws.account_id,
+              "registry": (.aws.account_id + ".dkr.ecr." + .aws.region + ".amazonaws.com")})
+            ' "$folder/config.yaml")
+
+            # Remove the outer brackets from the JSON array
+            FOLDER_ECR_REPOS_NO_PLATFORMS=$(echo "$FOLDER_ECR_REPOS_NO_PLATFORMS" | sed 's/^\[//;s/\]$//')
+            
+            # If not empty, append to the ALL_ECR_REPOS_NO_PLATFORMS string
+            if [ -n "$FOLDER_ECR_REPOS_NO_PLATFORMS" ]; then
+                if [ "$FIRST_ENTRY_NO_PLATFORMS" = true ]; then
+                    ALL_ECR_REPOS_NO_PLATFORMS="${ALL_ECR_REPOS_NO_PLATFORMS}${FOLDER_ECR_REPOS_NO_PLATFORMS}"
+                    FIRST_ENTRY_NO_PLATFORMS=false
+                else
+                    ALL_ECR_REPOS_NO_PLATFORMS="${ALL_ECR_REPOS_NO_PLATFORMS},${FOLDER_ECR_REPOS_NO_PLATFORMS}"
+                fi
+            fi
+                
+            # Extract ECR repositories with platforms
+            # For each platform, extract the OS and architecture
+            # and create a separate entry
+            for platform in $(yq -e -I=0 -o=json '.[]' <<< $PLATFORMS); do
+                        # Extract the OS and architecture
+                export os=$(yq e '.os' <<< "$platform")
+                export arch=$(yq e '.architecture' <<< "$platform") 
+
+                # Extract ECR repositories for this folder
+                FOLDER_ECR_REPOS=$(yq -o=json -I=0 '.ecrRepositories | map({
+                  "name": .name,
+                  "folder": strenv(folder),
+                  "tag": strenv(TAG),
+                  "build_args": strenv(BUILD_ARGS),
+                  "os": strenv(os),
+                  "architecture": strenv(arch),
+                  "branch": .branch,
+                  "region": .aws.region,
+                  "account_id": .aws.account_id,
+                  "registry": (.aws.account_id + ".dkr.ecr." + .aws.region + ".amazonaws.com")})
+                ' "$folder/config.yaml")
+
+                # Remove the outer brackets from the JSON array
+                FOLDER_ECR_REPOS=$(echo "$FOLDER_ECR_REPOS" | sed 's/^\[//;s/\]$//')
+                
+                # If not empty, append to the ALL_ECR_REPOS string
+                if [ -n "$FOLDER_ECR_REPOS" ]; then
+                    if [ "$FIRST_ENTRY" = true ]; then
+                        ALL_ECR_REPOS="${ALL_ECR_REPOS}${FOLDER_ECR_REPOS}"
+                        FIRST_ENTRY=false
+                    else
+                        ALL_ECR_REPOS="${ALL_ECR_REPOS},${FOLDER_ECR_REPOS}"
+                    fi
+                fi
+            done
+
+            echo "Processed $folder with tag $TAG"
+        done
+
+        # Close the JSON array and filter only for current branch
+        ALL_ECR_REPOS=$(yq -o=json e -I=0 '. | select( ["${{ inputs.branch }}"] - .[].branch | length == 0)' <<< "${ALL_ECR_REPOS}]") 
+        ALL_ECR_REPOS_NO_PLATFORMS=$(yq -o=json e -I=0 '. | select( ["${{ inputs.branch }}"] - .[].branch | length == 0)' <<< "${ALL_ECR_REPOS_NO_PLATFORMS}]")  
+
+        if [ -z "$ALL_ECR_REPOS" ]; then
+            echo "No ECR repositories allowed for this branch"
+            echo "Exiting..."
+            exit 1
+        fi
+        
+        echo "All ECR Repositories with platforms: $ALL_ECR_REPOS"
+        echo "All ECR Repositories without platforms: $ALL_ECR_REPOS_NO_PLATFORMS"
+
+        echo "ALL_ECR_REPOS=$ALL_ECR_REPOS" >> "${GITHUB_OUTPUT}"
+        echo "ALL_ECR_REPOS_NO_PLATFORMS=$ALL_ECR_REPOS_NO_PLATFORMS" >> "${GITHUB_OUTPUT}"
