@@ -1,0 +1,48 @@
+name: "CloudFront Invalidate"
+description: "Invalidates a CloudFront distribution and waits for completion."
+
+inputs:
+  aws-region:
+    description: "AWS region where the CloudFront distribution resides"
+    default: "eu-central-1"
+  distribution-id:
+    description: "CloudFront distribution ID to invalidate"
+    required: true
+  # assume-role-arn:
+  #   description: "IAM role to assume using OIDC"
+  #   required: true
+
+runs:
+  using: "composite"
+  steps:
+    # - name: Configure AWS credentials using OIDC
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     role-to-assume: "${{ inputs.assume-role-arn }}"
+    #     aws-region: "${{ inputs.aws-region }}"
+    #     audience: sts.amazonaws.com
+
+    - name: Create CloudFront invalidation
+      id: create_invalidation
+      shell: bash
+      run: |
+        INVALIDATION_ID=$(aws cloudfront create-invalidation \
+          --distribution-id "${{ inputs.distribution-id }}" \
+          --paths "/*" \
+          --query 'Invalidation.Id' --output text)
+
+        echo "Invalidation ID: $INVALIDATION_ID"
+        echo "invalidation-id=$INVALIDATION_ID" >> $GITHUB_OUTPUT
+
+    - name: Wait for CloudFront invalidation to complete
+      shell: bash
+      run: |
+        echo "Waiting for invalidation ${{ steps.create_invalidation.outputs.invalidation-id }} to complete..."
+        aws cloudfront wait invalidation-completed \
+          --distribution-id "${{ inputs.distribution-id }}" \
+          --id "${{ steps.create_invalidation.outputs.invalidation-id }}"
+
+outputs:
+  invalidation-id:
+    description: "The ID of the CloudFront invalidation request"
+    value: ${{ steps.create_invalidation.outputs.invalidation-id }}
