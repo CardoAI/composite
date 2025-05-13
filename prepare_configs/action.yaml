@@ -31,8 +31,6 @@ runs:
         echo "Folders: ${{ inputs.folders }}"
         echo "Branch: ${{ inputs.branch }}"
         echo "SHA: ${{ inputs.sha }}"
-        echo "Current directory: $(pwd)"
-        ls -la
       
     - name: Parse config.yaml files
       id: vars
@@ -40,7 +38,7 @@ runs:
       run: |
         #! /bin/bash
         # Split input folders string into array
-        IFS=',' read -ra FOLDERS <<< "${{ inputs.folder }}"
+        IFS=',' read -ra FOLDERS <<< "${{ inputs.folders }}"
 
         # Initialize json string for all ECR repositories
         ALL_ECR_REPOS="["
