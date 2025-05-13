@@ -25,6 +25,9 @@ runs:
         echo "Tag: ${{ inputs.tag }}" 
         echo "Tag Suffixes: ${{ inputs.tag-suffixes }}"
 
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
     - name: Create and push manifest
       shell: bash
       run: |
