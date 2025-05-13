@@ -7,5 +7,4 @@ runs:
     - name: Build
       id: build-frontend
       shell: bash
-      run: |
-        . build.sh
+      run: $GITHUB_ACTION_PATH/build.sh
