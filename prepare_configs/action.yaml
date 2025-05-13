@@ -55,6 +55,7 @@ runs:
             # Extract image information
             export TAG="$(yq e '.image.tag' "$folder/config.yaml")-${{ inputs.branch }}"
             export BUILD_ARGS=$(yq e '.image.extraArgs // [] | join(" ")' "$folder/config.yaml")
+            export CONTEXT=$(yq e '.image.context // "${folder}"' "$folder/config.yaml")
             PLATFORMS=$(yq e -o=json -I=0 '.image.platforms | map({"os": split("/")[0], "architecture": split("/")[1]})' "$folder/config.yaml")
             
             # comma-separate the platforms arch to find tags later
@@ -66,6 +67,7 @@ runs:
               "folder": strenv(folder),
               "tag": strenv(TAG),
               "build_args": strenv(BUILD_ARGS),
+              "context": strenv(CONTEXT),
               "architecture": strenv(architecture),
               "branch": .branch,
               "region": .aws.region,
@@ -100,6 +102,7 @@ runs:
                   "folder": strenv(folder),
                   "tag": strenv(TAG),
                   "build_args": strenv(BUILD_ARGS),
+                  "context": strenv(CONTEXT),
                   "os": strenv(os),
                   "architecture": strenv(arch),
                   "branch": .branch,
