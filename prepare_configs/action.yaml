@@ -25,6 +25,9 @@ runs:
     - uses: actions/checkout@v4
       with:
         ref: ${{ inputs.sha }}
+    - name: Debug Inputs
+      run: echo "Folders: ${{ inputs.folders }}"
+      
     - name: Parse config.yaml files
       id: vars
       shell: bash
