@@ -26,7 +26,13 @@ runs:
       with:
         ref: ${{ inputs.sha }}
     - name: Debug Inputs
-      run: echo "Folders: ${{ inputs.folders }}"
+      shell: bash
+      run: |
+        echo "Folders: ${{ inputs.folders }}"
+        echo "Branch: ${{ inputs.branch }}"
+        echo "SHA: ${{ inputs.sha }}"
+        echo "Current directory: $(pwd)"
+        ls -la
       
     - name: Parse config.yaml files
       id: vars
