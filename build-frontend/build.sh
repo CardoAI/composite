@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set default value for BUILD_DIRECTORY if it's not set
+: ${BUILD_DIRECTORY:="dist"}
+
 npm install -g yarn
 
 echo "registry=https://registry.npmjs.org/" > .npmrc
@@ -12,15 +15,12 @@ yarn install --ignore-engines
 echo "Building the project..."
 NODE_OPTIONS='--max-old-space-size=4096' yarn build
 
-# Variables
-DIST_DIRECTORY=dist
-
-if [ -d "$DIST_DIRECTORY" ]; then
-    echo "Syncing $DIST_DIRECTORY to S3 bucket: $CLOUDFRONT_DISTRIBUTION_BUCKET..."
-    aws s3 sync $DIST_DIRECTORY s3://$CLOUDFRONT_DISTRIBUTION_BUCKET --delete
+if [ -d "$BUILD_DIRECTORY" ]; then
+    echo "Syncing $BUILD_DIRECTORY to S3 bucket: $CLOUDFRONT_DISTRIBUTION_BUCKET..."
+    aws s3 sync $BUILD_DIRECTORY s3://$CLOUDFRONT_DISTRIBUTION_BUCKET --delete
     echo "Sync completed successfully."
 else
-    echo "Error: $DIST_DIRECTORY directory does not exist. Build may have failed."
+    echo "Error: $BUILD_DIRECTORY directory does not exist. Build may have failed."
     exit 1
 fi
 
