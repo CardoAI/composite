@@ -20,7 +20,7 @@ yarn install --ignore-engines
 
 # Build the project
 echo "Building the project..."
-NODE_OPTIONS='--max-old-space-size=4092' yarn build --verbose
+NODE_OPTIONS='--max-old-space-size=2048' yarn build
 
 # Check if the BUILD_DIRECTORY exists and sync to S3
 if [ -d "$BUILD_DIRECTORY" ]; then
