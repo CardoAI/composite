@@ -3,6 +3,9 @@
 # Set default value for BUILD_DIRECTORY if it's not set
 : ${BUILD_DIRECTORY:="dist"}
 
+# Set default value for NODE_OPTIONS if it's not set
+: ${NODE_OPTIONS:="--max-old-space-size=2048"}
+
 # Ensure failure on any command failure (set -e)
 set -euo pipefail
 
@@ -20,7 +23,7 @@ yarn install --ignore-engines
 
 # Build the project
 echo "Building the project..."
-NODE_OPTIONS='--max-old-space-size=2048' yarn build
+NODE_OPTIONS=$NODE_OPTIONS yarn build
 
 # Check if the BUILD_DIRECTORY exists and sync to S3
 if [ -d "$BUILD_DIRECTORY" ]; then
