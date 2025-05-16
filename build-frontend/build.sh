@@ -3,9 +3,6 @@
 # Set default value for BUILD_DIRECTORY if it's not set
 : ${BUILD_DIRECTORY:="dist"}
 
-# Ensure failure on any command failure (set -e)
-set -euo pipefail
-
 # Install Yarn globally
 npm install -g yarn
 
