@@ -4,7 +4,7 @@
 : ${BUILD_DIRECTORY:="dist"}
 
 # Ensure failure on any command failure (set -e)
-set -e
+set -euo pipefail
 
 # Install Yarn globally
 npm install -g yarn
