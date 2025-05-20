@@ -56,6 +56,14 @@ on:
         description: The AWS account ID where the ECR repository is located.
         type: string
         required: true
+      base-image-aws-region:
+        description: The AWS region where the base image is located.
+        type: string
+        default: eu-central-1
+      base-image-aws-id:
+        description: The AWS account ID where the base image is located.
+        type: string
+        default: "861208160487"
     # secrets:
     #   gh_pat:
     #     description: The GitHub Personal Access Token to access the repository.
@@ -76,6 +84,13 @@ jobs:
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: ECR login for base image
+        if: ${{ inputs.base-image-aws-region }} != '' && ${{ inputs.base-image-aws-id }} != ''
+        uses: CardoAI/composite/ecrlogin_with_role@main
+        with:
+          aws-region: ${{ inputs.base-image-aws-region }}
+          aws-id: ${{ inputs.base-image-aws-id }}
         
       - name: ECR login
         uses: CardoAI/composite/ecrlogin_with_role@main
