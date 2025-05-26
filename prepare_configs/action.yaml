@@ -53,7 +53,9 @@ runs:
             echo "Processing folder: $folder"
 
             # Extract image information
-            export TAG="$(yq e '.image.tag' "$folder/config.yaml")-${{ inputs.branch }}"
+            # Escape / in branch name
+            branch_escaped=$(echo "${{ inputs.branch }}" | sed 's/\//-/g')
+            export TAG="$(yq e '.image.tag' "$folder/config.yaml")-${branch_escaped}"
             export BUILD_ARGS=$(yq e '.image.extraArgs // [] | join(" ")' "$folder/config.yaml")
             export CONTEXT=$(yq e '.image.context // "${folder}"' "$folder/config.yaml")
             PLATFORMS=$(yq e -o=json -I=0 '.image.platforms | map({"os": split("/")[0], "architecture": split("/")[1]})' "$folder/config.yaml")
