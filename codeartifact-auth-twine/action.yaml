@@ -46,7 +46,7 @@ runs:
           --query authorizationToken --output text)
 
 
-        # 2) official twine endpoint (always includes “<domain>-<accountId>”)
+        # 2) official pypi endpoint (always includes “<domain>-<accountId>”)
         REGISTRY=$(aws codeartifact get-repository-endpoint \
           --domain        "${{ inputs.domain }}" \
           --domain-owner  "${{ inputs.domain-owner }}" \
@@ -57,7 +57,7 @@ runs:
 
         # 3) expose them as this step’s outputs
         echo "token=$TOKEN"       >> "$GITHUB_OUTPUT"
-        echo "registry=${REGISTRY}/" >> "$GITHUB_OUTPUT"
+        echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
         echo "TWINE_USERNAME=aws"             >> "$GITHUB_ENV"
         echo "TWINE_PASSWORD=$TOKEN"          >> "$GITHUB_ENV"
         echo "TWINE_REPOSITORY_URL=${REGISTRY}/" >> "$GITHUB_ENV"
