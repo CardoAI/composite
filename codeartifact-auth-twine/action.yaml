@@ -60,4 +60,4 @@ runs:
         echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
         echo "TWINE_USERNAME=aws"             >> "$GITHUB_ENV"
         echo "TWINE_PASSWORD=$TOKEN"          >> "$GITHUB_ENV"
-        echo "TWINE_REPOSITORY_URL=${REGISTRY}/" >> "$GITHUB_ENV"
+        echo "TWINE_REPOSITORY_URL=${REGISTRY}" >> "$GITHUB_ENV"
