@@ -1,0 +1,60 @@
+# .github/actions/codeartifact-auth/action.yml
+name: "CodeArtifact ‑ Get auth token & registry URL"
+description: |
+  Outputs an AWS CodeArtifact authorization token (“token”) and the
+  corresponding npm registry URL (“registry”).
+
+inputs:
+  domain:
+    description: CodeArtifact domain name
+    required: true
+  domain-owner:
+    description: AWS account ID that owns the domain
+    required: true
+  region:
+    description: AWS region where the domain lives (e.g. eu-central-1)
+    required: true
+  repository:
+    description: Repository name that should appear in the npm URL path
+    required: true
+
+outputs:
+  token:
+    description: Short‑lived auth token
+    value: ${{ steps.get-token.outputs.token }}
+  registry:
+    description: Fully‑qualified npm registry URL
+    value: ${{ steps.get-token.outputs.registry }}
+
+
+runs:
+  using: "composite"
+  steps:
+
+
+    - name: Get CodeArtifact auth token & registry URL
+      id: get-token
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # 1) short‑lived auth token
+        TOKEN=$(aws codeartifact get-authorization-token \
+          --domain        "${{ inputs.domain }}" \
+          --domain-owner  "${{ inputs.domain-owner }}" \
+          --region        "${{ inputs.region }}" \
+          --query authorizationToken --output text)
+
+
+        # 2) official NPM endpoint (always includes “<domain>-<accountId>”)
+        REGISTRY=$(aws codeartifact get-repository-endpoint \
+          --domain        "${{ inputs.domain }}" \
+          --domain-owner  "${{ inputs.domain-owner }}" \
+          --repository    "${{ inputs.repository }}" \
+          --format twine \
+          --region        "${{ inputs.region }}" \
+          --query repositoryEndpoint --output text)
+
+        # 3) expose them as this step’s outputs
+        echo "token=$TOKEN"       >> "$GITHUB_OUTPUT"
+        echo "registry=${REGISTRY}/" >> "$GITHUB_OUTPUT"
