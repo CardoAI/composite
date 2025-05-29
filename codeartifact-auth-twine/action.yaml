@@ -51,7 +51,7 @@ runs:
           --domain        "${{ inputs.domain }}" \
           --domain-owner  "${{ inputs.domain-owner }}" \
           --repository    "${{ inputs.repository }}" \
-          --format twine \
+          --format pypi \
           --region        "${{ inputs.region }}" \
           --query repositoryEndpoint --output text)
 
