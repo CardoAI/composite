@@ -19,13 +19,13 @@ for folder in FOLDER_LIST:
     folder = folder.strip()
     branch = BRANCH.replace('/', '_')
 
-    config = yaml.safe_load(f"./${folder}/config.yaml")
+    config = yaml.safe_load(f"./{folder}/config.yaml")
     print(f"{config=}")
     
     config_image = config.get('image', {})
 
     tag = config_image.get('tag')
-    context = config_image.get('context', f"${folder}")
+    context = config_image.get('context', f"{folder}")
     build_args = " ".join(config_image.get('build_args', []))
 
     platforms = [
@@ -59,7 +59,7 @@ for folder in FOLDER_LIST:
             "architecture": architectures,
             "region": aws.get('region'),
             "account_id": aws.get('account_id'),
-            "registry": f"${account_id}.dkr.ecr.${region}.amazonaws.com"
+            "registry": f"{account_id}.dkr.ecr.{region}.amazonaws.com"
         })
         for platform in platforms:
             ALL_REPOS.append({
@@ -72,7 +72,7 @@ for folder in FOLDER_LIST:
                 "architecture": platform.architecture,
                 "region": aws.get('region'),
                 "account_id": aws.get('account_id'),
-                "registry": f"${account_id}.dkr.ecr.${region}.amazonaws.com"
+                "registry": f"{account_id}.dkr.ecr.{region}.amazonaws.com"
             })
     
     
