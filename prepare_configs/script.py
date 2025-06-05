@@ -20,7 +20,8 @@ for folder in FOLDER_LIST:
     branch = BRANCH.replace('/', '_')
 
     config = yaml.safe_load(f"./${folder}/config.yaml")
-
+    print(f"{config=}")
+    
     config_image = config.get('image', {})
 
     tag = config_image.get('tag')
