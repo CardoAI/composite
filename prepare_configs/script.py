@@ -74,10 +74,10 @@ for folder in FOLDER_LIST:
                 "account_id": aws.get('account_id'),
                 "registry": f"{account_id}.dkr.ecr.{region}.amazonaws.com"
             })
-    
-    
+
 with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-    f.write(f"ALL_REPOS={json.dumps(ALL_REPOS, indent=0)}\n")
-    f.write(f"ALL_REPOS_NO_PLATFORMS={json.dumps(ALL_REPOS_NO_PLATFORMS, indent=0)}\n")
+    print(f"ALL_REPOS={json.dumps(ALL_REPOS, indent=0)}", file=f)
+    print(f"ALL_REPOS_NO_PLATFORMS={json.dumps(ALL_REPOS_NO_PLATFORMS, indent=0)}", file=f)
     
-print(f"{os.environ['GITHUB_OUTPUT']=}")
+with open(os.environ["GITHUB_OUTPUT"], "r") as f:
+    print(f.read())
