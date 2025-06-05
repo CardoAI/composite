@@ -77,8 +77,8 @@ for folder in FOLDER_LIST:
             })
 
 with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-    print(f"ALL_REPOS={json.dumps(ALL_REPOS, indent=0)}", file=f)
-    print(f"ALL_REPOS_NO_PLATFORMS={json.dumps(ALL_REPOS_NO_PLATFORMS, indent=0)}", file=f)
+    print(f"ALL_REPOS={json.dumps(ALL_REPOS, indent=None)}", file=f)
+    print(f"ALL_REPOS_NO_PLATFORMS={json.dumps(ALL_REPOS_NO_PLATFORMS, indent=None)}", file=f)
     
 with open(os.environ["GITHUB_OUTPUT"], "r") as f:
     print(f.read())
