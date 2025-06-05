@@ -65,7 +65,7 @@ runs:
             folder = folder.strip()
             branch = BRANCH.replace('/', '_')
             with open(f"./{folder}/config.yaml", 'r') as f:
-                config = yaml.safe_load(f)ALL_REPOS
+                config = yaml.safe_load(f)
             print(f"{config=}")
             
             config_image = config.get('image', {})
