@@ -72,7 +72,7 @@ runs:
 
             tag = config_image.get('tag')
             context = config_image.get('context', f"{folder}")
-            build_args = " ".join(config_image.get('build_args', []))
+            build_args = " ".join(config_image.get('extraArgs', []))
 
             platforms = [
                 Platform(*platform.split('/'))
