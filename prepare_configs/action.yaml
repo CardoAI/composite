@@ -90,7 +90,12 @@ runs:
             ]
             
             
-            for repo in ecr_repositories:, indent=0
+            for repo in ecr_repositories:
+                aws = repo.get('aws', {})
+                region = aws.get('region')
+                account_id = aws.get('account_id')
+
+                ALL_REPOS_NO_PLATFORMS.append({
                     'name': repo.get("name"),
                     "folder": folder,
                     "tag": tag,
@@ -119,5 +124,3 @@ runs:
         with open(os.environ["GITHUB_OUTPUT"], "a") as f:
             f.write(f"ALL_REPOS={json.dumps(ALL_REPOS, indent=0)}\n")
             f.write(f"ALL_REPOS_NO_PLATFORMS={json.dumps(ALL_REPOS_NO_PLATFORMS, indent=0)}\n")
-
-

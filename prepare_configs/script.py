@@ -44,7 +44,12 @@ for folder in FOLDER_LIST:
     ]
     
     
-    for repo in ecr_repositories:, indent=0
+    for repo in ecr_repositories:
+        aws = repo.get('aws', {})
+        region = aws.get('region')
+        account_id = aws.get('account_id')
+
+        ALL_REPOS_NO_PLATFORMS.append({
             'name': repo.get("name"),
             "folder": folder,
             "tag": tag,
