@@ -79,3 +79,5 @@ for folder in FOLDER_LIST:
 with open(os.environ["GITHUB_OUTPUT"], "a") as f:
     f.write(f"ALL_REPOS={json.dumps(ALL_REPOS, indent=0)}\n")
     f.write(f"ALL_REPOS_NO_PLATFORMS={json.dumps(ALL_REPOS_NO_PLATFORMS, indent=0)}\n")
+    
+print(f"{os.environ['GITHUB_OUTPUT']=}")
