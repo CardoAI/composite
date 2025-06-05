@@ -14,10 +14,10 @@ inputs:
 outputs:
   ecr_repos:
     description: 'Full JSON with parsed os and architecture'
-    value: ${{ steps.vars.outputs.ALL_ECR_REPOS }}
+    value: ${{ steps.vars.outputs.ALL_REPOS }}
   ecr_repos_no_platforms:
     description: 'Full JSON but only comma-separated architecture for manifest'
-    value: ${{ steps.vars.outputs.ALL_ECR_REPOS_NO_PLATFORMS }}
+    value: ${{ steps.vars.outputs.ALL_REPOS_NO_PLATFORMS }}
 
 runs:
   using: composite
@@ -65,7 +65,7 @@ runs:
             folder = folder.strip()
             branch = BRANCH.replace('/', '_')
             with open(f"./{folder}/config.yaml", 'r') as f:
-                config = yaml.safe_load(f)
+                config = yaml.safe_load(f)ALL_REPOS
             print(f"{config=}")
             
             config_image = config.get('image', {})
