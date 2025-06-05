@@ -36,7 +36,7 @@ for folder in FOLDER_LIST:
     architectures = ",".join([platform.architecture for platform in platforms])
 
 
-    ecr_repositories = config.get('ecr_repositories', [])
+    ecr_repositories = config.get('ecrRepositories', [])
     
     # filter only for current branch
     ecr_repositories = [
@@ -49,6 +49,7 @@ for folder in FOLDER_LIST:
         aws = repo.get('aws', {})
         region = aws.get('region')
         account_id = aws.get('account_id')
+        print(f"{repo=}")
 
         ALL_REPOS_NO_PLATFORMS.append({
             'name': repo.get("name"),
