@@ -18,8 +18,8 @@ Platform = namedtuple("Platform", ["os", "architecture"])
 for folder in FOLDER_LIST:
     folder = folder.strip()
     branch = BRANCH.replace('/', '_')
-
-    config = yaml.safe_load(f"./{folder}/config.yaml")
+    with open(f"./{folder}/config.yaml", 'r') as f:
+        config = yaml.safe_load(f)
     print(f"{config=}")
     
     config_image = config.get('image', {})
