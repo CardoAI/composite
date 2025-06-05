@@ -39,6 +39,9 @@ runs:
       
     - name: Parse config.yaml files
       id: vars
+      env:
+        FOLDER_LIST: ${{ inputs.folders }}
+        BRANCH: ${{ inputs.branch }}
       shell: python
       run: |
         import os
