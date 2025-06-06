@@ -9,9 +9,7 @@ def test_get_all_repos_no_platforms_main():
             "name": "cardoai-us-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "architecture": "amd64,arm64",
             "region": "us-east-2",
@@ -22,9 +20,7 @@ def test_get_all_repos_no_platforms_main():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "architecture": "amd64,arm64",
             "region": "eu-central-1",
@@ -35,9 +31,7 @@ def test_get_all_repos_no_platforms_main():
             "name": "cardoai-us-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "architecture": "amd64,arm64",
             "region": "us-east-2",
@@ -48,9 +42,7 @@ def test_get_all_repos_no_platforms_main():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "architecture": "amd64,arm64",
             "region": "eu-central-1",
@@ -69,9 +61,7 @@ def test_get_all_repos_no_platforms_feat_test():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-feat-test",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "architecture": "amd64,arm64",
             "region": "eu-central-1",
@@ -82,9 +72,7 @@ def test_get_all_repos_no_platforms_feat_test():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-feat-test",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "architecture": "amd64,arm64",
             "region": "eu-central-1",
@@ -110,9 +98,7 @@ def test_get_all_repos_main():
             "name": "cardoai-us-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "os": "linux",
             "architecture": "amd64",
@@ -124,9 +110,7 @@ def test_get_all_repos_main():
             "name": "cardoai-us-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "os": "linux",
             "architecture": "arm64",
@@ -138,9 +122,7 @@ def test_get_all_repos_main():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "os": "linux",
             "architecture": "amd64",
@@ -152,9 +134,7 @@ def test_get_all_repos_main():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "os": "linux",
             "architecture": "arm64",
@@ -166,9 +146,7 @@ def test_get_all_repos_main():
             "name": "cardoai-us-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "os": "linux",
             "architecture": "amd64",
@@ -180,9 +158,7 @@ def test_get_all_repos_main():
             "name": "cardoai-us-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "os": "linux",
             "architecture": "arm64",
@@ -194,9 +170,7 @@ def test_get_all_repos_main():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "os": "linux",
             "architecture": "amd64",
@@ -208,9 +182,7 @@ def test_get_all_repos_main():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-main",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "os": "linux",
             "architecture": "arm64",
@@ -230,9 +202,7 @@ def test_get_all_repos_feat_test():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-feat-test",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "os": "linux",
             "architecture": "amd64",
@@ -244,9 +214,7 @@ def test_get_all_repos_feat_test():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/backend",
             "tag": "backend-feat-test",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
             "os": "linux",
             "architecture": "arm64",
@@ -258,9 +226,7 @@ def test_get_all_repos_feat_test():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-feat-test",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "os": "linux",
             "architecture": "amd64",
@@ -272,9 +238,7 @@ def test_get_all_repos_feat_test():
             "name": "cardoai-eu-ar-ecr-repository-test",
             "folder": "test/celery",
             "tag": "backend-feat-test",
-            "extra_args": [
-                "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base"
-            ],
+            "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
             "os": "linux",
             "architecture": "arm64",

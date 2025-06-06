@@ -99,7 +99,7 @@ def get_all_repos_no_platforms(folders: list[str], branch: str) -> list[dict]:
             "name": r.name,
             "folder": folder,
             "tag": f"{config.image.tag}-{tag_suffix}",
-            "extra_args": config.image.extra_args,
+            "extra_args": " ".join(config.image.extra_args),
             "context": config.image.context or folder,
             "architecture": config.image.architectures,
             "region": r.aws_region,
@@ -120,7 +120,7 @@ def get_all_repos(folders: list[str], branch: str) -> list[dict]:
             "name": r.name,
             "folder": folder,
             "tag": f"{config.image.tag}-{tag_suffix}",
-            "extra_args": config.image.extra_args,
+            "extra_args": " ".join(config.image.extra_args),
             "context": config.image.context or folder,
             "os": p.operating_system,
             "architecture": p.architecture,
@@ -149,3 +149,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    with open(os.environ["GITHUB_OUTPUT"], "r") as f:
+        print(f.read())
