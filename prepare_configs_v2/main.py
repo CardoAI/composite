@@ -136,18 +136,18 @@ def get_all_repos(folders: list[str], branch: str) -> list[dict]:
 
 
 def main():
-    folders = [f for f in os.getenv("FOLDERS", "").split(",") if f]
+    folders = [folder for folder in os.getenv("FOLDERS", "").split(",") if folder]
     branch = os.getenv("BRANCH")
 
     all_repos_no_platforms = get_all_repos_no_platforms(folders, branch)
     all_repos = get_all_repos(folders, branch)
 
-    with open(os.environ["GITHUB_OUTPUT"], "a") as fd:
-        fd.write(f"ECR_REPOS={json.dumps(all_repos, indent=None)}\n")
-        fd.write(f"ECR_REPOS_NO_PLATFORMS={json.dumps(all_repos_no_platforms, indent=None)}\n")
+    with open(os.environ["GITHUB_OUTPUT"], "a") as gh_output:
+        gh_output.write(f"ECR_REPOS={json.dumps(all_repos, indent=None)}\n")
+        gh_output.write(f"ECR_REPOS_NO_PLATFORMS={json.dumps(all_repos_no_platforms, indent=None)}\n")
+    with open(os.environ["GITHUB_OUTPUT"], "r") as gh_output:
+        print(gh_output.read())
 
 
 if __name__ == "__main__":
     main()
-    with open(os.environ["GITHUB_OUTPUT"], "r") as f:
-        print(f.read())
