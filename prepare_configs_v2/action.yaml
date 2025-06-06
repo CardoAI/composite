@@ -12,12 +12,12 @@ inputs:
     required: true
 
 outputs:
-  ecr_repos:
+  ecr_images:
     description: 'Full JSON with parsed os and architecture'
-    value: ${{ steps.vars.outputs.ECR_REPOS }}
-  ecr_repos_no_platforms:
-    description: 'Full JSON but only comma-separated architecture for manifest'
-    value: ${{ steps.vars.outputs.ECR_REPOS_NO_PLATFORMS }}
+    value: ${{ steps.vars.outputs.ECR_IMAGES }}
+  ecr_image_manifests:
+    description: 'Full JSON but only comma-separated tag_suffixes for manifest'
+    value: ${{ steps.vars.outputs.ECR_IMAGE_MANIFESTS }}
 
 runs:
   using: composite

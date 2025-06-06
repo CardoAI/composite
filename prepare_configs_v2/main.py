@@ -37,10 +37,6 @@ class _Image:
             extra_args=data.get("extraArgs", []),
         )
 
-    @property
-    def architectures(self) -> str:
-        return ",".join(platform.architecture for platform in self.platforms)
-
     def __repr__(self) -> str:
         return f"_Image(tag={self.tag}, context={self.context}, platforms={self.platforms}, extra_args={self.extra_args})"
 
@@ -91,7 +87,7 @@ class Config:
         return f"Config(image={self.image}, ecr_repositories={self.ecr_repositories})"
 
 
-def get_all_repos_no_platforms(folders: list[str], branch: str) -> list[dict]:
+def get_all_configs(folders: list[str], branch: str) -> list[dict]:
     tag_suffix = branch.replace("/", "-").strip()
     configs = [(folder, Config.from_yaml(f"./{folder}/config.yaml")) for folder in folders]
     return [
@@ -101,7 +97,7 @@ def get_all_repos_no_platforms(folders: list[str], branch: str) -> list[dict]:
             "tag": f"{config.image.tag}-{tag_suffix}",
             "extra_args": " ".join(config.image.extra_args),
             "context": config.image.context or folder,
-            "architecture": config.image.architectures,
+            "platforms": config.image.platforms,
             "region": r.aws_region,
             "account_id": r.aws_account_id,
             "registry": r.registry,
@@ -112,39 +108,33 @@ def get_all_repos_no_platforms(folders: list[str], branch: str) -> list[dict]:
     ]
 
 
-def get_all_repos(folders: list[str], branch: str) -> list[dict]:
-    tag_suffix = branch.replace("/", "-").strip()
-    configs = [(folder, Config.from_yaml(f"./{folder}/config.yaml")) for folder in folders]
+def get_all_images(repo_configs: list[dict]) -> list[dict]:
     return [
-        {
-            "name": r.name,
-            "folder": folder,
-            "tag": f"{config.image.tag}-{tag_suffix}",
-            "extra_args": " ".join(config.image.extra_args),
-            "context": config.image.context or folder,
+        {k: v for k, v in c.items() if k != "platforms"} | {
             "os": p.operating_system,
             "architecture": p.architecture,
-            "region": r.aws_region,
-            "account_id": r.aws_account_id,
-            "registry": r.registry,
+        } for c in repo_configs for p in c["platforms"]
+    ]
+
+def get_all_manifests(repo_configs: list[dict]) -> list[dict]:
+    return [
+        {k: v for k, v in c.items() if k != "platforms"} | {
+            "tag_suffixes": ",".join(p.architecture for p in c["platforms"])
         }
-        for folder, config in configs
-        for r in config.ecr_repositories
-        for p in config.image.platforms
-        if branch in r.branches  # filter only for current branch
+        for c in repo_configs
     ]
 
 
 def main():
     folders = [folder for folder in os.getenv("FOLDERS", "").split(",") if folder]
     branch = os.getenv("BRANCH")
-
-    all_repos_no_platforms = get_all_repos_no_platforms(folders, branch)
-    all_repos = get_all_repos(folders, branch)
+    repo_configs = get_all_configs(folders, branch)
+    all_images = get_all_images(repo_configs)
+    all_manifests = get_all_manifests(repo_configs)
 
     with open(os.environ["GITHUB_OUTPUT"], "a") as gh_output:
-        gh_output.write(f"ECR_REPOS={json.dumps(all_repos, indent=None)}\n")
-        gh_output.write(f"ECR_REPOS_NO_PLATFORMS={json.dumps(all_repos_no_platforms, indent=None)}\n")
+        gh_output.write(f"ECR_IMAGES={json.dumps(all_images, indent=None)}\n")
+        gh_output.write(f"ECR_IMAGE_MANIFESTS={json.dumps(all_manifests, indent=None)}\n")
     with open(os.environ["GITHUB_OUTPUT"], "r") as gh_output:
         print(gh_output.read())
 

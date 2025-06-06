@@ -15,8 +15,8 @@ on:
         description: The image:tag to build.
         type: string
         required: true
-      directory:
-        description: The directory containing the Dockerfile.
+      folder:
+        description: The folder containing the Dockerfile.
         type: string
         default: '.'
       context:
@@ -52,7 +52,7 @@ on:
         description: The AWS region where the ECR repository is located.
         type: string
         required: true
-      aws-id:
+      aws-account-id:
         description: The AWS account ID where the ECR repository is located.
         type: string
         required: true
@@ -60,15 +60,15 @@ on:
         description: The AWS region where the base image is located.
         type: string
         default: eu-central-1
-      base-image-aws-id:
+      base-image-aws-account-id:
         description: The AWS account ID where the base image is located.
         type: string
         default: "861208160487"
-    # secrets:
-    #   gh_pat:
-    #     description: The GitHub Personal Access Token to access the repository.
-    #     required: true
-      
+      # secrets:
+      #   gh_pat:
+      #     description: The GitHub Personal Access Token to access the repository.
+      #     required: true
+
 jobs:
   build_image:
     name: ${{ inputs.os}}/${{ inputs.architecture }}
@@ -77,7 +77,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-        #   token: ${{ secrets.gh_pat }}
+          #   token: ${{ secrets.gh_pat }}
           ref: ${{ inputs.sha }}
           fetch-depth: 0
           submodules: 'true'
@@ -86,45 +86,45 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: ECR login for base image
-        if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-id != '') }}
+        if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
         uses: CardoAI/composite/ecrlogin_with_role@main
         with:
           aws-region: ${{ inputs.base-image-aws-region }}
-          aws-id: ${{ inputs.base-image-aws-id }}
-        
+          aws-id: ${{ inputs.base-image-aws-account-id }}
+
       - name: ECR login
         uses: CardoAI/composite/ecrlogin_with_role@main
         with:
           aws-region: ${{ inputs.aws-region }}
-          aws-id: ${{ inputs.aws-id }}
+          aws-id: ${{ inputs.aws-account-id }}
       - name: Build Docker image
         id: build-image
         shell: bash
         run: |
           #! /bin/bash
-          FULL_IMAGE="${{ inputs.registry }}/${{ inputs.image }}:${{ inputs.tag }}-${{ inputs.architecture }}"
-          echo "Building image ${FULL_IMAGE}"
+          IMAGE="${{ inputs.registry }}/${{ inputs.image }}:${{ inputs.tag }}-${{ inputs.architecture }}"
+          echo "Building image ${IMAGE}"
 
-          docker buildx build --platform ${{ inputs.os }}/${{ inputs.architecture }} --tag ${FULL_IMAGE} --load --file ${{ inputs.directory }}/Dockerfile ${{ inputs.extra-args }} ${{ inputs.context }}
-          echo "Image ${FULL_IMAGE} for platform ${{ inputs.architecture }} built!"
-          echo "FULL_IMAGE=${FULL_IMAGE}" >> $GITHUB_ENV
+          docker buildx build --platform ${{ inputs.os }}/${{ inputs.architecture }} --tag ${IMAGE} --load --file ${{ inputs.folder }}/Dockerfile ${{ inputs.extra-args }} ${{ inputs.context }}
+          echo "Image ${IMAGE} for platform ${{ inputs.architecture }} built!"
+          echo "IMAGE=${IMAGE}" >> $GITHUB_ENV
 
       - name: Scan Image
         if: ${{ inputs.scan }}
         uses: CardoAI/composite/scan_image@main
         id: scan-image
         with:
-          image-tag: ${{ env.FULL_IMAGE }}
+          image-tag: ${{ env.IMAGE }}
           critical-threshold: 0
           high-threshold: 0
           medium-threshold: 0
           low-threshold: 0
           other-threshold: 0
-          
+
       - name: Push Docker image
         id: push-image
         shell: bash
         run: |
           #! /bin/bash
-          docker push ${FULL_IMAGE}
-          echo "Image ${FULL_IMAGE} for platform ${{ inputs.architecture}} pushed to ECR!"
+          docker push ${IMAGE}
+          echo "Image ${IMAGE} for platform ${{ inputs.os }}/${{ inputs.architecture }} pushed to ECR!"

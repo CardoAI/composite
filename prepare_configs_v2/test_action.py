@@ -1,9 +1,10 @@
-from main import get_all_repos, get_all_repos_no_platforms
+from main import get_all_configs, get_all_images, get_all_manifests
 
 
 def test_get_all_repos_no_platforms_main():
     folders = ["test/backend", "test/celery"]
-    result = get_all_repos_no_platforms(folders, "main")
+    repo_configs = get_all_configs(folders, "main")
+    result = get_all_manifests(repo_configs)
     expected = [
         {
             "name": "cardoai-us-ar-ecr-repository-test",
@@ -11,7 +12,7 @@ def test_get_all_repos_no_platforms_main():
             "tag": "backend-main",
             "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
-            "architecture": "amd64,arm64",
+            "tag_suffixes": "amd64,arm64",
             "region": "us-east-2",
             "account_id": "980921757922",
             "registry": "980921757922.dkr.ecr.us-east-2.amazonaws.com"
@@ -22,7 +23,7 @@ def test_get_all_repos_no_platforms_main():
             "tag": "backend-main",
             "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
-            "architecture": "amd64,arm64",
+            "tag_suffixes": "amd64,arm64",
             "region": "eu-central-1",
             "account_id": "861208160487",
             "registry": "861208160487.dkr.ecr.eu-central-1.amazonaws.com"
@@ -33,7 +34,7 @@ def test_get_all_repos_no_platforms_main():
             "tag": "backend-main",
             "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
-            "architecture": "amd64,arm64",
+            "tag_suffixes": "amd64,arm64",
             "region": "us-east-2",
             "account_id": "980921757922",
             "registry": "980921757922.dkr.ecr.us-east-2.amazonaws.com"
@@ -44,7 +45,7 @@ def test_get_all_repos_no_platforms_main():
             "tag": "backend-main",
             "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
-            "architecture": "amd64,arm64",
+            "tag_suffixes": "amd64,arm64",
             "region": "eu-central-1",
             "account_id": "861208160487",
             "registry": "861208160487.dkr.ecr.eu-central-1.amazonaws.com"
@@ -55,7 +56,8 @@ def test_get_all_repos_no_platforms_main():
 
 def test_get_all_repos_no_platforms_feat_test():
     folders = ["test/backend", "test/celery"]
-    result = get_all_repos_no_platforms(folders, "feat/test")
+    repo_configs = get_all_configs(folders, "feat/test")
+    result = get_all_manifests(repo_configs)
     expected = [
         {
             "name": "cardoai-eu-ar-ecr-repository-test",
@@ -63,7 +65,7 @@ def test_get_all_repos_no_platforms_feat_test():
             "tag": "backend-feat-test",
             "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/backend",
-            "architecture": "amd64,arm64",
+            "tag_suffixes": "amd64,arm64",
             "region": "eu-central-1",
             "account_id": "861208160487",
             "registry": "861208160487.dkr.ecr.eu-central-1.amazonaws.com"
@@ -74,7 +76,7 @@ def test_get_all_repos_no_platforms_feat_test():
             "tag": "backend-feat-test",
             "extra_args": "--build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base",
             "context": "test/celery",
-            "architecture": "amd64,arm64",
+            "tag_suffixes": "amd64,arm64",
             "region": "eu-central-1",
             "account_id": "861208160487",
             "registry": "861208160487.dkr.ecr.eu-central-1.amazonaws.com"
@@ -85,14 +87,16 @@ def test_get_all_repos_no_platforms_feat_test():
 
 def test_get_all_repos_no_platforms_no_match():
     folders = ["test/backend", "test/celery"]
-    result = get_all_repos_no_platforms(folders, "no-match")
+    repo_configs = get_all_configs(folders, "no-match")
+    result = get_all_manifests(repo_configs)
     expected = []
     assert result == expected, f"Expected {expected}, but got {result}"
 
 
 def test_get_all_repos_main():
     folders = ["test/backend", "test/celery"]
-    result = get_all_repos(folders, "main")
+    repo_configs = get_all_configs(folders, "main")
+    result = get_all_images(repo_configs)
     expected = [
         {
             "name": "cardoai-us-ar-ecr-repository-test",
@@ -196,7 +200,8 @@ def test_get_all_repos_main():
 
 def test_get_all_repos_feat_test():
     folders = ["test/backend", "test/celery"]
-    result = get_all_repos(folders, "feat/test")
+    repo_configs = get_all_configs(folders, "feat/test")
+    result = get_all_images(repo_configs)
     expected = [
         {
             "name": "cardoai-eu-ar-ecr-repository-test",
@@ -252,6 +257,7 @@ def test_get_all_repos_feat_test():
 
 def test_get_all_repos_no_match():
     folders = ["test/backend", "test/celery"]
-    result = get_all_repos(folders, "no-match")
+    repo_configs = get_all_configs(folders, "no-match")
+    result = get_all_images(repo_configs)
     expected = []
     assert result == expected, f"Expected {expected}, but got {result}"
