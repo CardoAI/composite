@@ -17,7 +17,6 @@ Platform = namedtuple("Platform", ["os", "architecture"])
 
 for folder in FOLDER_LIST:
     folder = folder.strip()
-    branch = BRANCH.replace('/', '_')
     with open(f"./{folder}/config.yaml", 'r') as f:
         config = yaml.safe_load(f)
     print(f"{config=}")
@@ -41,10 +40,10 @@ for folder in FOLDER_LIST:
     # filter only for current branch
     ecr_repositories = [
         repo for repo in ecr_repositories
-        if branch in repo.get('branch', [])
+        if BRANCH in repo.get('branch', [])
     ]
     
-    
+    tag_suffix = BRANCH.replace("/", "-").strip()
     for repo in ecr_repositories:
         aws = repo.get('aws', {})
         region = aws.get('region')
@@ -54,7 +53,7 @@ for folder in FOLDER_LIST:
         ALL_REPOS_NO_PLATFORMS.append({
             'name': repo.get("name"),
             "folder": folder,
-            "tag": tag,
+            "tag": f"{tag}-{tag_suffix}",
             "build_args": build_args,
             "context": context,
             "architecture": architectures,
@@ -66,7 +65,7 @@ for folder in FOLDER_LIST:
             ALL_REPOS.append({
                 'name': repo.get("name"),
                 "folder": folder,
-                "tag": tag,
+                "tag": f"{tag}-{tag_suffix}",
                 "build_args": build_args,
                 "context": context,
                 "os": platform.os,
