@@ -1,0 +1,47 @@
+name: 'Prepare docker configs'
+description: 'Action to prepare jsons that will be used to build docker images'
+inputs:
+  sha:
+    required: true
+    description: 'Commit SHA to checkout'
+  folders:
+    description: 'List of folders to check for Dockerfiles'
+    required: true
+  branch:
+    description: 'Branch being used'
+    required: true
+
+outputs:
+  ecr_repos:
+    description: 'Full JSON with parsed os and architecture'
+    value: ${{ steps.vars.outputs.ECR_REPOS }}
+  ecr_repos_no_platforms:
+    description: 'Full JSON but only comma-separated architecture for manifest'
+    value: ${{ steps.vars.outputs.ECR_REPOS_NO_PLATFORMS }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.sha }}
+    - name: Debug Inputs
+      shell: bash
+      run: |
+        echo "Folders: ${{ inputs.folders }}"
+        echo "Branch: ${{ inputs.branch }}"
+        echo "SHA: ${{ inputs.sha }}"
+    
+    - name: Install pyyaml
+      shell: bash
+      run: |
+        pip install pyyaml
+      
+    - name: Parse config.yaml files
+      id: vars
+      env:
+        FOLDERS: ${{ inputs.folders }}
+        BRANCH: ${{ inputs.branch }}
+        PYTHONUNBUFFERED: "1"
+      shell: bash
+      run: python ${{ github.action_path }}/main.py

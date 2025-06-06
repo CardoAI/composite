@@ -1,0 +1,21 @@
+image:
+  tag: backend
+  platforms:
+    - linux/amd64
+    - linux/arm64
+  extraArgs:
+    - --build-arg BASE_IMAGE=861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-test:1.0.0-base
+    
+ecrRepositories:
+  - name: cardoai-us-ar-ecr-repository-test
+    branches: [main, dev]
+    aws:
+      region: us-east-2
+      profile: cardoai-us-artifact-repository
+      accountId: "980921757922"
+  - name: cardoai-eu-ar-ecr-repository-test
+    branches: [main, dev, feat/test]
+    aws:
+      region: eu-central-1
+      profile: cardoai-eu-artifact-repository
+      accountId: "861208160487"
