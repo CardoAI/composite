@@ -11,7 +11,7 @@ inputs:
     description: "Final tag to be used for the manifest"
     required: true
   tag-suffixes:
-    description: "List of tag suffixes used for the manifest (e.g. -amd64 or -arm64)"
+    description: "List of tag suffixes used for the manifest (e.g. amd64 or arm64)"
     required: true
 
 runs:
