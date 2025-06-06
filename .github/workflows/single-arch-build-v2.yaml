@@ -52,7 +52,7 @@ on:
         description: The AWS region where the ECR repository is located.
         type: string
         required: true
-      aws-account-id:
+      aws-id:
         description: The AWS account ID where the ECR repository is located.
         type: string
         required: true
@@ -60,7 +60,7 @@ on:
         description: The AWS region where the base image is located.
         type: string
         default: eu-central-1
-      base-image-aws-account-id:
+      base-image-aws-id:
         description: The AWS account ID where the base image is located.
         type: string
         default: "861208160487"
@@ -86,17 +86,17 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: ECR login for base image
-        if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
+        if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-id != '') }}
         uses: CardoAI/composite/ecrlogin_with_role@main
         with:
           aws-region: ${{ inputs.base-image-aws-region }}
-          aws-id: ${{ inputs.base-image-aws-account-id }}
+          aws-id: ${{ inputs.base-image-aws-id }}
 
       - name: ECR login
         uses: CardoAI/composite/ecrlogin_with_role@main
         with:
           aws-region: ${{ inputs.aws-region }}
-          aws-id: ${{ inputs.aws-account-id }}
+          aws-id: ${{ inputs.aws-id }}
       - name: Build Docker image
         id: build-image
         shell: bash
