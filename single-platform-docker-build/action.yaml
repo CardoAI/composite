@@ -60,7 +60,9 @@ runs:
       shell: bash
       env:
         REGISTRY: ${{ inputs.base-image-aws-account-id }}.dkr.ecr.${{ inputs.base-image-aws-region }}.amazonaws.com
-      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.base-image-aws-region }}) "${REGISTRY}"
+      run: |
+        set -e
+        docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.base-image-aws-region }}) "${REGISTRY}"
 
     - name: Build Docker image
       id: build-image
@@ -92,7 +94,6 @@ runs:
       env:
         REPOSITORIES: ${{ inputs.repositories }}
       run: |
-        #! /bin/bash
         set -e
         for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
           ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
@@ -107,7 +108,7 @@ runs:
       env:
         REPOSITORIES: ${{ inputs.repositories }}
       run: |
-        #! /bin/bash
+        set -e
         for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
           NAME=$(echo "${repo}" | jq -r '.name')
           ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
