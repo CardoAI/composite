@@ -49,7 +49,7 @@ on:
 jobs:
   single-platform-docker-build:
     name: '${{ inputs.tag }} - ${{ inputs.platform }}'
-    runs-on: ${{ inputs.runner-id }}
+    runs-on: ${{ inputs.github-runner }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
