@@ -44,8 +44,6 @@ inputs:
 
 runs:
   using: composite
-  env: 
-    TEMP_TAG: ${{ inputs.tag }}
   steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -72,16 +70,16 @@ runs:
         BUILDKIT_PROGRESS: plain
       run: |
         #! /bin/bash
-        echo "Building image ${TEMP_TAG}"
-        docker buildx build --platform ${{ inputs.platform }} --tag ${TEMP_TAG} --load --file ${{ inputs.folder }}/Dockerfile ${{ inputs.extra-args }} ${{ inputs.context }}
-        echo "Image ${TEMP_TAG} for platform ${{ inputs.platform }} built!"
+        echo "Building image ${{ inputs.tag }}"
+        docker buildx build --platform ${{ inputs.platform }} --tag ${{ inputs.tag }} --load --file ${{ inputs.folder }}/Dockerfile ${{ inputs.extra-args }} ${{ inputs.context }}
+        echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
     - name: Scan Image
       if: ${{ inputs.scan }}
       uses: CardoAI/composite/scan_image@main
       id: scan-image
       with:
-        image-tag: ${{ env.TEMP_TAG }}
+        image-tag: ${{ inputs.tag }}
         critical-threshold: 0
         high-threshold: 0
         medium-threshold: 0
@@ -113,7 +111,7 @@ runs:
           REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 
           IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
-          docker image tag "${TEMP_TAG}" "${IMAGE_TAG}"
+          docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
           echo "Pushing image ${IMAGE_TAG}..."
           docker push "${IMAGE_TAG}"
           echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
