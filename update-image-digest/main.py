@@ -1,8 +1,8 @@
+import json
 import os
 import re
 
 import boto3
-import yaml
 from ruamel.yaml import YAML
 
 
@@ -68,15 +68,14 @@ def update_yaml_file(path, repo_path, tag_path, digest_path):
 
 
 def main():
-    config = yaml.safe_load(os.environ["DEPLOYMENTS_CONFIG"])
-    for deployment in config["deployments"]:
-        for target in deployment["targets"]:
-            update_yaml_file(
-                path=target["path"],
-                repo_path=target["repositoryPath"],
-                tag_path=target["tagPath"],
-                digest_path=target["digestPath"],
-            )
+    config = json.loads(os.environ["CONFIGURATION"])
+    for target in config["targets"]:
+        update_yaml_file(
+            path=target["path"],
+            repo_path=target["repositoryPath"],
+            tag_path=target["tagPath"],
+            digest_path=target["digestPath"],
+        )
 
 
 if __name__ == "__main__":

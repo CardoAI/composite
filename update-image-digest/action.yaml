@@ -2,7 +2,7 @@ name: "Update Image Digest and Deploy Tenants"
 description: "GitHub composite which updated image digests in the GitOps repository and deploys tenants based on the provided configuration."
 inputs:
   configuration:
-    description: "Configuration to modify helm value digests. YAML configuration"
+    description: "Target GitOps deployment(s) that will be updated by this action."
     required: true
 
   gitops-repository:
@@ -30,7 +30,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout manifest repo
+    - name: Checkout GitOps repo
       uses: actions/checkout@v4
       with:
         repository: ${{ inputs.gitops-repository }}
@@ -40,7 +40,7 @@ runs:
     - name: Extract tenant names and deploy
       id: deploy_tenants
       env:
-        BRANCH_CONFIGURATION: ${{ inputs.branch-configuration }}
+        CONFIGURATION: ${{ toJSON(inputs.configuration) }}
 
         GITHUB_BRANCH: ${{ github.ref_name }}
         GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

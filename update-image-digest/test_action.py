@@ -2,8 +2,8 @@ import yaml
 from main import update_yaml_file
 import os
 
-DEPLOYMENTS = """
-deployments:
+CONFIGURATION = """
+configuration:
   - name: ag
     branch: main
     targets:
@@ -49,9 +49,9 @@ deployments:
 
 
 def test_update_yaml_file():
-    config = yaml.safe_load(DEPLOYMENTS.strip())
+    config = yaml.safe_load(CONFIGURATION.strip())
     os.environ["AWS_PROFILE"] = "cardoai-eu-swe"
-    for deployment in config["deployments"]:
+    for deployment in config["configuration"]:
         for target in deployment["targets"]:
             update_yaml_file(
                 path=target["path"],
