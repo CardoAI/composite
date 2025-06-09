@@ -2,9 +2,9 @@ global:
   image:
     repository: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
     tag: main
-    digest: sha256:ad13159bb5d96deccfe4db7bb8ffeae52e3b623c61a3df8f103afec7569ee438
+    digest: sha256:xx
 backend:
   image:
     repository: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/audit-trails
     tag: main
-    digest: sha256:ad13159bb5d96deccfe4db7bb8ffeae52e3b623c61a3df8f103afec7569ee438
+    digest: sha256:xx
