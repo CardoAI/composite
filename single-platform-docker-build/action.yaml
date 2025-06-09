@@ -59,7 +59,7 @@ runs:
       id: multi-ecr-login
       shell: bash
       env:
-        REPOSITORIES: ${{ toJSON(inputs.repositories) }}
+        REPOSITORIES: ${{ inputs.repositories }}
       run: |
         #! /bin/bash
         set -e
