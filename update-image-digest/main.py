@@ -68,14 +68,19 @@ def update_yaml_file(path, repo_path, tag_path, digest_path):
 
 
 def main():
+    current_branch = os.environ.get("GITHUB_BRANCH")
     config = json.loads(os.environ["CONFIGURATION"])
-    for target in config["targets"]:
-        update_yaml_file(
-            path=target["path"],
-            repo_path=target["repositoryPath"],
-            tag_path=target["tagPath"],
-            digest_path=target["digestPath"],
-        )
+    for c in config:
+        if c["branch"] != current_branch:
+            continue
+        print(f"Updating configuration {c['name']} for branch: {c['branch']}")
+        for target in c["targets"]:
+            update_yaml_file(
+                path=target["path"],
+                repo_path=target["repositoryPath"],
+                tag_path=target["tagPath"],
+                digest_path=target["digestPath"],
+            )
 
 
 if __name__ == "__main__":

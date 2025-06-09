@@ -2,7 +2,6 @@
 set -e
 
 # Ensure required environment variables are set
-: "${GITHUB_BRANCH:?Error: GITHUB_BRANCH is not set.}"
 : "${GITOPS_REPOSITORY:?Error: GITOPS_REPOSITORY is not set.}"
 : "${GITOPS_BRANCH:?Error: GITOPS_BRANCH is not set.}"
 : "${GITOPS_USERNAME:?Error: GITOPS_USERNAME is not set.}"

@@ -3,7 +3,6 @@ from main import update_yaml_file
 import os
 
 CONFIGURATION = """
-configuration:
   - name: ag
     branch: main
     targets:
@@ -19,7 +18,7 @@ configuration:
         digestPath: backend.image.digest
 
   - name: kkr
-    branch: main
+    branch: test
     targets:
       - name: backend
         path: test/clusters/staging-cluster/equalizer/kkr/kustomization.yaml
@@ -49,10 +48,14 @@ configuration:
 
 
 def test_update_yaml_file():
-    config = yaml.safe_load(CONFIGURATION.strip())
+    config = yaml.safe_load(CONFIGURATION)
+    current_branch = "main"
     os.environ["AWS_PROFILE"] = "cardoai-eu-swe"
-    for deployment in config["configuration"]:
-        for target in deployment["targets"]:
+    for c in config:
+        if c["branch"] != current_branch:
+            continue
+        print(f"Updating configuration {c['name']} for branch: {c['branch']}")
+        for target in c["targets"]:
             update_yaml_file(
                 path=target["path"],
                 repo_path=target["repositoryPath"],
