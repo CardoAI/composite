@@ -24,7 +24,7 @@ inputs:
     description: "GitHub email that will be used to push to GitOps"
   max-retries:
     description: "Maximum number of retries for the commit operation in case of conflicts"
-    required: false
+    required: true
     default: 3
 
 runs:
