@@ -31,12 +31,13 @@ runs:
       shell: bash
       env:
         DOCKER_CLI_EXPERIMENTAL: "enabled"
+        TAG_SUFFIXES: ${{ inputs.tag-suffixes }}
       run: |
         #! /bin/bash
-        
+        set -e
         FINAL_TAG="${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.repository }}:${{ inputs.tag }}"
         TAGS_TO_MERGE=""
-        for suffix in $(echo "${{ inputs.tag-suffixes }}" | jq -c '.[]'); do
+        for suffix in $(echo "${TAG_SUFFIXES}" | jq -c '.[]'); do
           TAGS_TO_MERGE+=" ${FINAL_TAG}-${suffix}"
         done
       

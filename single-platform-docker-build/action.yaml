@@ -89,9 +89,12 @@ runs:
     - name: Login to target ECR repositories
       id: multi-ecr-login
       shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
       run: |
         #! /bin/bash
-        for repo in $(echo "${{ inputs.repositories }}" | jq -c '.[]'); do
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
           ACCOUNT_ID=$(echo "repo" | jq -r '.account_id')
           REGION=$(echo "repo" | jq -r '.region')
           REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
@@ -101,10 +104,12 @@ runs:
     - name: Push Docker image
       id: push-image
       shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
       run: |
         #! /bin/bash
-
-        for repo in $(echo "${{ inputs.repositories }}" | jq -c '.[]'); do
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
           NAME=$(echo "repo" | jq -r '.name')
           ACCOUNT_ID=$(echo "repo" | jq -r '.account_id')
           REGION=$(echo "repo" | jq -r '.region')
