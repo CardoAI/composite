@@ -48,7 +48,7 @@ on:
         default: eu-central-1
 jobs:
   single-platform-docker-build:
-    name: '${{ imputs-tag }} - ${{ inputs.platform }}'
+    name: '${{ imputs.tag }} - ${{ inputs.platform }}'
     runs-on: ${{ inputs.runner-id }}
     steps:
       - name: Check out code
