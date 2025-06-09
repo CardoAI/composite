@@ -1,5 +1,5 @@
 image:
-  tag: backend
+  tag: celery
   platforms:
     - linux/amd64
     - linux/arm64

@@ -1,0 +1,43 @@
+name: "Create multi-platform Docker manifest"
+description: "Merge multi platform Docker images into a single manifest"
+inputs:
+  aws-account-id:
+    description: "The target ECR repository account ID."
+  aws-region:
+    description: "The target ECR repository region."
+  repository:
+    description: "The target ECR repository name."
+    required: true
+  tag-suffixes:
+    description: "JSON list of tag suffixes to be used for the manifest (e.g. amd64 or arm64)"
+    required: true
+  tag:
+    description: "Final tag to be used for the manifest"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to ECR
+      shell: bash
+      env:
+        REGISTRY: ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
+      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) "${REGISTRY}"
+
+    - name: Create and push manifest
+      shell: bash
+      env:
+        DOCKER_CLI_EXPERIMENTAL: "enabled"
+      run: |
+        #! /bin/bash
+        
+        FINAL_TAG="${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.repository }}:${{ inputs.tag }}"
+        TAGS_TO_MERGE=""
+        for suffix in $(echo "${{ inputs.tag-suffixes }}" | jq -c '.[]'); do
+          TAGS_TO_MERGE+=" ${FINAL_TAG}-${suffix}"
+        done
+      
+        docker buildx imagetools create -t ${FINAL_TAG} ${TAGS_TO_MERGE}

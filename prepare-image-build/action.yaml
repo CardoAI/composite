@@ -1,4 +1,4 @@
-name: 'Prepare docker configs'
+name: 'Prepare Docker Image build'
 description: 'Action to prepare jsons that will be used to build docker images'
 inputs:
   sha:
@@ -12,12 +12,12 @@ inputs:
     required: true
 
 outputs:
-  ecr_images:
+  images:
     description: 'Full JSON with parsed os and architecture'
-    value: ${{ steps.vars.outputs.ECR_IMAGES }}
-  ecr_image_manifests:
+    value: ${{ steps.vars.outputs.IMAGES }}
+  image_manifests:
     description: 'Full JSON but only comma-separated tag_suffixes for manifest'
-    value: ${{ steps.vars.outputs.ECR_IMAGE_MANIFESTS }}
+    value: ${{ steps.vars.outputs.IMAGE_MANIFESTS }}
 
 runs:
   using: composite
@@ -25,13 +25,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         ref: ${{ inputs.sha }}
-    - name: Debug Inputs
-      shell: bash
-      run: |
-        echo "Folders: ${{ inputs.folders }}"
-        echo "Branch: ${{ inputs.branch }}"
-        echo "SHA: ${{ inputs.sha }}"
-    
+
     - name: Install pyyaml
       shell: bash
       run: |
