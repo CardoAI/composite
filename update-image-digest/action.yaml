@@ -1,0 +1,56 @@
+name: "Update Image Digest and Deploy Tenants"
+description: "GitHub composite which updated image digests in the GitOps repository and deploys tenants based on the provided configuration."
+inputs:
+  configuration:
+    description: "Configuration to modify helm value digests. YAML configuration"
+    required: true
+
+  gitops-repository:
+    required: true
+    description: "GitOps Repository that is meant to store gitops files"
+  gitops-token:
+    required: true
+    description: "Github Token for GitOps Repository"
+  gitops-branch:
+    required: true
+    description: "Github Branch of repository"
+  gitops-username:
+    required: true
+    default: github-actions
+    description: "GitHub username that will be used to push to GitOps"
+  gitops-email:
+    required: true
+    default: github-actions@github.com
+    description: "GitHub email that will be used to push to GitOps"
+  max-retries:
+    description: "Maximum number of retries for the commit operation in case of conflicts"
+    required: false
+    default: 3
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout manifest repo
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.gitops-repository }}
+        token: ${{ inputs.gitops-token }}
+        ref: ${{ inputs.gitops-branch }}
+
+    - name: Extract tenant names and deploy
+      id: deploy_tenants
+      env:
+        BRANCH_CONFIGURATION: ${{ inputs.branch-configuration }}
+
+        GITHUB_BRANCH: ${{ github.ref_name }}
+        GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+        GITOPS_BRANCH: ${{ inputs.gitops-branch }}
+        GITOPS_REPOSITORY: ${{ inputs.gitops-repository }}
+        GITOPS_USERNAME: ${{ inputs.gitops-username }}
+        GITOPS_EMAIL: ${{ inputs.gitops-email }}
+
+        MAX_RETRIES: ${{ inputs.max-retries }}
+
+      shell: bash
+      run: python ${{ github.action_path }}/main.py && ${{ github.action_path }}/commit.sh
