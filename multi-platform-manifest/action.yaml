@@ -34,10 +34,9 @@ runs:
         TAG_SUFFIXES: ${{ inputs.tag-suffixes }}
       run: |
         #! /bin/bash
-        set -e
         FINAL_TAG="${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.repository }}:${{ inputs.tag }}"
         TAGS_TO_MERGE=""
-        for suffix in $(echo "${TAG_SUFFIXES}" | jq -c '.[]'); do
+        for suffix in $(echo "${TAG_SUFFIXES}" | jq -r '.[]'); do
           TAGS_TO_MERGE+=" ${FINAL_TAG}-${suffix}"
         done
       
