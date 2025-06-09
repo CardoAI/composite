@@ -43,5 +43,5 @@ runs:
         FOLDERS: ${{ inputs.folders }}
         BRANCH: ${{ inputs.branch }}
         PYTHONUNBUFFERED: '1'
-      shell: python
-      run: ${{ github.action_path }}/main.py
+      shell: bash
+      run: python ${{ github.action_path }}/main.py
