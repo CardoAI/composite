@@ -1,7 +1,7 @@
 from main import get_all_configs, get_all_images, get_all_manifests
 
 
-def test_get_all_repos_no_platforms_main():
+def test_get_all_manifests_main():
     folders = ["test/backend", "test/celery"]
     repo_configs = get_all_configs(folders, "main")
     result = get_all_manifests(repo_configs)
@@ -54,7 +54,7 @@ def test_get_all_repos_no_platforms_main():
     assert result == expected, f"Expected {expected}, but got {result}"
 
 
-def test_get_all_repos_no_platforms_feat_test():
+def test_get_all_manifests_feat_test():
     folders = ["test/backend", "test/celery"]
     repo_configs = get_all_configs(folders, "feat/test")
     result = get_all_manifests(repo_configs)
@@ -85,7 +85,7 @@ def test_get_all_repos_no_platforms_feat_test():
     assert result == expected, f"Expected {expected}, but got {result}"
 
 
-def test_get_all_repos_no_platforms_no_match():
+def test_get_all_manifests_no_match():
     folders = ["test/backend", "test/celery"]
     repo_configs = get_all_configs(folders, "no-match")
     result = get_all_manifests(repo_configs)
@@ -93,7 +93,7 @@ def test_get_all_repos_no_platforms_no_match():
     assert result == expected, f"Expected {expected}, but got {result}"
 
 
-def test_get_all_repos_main():
+def test_get_all_images_main():
     folders = ["test/backend", "test/celery"]
     repo_configs = get_all_configs(folders, "main")
     result = get_all_images(repo_configs)
@@ -198,7 +198,7 @@ def test_get_all_repos_main():
     assert result == expected, f"Expected {expected}, but got {result}"
 
 
-def test_get_all_repos_feat_test():
+def test_get_all_images_feat_test():
     folders = ["test/backend", "test/celery"]
     repo_configs = get_all_configs(folders, "feat/test")
     result = get_all_images(repo_configs)
@@ -255,7 +255,7 @@ def test_get_all_repos_feat_test():
     assert result == expected, f"Expected {expected}, but got {result}"
 
 
-def test_get_all_repos_no_match():
+def test_get_all_images_no_match():
     folders = ["test/backend", "test/celery"]
     repo_configs = get_all_configs(folders, "no-match")
     result = get_all_images(repo_configs)

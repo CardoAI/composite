@@ -42,6 +42,6 @@ runs:
       env:
         FOLDERS: ${{ inputs.folders }}
         BRANCH: ${{ inputs.branch }}
-        PYTHONUNBUFFERED: "1"
-      shell: bash
-      run: python ${{ github.action_path }}/main.py
+        PYTHONUNBUFFERED: '1'
+      shell: python
+      run: ${{ github.action_path }}/main.py
