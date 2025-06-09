@@ -1,8 +1,8 @@
-import json
 import os
 import re
 
 import boto3
+import yaml
 from ruamel.yaml import YAML
 
 
@@ -69,7 +69,7 @@ def update_yaml_file(path, repo_path, tag_path, digest_path):
 
 def main():
     current_branch = os.environ.get("GITHUB_BRANCH")
-    config = json.loads(os.environ["CONFIGURATION"])
+    config = yaml.safe_load(os.environ["CONFIGURATION"])
     for c in config:
         if c["branch"] != current_branch:
             continue

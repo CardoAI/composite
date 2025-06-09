@@ -2,7 +2,7 @@ name: "Update Image Digest and Deploy Tenants"
 description: "GitHub composite which updated image digests in the GitOps repository and deploys tenants based on the provided configuration."
 inputs:
   configuration:
-    description: "Target GitOps deployment(s) that will be updated by this action."
+    description: "Target GitOps deployment(s) that will be updated by this action (YAML encoded string)."
     required: true
 
   gitops-repository:
@@ -40,7 +40,7 @@ runs:
     - name: Extract tenant names and deploy
       id: deploy_tenants
       env:
-        CONFIGURATION: ${{ toJSON(inputs.configuration) }}
+        CONFIGURATION: ${{ inputs.configuration }}
 
         GITHUB_BRANCH: ${{ github.ref_name }}
         GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
