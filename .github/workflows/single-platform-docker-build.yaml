@@ -69,8 +69,8 @@ jobs:
         run: |
           #! /bin/bash
           for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
-            ACCOUNT_ID=$(echo "repo" | jq -r '.account_id')
-            REGION=$(echo "repo" | jq -r '.region')
+            ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+            REGION=$(echo "${repo}" | jq -r '.region')
             REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
             docker login --username AWS -p $(aws ecr get-login-password --region "${REGION}") "${REGISTRY}"
           done
@@ -114,9 +114,9 @@ jobs:
         run: |
           #! /bin/bash
           for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
-            NAME=$(echo "repo" | jq -r '.name')
-            ACCOUNT_ID=$(echo "repo" | jq -r '.account_id')
-            REGION=$(echo "repo" | jq -r '.region')
+            NAME=$(echo "${repo}" | jq -r '.name')
+            ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+            REGION=$(echo "${repo}" | jq -r '.region')
             REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
             IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
             docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
