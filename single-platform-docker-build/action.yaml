@@ -60,7 +60,7 @@ runs:
       shell: bash
       env:
         REGISTRY: ${{ inputs.base-image-aws-account-id }}.dkr.ecr.${{ inputs.base-image-aws-region }}.amazonaws.com
-      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) "${REGISTRY}"
+      run: docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.base-image-aws-region }}) "${REGISTRY}"
 
     - name: Build Docker image
       id: build-image
