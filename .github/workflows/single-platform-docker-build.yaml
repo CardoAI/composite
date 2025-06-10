@@ -61,20 +61,6 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to target ECR repositories
-        id: multi-ecr-login
-        shell: bash
-        env:
-          REPOSITORIES: ${{ inputs.repositories }}
-        run: |
-          set -e
-          for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
-            ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
-            REGION=$(echo "${repo}" | jq -r '.region')
-            REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
-            docker login --username AWS -p $(aws ecr get-login-password --region "${REGION}") "${REGISTRY}"
-          done
-
       - name: Login to ECR for base image
         if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
         shell: bash
@@ -107,6 +93,20 @@ jobs:
           medium-threshold: 0
           low-threshold: 0
           other-threshold: 0
+
+      - name: Login to target ECR repositories
+        id: multi-ecr-login
+        shell: bash
+        env:
+          REPOSITORIES: ${{ inputs.repositories }}
+        run: |
+          set -e
+          for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+            ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+            REGION=$(echo "${repo}" | jq -r '.region')
+            REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+            docker login --username AWS -p $(aws ecr get-login-password --region "${REGION}") "${REGISTRY}"
+          done
 
       - name: Push Docker image
         id: push-image
