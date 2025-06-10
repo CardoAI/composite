@@ -14,10 +14,10 @@ inputs:
 outputs:
   images:
     description: 'Full JSON with parsed os and architecture'
-    value: ${{ steps.vars.outputs.IMAGES }}
+    value: ${{ steps.prepare.outputs.IMAGES }}
   image_manifests:
     description: 'Full JSON but only comma-separated tag_suffixes for manifest'
-    value: ${{ steps.vars.outputs.IMAGE_MANIFESTS }}
+    value: ${{ steps.prepare.outputs.IMAGE_MANIFESTS }}
 
 runs:
   using: composite
@@ -26,13 +26,8 @@ runs:
       with:
         ref: ${{ inputs.sha }}
 
-    - name: Install pyyaml
-      shell: bash
-      run: |
-        pip install pyyaml
-      
     - name: Parse config.yaml files
-      id: vars
+      id: prepare
       env:
         FOLDERS: ${{ inputs.folders }}
         BRANCH: ${{ inputs.branch }}
