@@ -1,5 +1,5 @@
 name: "Update Image Digest and Deploy Tenants"
-description: "GitHub composite which updated image digests in the GitOps repository and deploys tenants based on the provided configuration."
+description: "GitHub composite that updates image digests in the GitOps repository and deploys tenants based on the provided configuration."
 inputs:
   configuration:
     description: "Target GitOps deployment(s) that will be updated by this action (YAML encoded string)."
