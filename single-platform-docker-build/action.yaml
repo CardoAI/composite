@@ -77,7 +77,7 @@ runs:
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
     - name: Scan Image
-      if: ${{ inputs.scan }}
+      if: ${{ inputs.scan == 'true' }}
       uses: CardoAI/composite/scan_image@main
       id: scan-image
       with:
