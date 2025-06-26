@@ -1,0 +1,13 @@
+name: Sanitize Ref Name
+description: Replace slashes in github.ref_name with dashes
+inputs: {}
+outputs:
+  sanitized:
+    description: "Sanitized ref name"
+    value: ${{ steps.replace.outputs.sanitized }}
+runs:
+  using: "composite"
+  steps:
+    - id: replace
+      shell: bash
+      run: echo "sanitized=${GITHUB_REF_NAME//\//-}" >> $GITHUB_OUTPUT
