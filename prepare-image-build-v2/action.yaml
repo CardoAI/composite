@@ -1,9 +1,6 @@
 name: 'Prepare Docker Image build'
 description: 'Action to prepare JSONS that will be used to build docker images'
 inputs:
-  branch:
-    description: 'Branch being used'
-    required: true
   config:
     description: 'JSON-encoded configuration for images and repositories'
     required: true
@@ -22,11 +19,10 @@ runs:
     - name: Prepare
       id: prepare
       env:
-        BRANCH: ${{ inputs.branch }}
         CONFIG: ${{ inputs.config }}
       shell: bash
       run: |
-        SANITIZED_BRANCH_NAME=${BRANCH//\//-}
+        SANITIZED_BRANCH_NAME=${GITHUB_REF_NAME//\//-}
         echo "IMAGES=$(echo "$CONFIG" | jq -c '[.[] | . as $item | .image.platforms[] | {
           folder: $item.image.folder,
           extra_args: ($item.image.extra_args | join(" ")),
