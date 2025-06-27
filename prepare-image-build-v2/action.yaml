@@ -22,20 +22,20 @@ runs:
         CONFIG: ${{ inputs.config }}
       shell: bash
       run: |
-        SANITIZED_BRANCH_NAME=${GITHUB_REF_NAME//\//-}
+        export SANITIZED_BRANCH_NAME=${GITHUB_REF_NAME//\//-}
         echo "IMAGES=$(echo "$CONFIG" | jq -c '[.[] | . as $item | .image.platforms[] | {
           folder: $item.image.folder,
           extra_args: ($item.image.extra_args | join(" ")),
           context: $item.image.context,
           platform: .,
           architecture: (split("/")[1]),
-          tag: ($item.image.tag + "-$SANITIZED_BRANCH_NAME-" + (split("/")[1])),
+          tag: ($item.image.tag + "-${SANITIZED_BRANCH_NAME}-" + (split("/")[1])),
           repositories: $item.repositories
         }]')" >> $GITHUB_OUTPUT
         echo "IMAGE_MANIFESTS=$(echo "$CONFIG" | jq -c '[.[] | . as $item | .repositories[] | {
           account_id: .account_id,
           region: .region,
           repository: .name,
-          tag: ($item.image.tag + "-$SANITIZED_BRANCH_NAME"),
+          tag: ($item.image.tag + "-${SANITIZED_BRANCH_NAME}"),
           tag_suffixes: ($item.image.platforms | map(split("/")[1]))
         }]')" >> $GITHUB_OUTPUT
