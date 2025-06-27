@@ -1,0 +1,45 @@
+name: 'Prepare Docker Image build'
+description: 'Action to prepare JSONS that will be used to build docker images'
+inputs:
+  branch:
+    description: 'Branch being used'
+    required: true
+  config:
+    description: 'JSON-encoded configuration for images and repositories'
+    required: true
+
+outputs:
+  images:
+    description: 'Full JSON with parsed os and architecture'
+    value: ${{ steps.prepare.outputs.IMAGES }}
+  image_manifests:
+    description: 'Full JSON but only comma-separated tag_suffixes for manifest'
+    value: ${{ steps.prepare.outputs.IMAGE_MANIFESTS }}
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare
+      id: prepare
+      env:
+        BRANCH: ${{ inputs.branch }}
+        CONFIG: ${{ inputs.config }}
+      shell: bash
+      run: |
+        SANITIZED_BRANCH_NAME=${BRANCH//\//-}
+        echo "IMAGES=$(echo "$CONFIG" | jq -c '[.[] | . as $item | .image.platforms[] | {
+          folder: $item.image.folder,
+          extra_args: ($item.image.extra_args | join(" ")),
+          context: $item.image.context,
+          platform: .,
+          architecture: (split("/")[1]),
+          tag: ($item.image.tag + "-$SANITIZED_BRANCH_NAME-" + (split("/")[1])),
+          repositories: $item.repositories
+        }]')" >> $GITHUB_OUTPUT
+        echo "IMAGE_MANIFESTS=$(echo "$CONFIG" | jq -c '[.[] | . as $item | .repositories[] | {
+          account_id: .account_id,
+          region: .region,
+          repository: .name,
+          tag: ($item.image.tag + "-$SANITIZED_BRANCH_NAME"),
+          tag_suffixes: ($item.image.platforms | map(split("/")[1]))
+        }]')" >> $GITHUB_OUTPUT
