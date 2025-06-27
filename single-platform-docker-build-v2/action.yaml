@@ -1,0 +1,143 @@
+name: "Build docker image for given platform"
+description: "Build a docker image for a given platform and push it to ECR"
+inputs:
+  sha:
+    description: The commit SHA that triggered the workflow.
+    type: string
+    required: true
+  folder:
+    description: The folder containing the Dockerfile.
+    type: string
+    required: true
+  context:
+    description: The Docker build context.
+    type: string
+    default: '.'
+  repositories:
+    description: The AWS ECR repositories to push the image to (JSON string list).
+    type: string
+    required: true
+  scan:
+    description: Whether to scan the image for vulnerabilities.
+    type: boolean
+    default: false
+  platform:
+    description: The platform to build the image for.
+    type: string
+    required: true
+  tag:
+    description: The Docker image tag.
+    type: string
+    required: true
+  extra-args:
+    description: The extra arguments to pass to the Docker build command.
+    type: string
+    default: ''
+  base-image-aws-account-id:
+    description: The AWS account ID where the base image is located.
+    type: string
+    default: "861208160487"
+  base-image-aws-region:
+    description: The AWS region where the base image is located.
+    type: string
+    default: eu-central-1
+
+runs:
+  using: composite
+  steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.sha }}
+        fetch-depth: 0
+        submodules: 'true'
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to ECR for base image
+      if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
+      shell: bash
+      env:
+        REGISTRY: ${{ inputs.base-image-aws-account-id }}.dkr.ecr.${{ inputs.base-image-aws-region }}.amazonaws.com
+      run: |
+        set -e
+        docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.base-image-aws-region }}) "${REGISTRY}"
+
+    - name: Login to target ECR repositories
+      id: multi-ecr-login
+      shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
+      run: |
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+          ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+          REGION=$(echo "${repo}" | jq -r '.region')
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+          docker login --username AWS -p $(aws ecr get-login-password --region "${REGION}") "${REGISTRY}"
+        done
+
+    - name: Build Docker image
+      id: build-image
+      shell: bash
+      env:
+        DOCKER_BUILDKIT: 1
+        BUILDKIT_PROGRESS: plain
+        REPOSITORIES: ${{ inputs.repositories }}
+
+      run: |
+        #! /bin/bash
+        echo "Building image ${{ inputs.tag }}"
+        
+        # Get the first repository for caching
+        FIRST_REPO=$(echo "${REPOSITORIES}" | jq -c '.[0]')
+        NAME=$(echo "${FIRST_REPO}" | jq -r '.name')
+        ACCOUNT_ID=$(echo "${FIRST_REPO}" | jq -r '.account_id')
+        REGION=$(echo "${FIRST_REPO}" | jq -r '.region')
+        REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+    
+        # Cache reference
+        CACHE_REF="${REGISTRY}/${NAME}:cache-${{ inputs.tag }}"
+        
+        docker buildx build \
+          --platform ${{ inputs.platform }} \
+          --tag ${{ inputs.tag }} \
+          --cache-from=type=registry,ref=${CACHE_REF} \
+          --cache-to=type=registry,ref=${CACHE_REF},mode=max \
+          --load \
+          --file ${{ inputs.folder }}/Dockerfile \
+          ${{ inputs.extra-args }} ${{ inputs.context }}
+        echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
+
+    - name: Scan Image
+      if: ${{ inputs.scan == true || inputs.scan == 'true' }}
+      uses: CardoAI/composite/scan_image@main
+      id: scan-image
+      with:
+        image-tag: ${{ inputs.tag }}
+        critical-threshold: 0
+        high-threshold: 0
+        medium-threshold: 0
+        low-threshold: 0
+        other-threshold: 0
+
+    - name: Push Docker image
+      id: push-image
+      shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
+      run: |
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+          NAME=$(echo "${repo}" | jq -r '.name')
+          ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+          REGION=$(echo "${repo}" | jq -r '.region')
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+
+          IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
+          docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
+          echo "Pushing image ${IMAGE_TAG}..."
+          docker push "${IMAGE_TAG}"
+          echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
+        done
