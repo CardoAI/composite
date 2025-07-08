@@ -106,11 +106,17 @@ runs:
         # Cache reference
         CACHE_REF="${REGISTRY}/${NAME}:cache-${{ inputs.tag }}"
         
+        # Cache args if not using Docker driver
+        CACHE_ARGS=""
+        if [[ "${{ inputs.docker-driver }}" != "docker" ]]; then
+          CACHE_ARGS="--cache-from=type=registry,ref=${CACHE_REF} \
+          --cache-to=type=registry,ref=${CACHE_REF},mode=max"
+        fi
+
         docker buildx build \
           --platform ${{ inputs.platform }} \
           --tag ${{ inputs.tag }} \
-          --cache-from=type=registry,ref=${CACHE_REF} \
-          --cache-to=type=registry,ref=${CACHE_REF},mode=max \
+          ${CACHE_ARGS} \
           --load \
           --file ${{ inputs.folder }}/Dockerfile \
           ${{ inputs.extra-args }} ${{ inputs.context }}
