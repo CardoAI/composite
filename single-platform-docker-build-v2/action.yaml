@@ -33,6 +33,10 @@ inputs:
     description: The extra arguments to pass to the Docker build command.
     type: string
     default: ''
+  docker-driver:
+    description: The Docker driver to use for building the image.
+    type: string
+    default: 'docker-container'
   base-image-aws-account-id:
     description: The AWS account ID where the base image is located.
     type: string
@@ -54,6 +58,8 @@ runs:
 
     - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@v3
+      with:
+        driver: ${{ inputs.docker-driver }}
 
     - name: Login to ECR for base image
       if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
