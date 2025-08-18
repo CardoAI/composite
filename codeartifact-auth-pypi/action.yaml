@@ -26,7 +26,7 @@ outputs:
     value: ${{ steps.get-token.outputs.repository_url }}
   index_url:
     description: Fully-qualified PyPI index URL
-    value: "https://aws:{{ steps.get-token.outputs.token }}@${{ inputs.domain }}-${{ inputs.domain-owner }}.d.codeartifact.${{ inputs.region }}.amazonaws.com/pypi/${{ inputs.repository }}/simple/"
+    value: "https://aws:${{ steps.get-token.outputs.token }}@${{ inputs.domain }}-${{ inputs.domain-owner }}.d.codeartifact.${{ inputs.region }}.amazonaws.com/pypi/${{ inputs.repository }}/simple/"
 
 runs:
   using: "composite"
