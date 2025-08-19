@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set default value for BACKEND if it's not set
+: ${BACKEND:=""}
+
 # Set default value for BUILD_DIRECTORY if it's not set
 : ${BUILD_DIRECTORY:="dist"}
 
@@ -23,7 +26,7 @@ yarn install --ignore-engines
 
 # Build the project
 echo "Building the project..."
-NODE_OPTIONS=$NODE_OPTIONS yarn build
+NODE_OPTIONS=$NODE_OPTIONS BACKEND=$BACKEND yarn build
 
 # Check if the BUILD_DIRECTORY exists and sync to S3
 if [ -d "$BUILD_DIRECTORY" ]; then
