@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set default value for BACKEND if it's not set (used by Cloudfront frontends)
+: ${BACKEND:=""}
+
 # Set default value for BUILD_DIRECTORY if it's not set
 : ${BUILD_DIRECTORY:="dist"}
 
