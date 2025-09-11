@@ -40,8 +40,8 @@ runs:
       run: |
         # If the image is not a multi-arch index, copy it directly
         is_index=$(docker buildx imagetools inspect \
-            ${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} | jq "has('manifests')")
-        
+            ${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} | jq 'has("manifests")')
+
         if [ "$is_index" != "true" ]; then
             echo "Image is not a multi-arch index. Copying single image."
             skopeo copy \
