@@ -63,6 +63,7 @@ runs:
             echo "Processing digest: ${digest}"
             tag=$(aws ecr batch-get-image \
                 --repository-name ${{ inputs.src-ecr-repository }} \
+                --registry-id ${{ inputs.src-aws-account-id }} \
                 --region ${{ inputs.src-aws-region }} \
                 --image-ids imageDigest="${digest}" \
                 --query "images[0].imageId.imageTag" \
