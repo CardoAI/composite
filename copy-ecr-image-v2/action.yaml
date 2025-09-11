@@ -1,0 +1,50 @@
+name: "Copy Docker Image From one AWS ECR repository to another"
+description: "Copies a Docker image (manifest + multi-arch images) from one ECR repository to another. Ensures that all image tags are copied."
+inputs:
+  src-aws-account-id:
+    description: "The AWS account ID of the source ECR repository."
+    required: true
+  src-aws-region:
+    description: "The AWS region of the source ECR repository."
+    required: true
+  src-ecr-repository:
+    description: "The source ECR repository name."
+    required: true
+  src-ecr-image-tag:
+    description: "The source ECR image tag."
+    required: true
+  dst-aws-account-id:
+    description: "The AWS account ID of the destination ECR repository."
+    required: true
+  dst-aws-region:
+    description: "The AWS region of the destination ECR repository."
+    required: true
+  dst-ecr-repository:
+    description: "The destination ECR repository name."
+    required: true
+  dst-ecr-image-tag:
+    description: "The destination ECR image tag."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Copy ECR images
+      shell: bash
+      run: |
+        tags=$(skopeo inspect \
+            --creds "AWS:$(aws ecr get-login-password --region ${{ inputs.src-aws-region }})" \
+            docker://${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} | jq -r ".RepoTags[]")
+
+        echo "Found tags: ${tags[@]}"
+
+        for tag in $tags; do
+            echo "Processing tag: ${tag}"
+            
+            skopeo copy \
+                --multi-arch index-only \
+                --src-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.src-aws-region }})" \
+                --dest-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.dst-aws-region }})" \
+                docker://${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${tag} \
+                docker://${{ inputs.dst-aws-account-id }}.dkr.ecr.${{ inputs.dst-aws-region }}.amazonaws.com/${{ inputs.dst-ecr-repository }}:${tag}
+        done
