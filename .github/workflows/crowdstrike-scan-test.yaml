@@ -2,20 +2,18 @@ name: Crowdstrike scan test
 on:
   workflow_dispatch:
 env:
-  EU_AWS_ID: 686474074286
+  EU_AWS_ID: 861208160487
   EU_AWS_REGION: eu-central-1
   EU_ECR_REGISTRY: $EU_AWS_ID.dkr.ecr.eu-central-1.amazonaws.com
 jobs:
   build:
     name: Build Images
-    runs-on: ${{ vars.DEFAULT_GITHUB_RUNNER }}
+    runs-on: ${{ vars.EU_GITHUB_RUNNER }}
     strategy:
       fail-fast: false
       matrix:
         image:
-          - name: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/abl_backend:main
-          - name: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/equalizer-core-api:main
-          - name: 686474074286.dkr.ecr.eu-central-1.amazonaws.com/oxygen-backend:main
+          - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-abl:backend-staging
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,9 +25,7 @@ jobs:
           aws-id: ${{ env.EU_AWS_ID }}
 
       - name: Scan Image
-        uses: CardoAI/composite/scan_image_v2@main
+        uses: CardoAI/composite/scan_image_v3@main
         id: scan-image
         with:
-          image-tag: ${{ matrix.image.name }}
-          falcon-client-id: ${{ secrets.FALCON_CLIENT_ID }}
-          falcon-client-secret: ${{ secrets.FALCON_CLIENT_SECRET }}
+          image: ${{ matrix.image.name }}
