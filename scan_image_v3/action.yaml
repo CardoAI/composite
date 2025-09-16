@@ -8,6 +8,12 @@ inputs:
     description: "Path to the configuration file"
     required: false
     default: "./fcs-config.json"
+  falcon_client_id:
+    description: "Falcon Client ID (passed as a secret)"
+    required: true
+  falcon_client_secret:
+    description: "Falcon Client Secret (passed as a secret)"
+    required: true
 
 runs:
   using: composite
@@ -15,9 +21,9 @@ runs:
     - name: Run FCS IaC Scan
       uses: crowdstrike/fcs-action@v2.0.2
       with:
-        falcon_client_id: ${{ secrets.FALCON_CLIENT_ID }}
+        falcon_client_id: ${{ inputs.FALCON_CLIENT_ID }}
         falcon_region: "eu-1"
         config: "${{ inputs.config }}"
         image: "${{ inputs.image }}"
       env:
-        FALCON_CLIENT_SECRET: ${{ secrets.FALCON_CLIENT_SECRET }}
+        FALCON_CLIENT_SECRET: ${{ inputs.FALCON_CLIENT_SECRET }}
