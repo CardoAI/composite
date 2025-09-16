@@ -1,0 +1,23 @@
+name: "Scan Image"
+description: "This action scans an image"
+inputs:
+  image:
+    description: "Image to scan"
+    required: true
+  config:
+    description: "Path to the configuration file"
+    required: false
+    default: "./fcs-config.json"
+
+runs:
+  using: composite
+  steps:
+    - name: Run FCS IaC Scan
+      uses: crowdstrike/fcs-action@v2.0.2
+      with:
+        falcon_client_id: ${{ vars.FALCON_CLIENT_ID }}
+        falcon_region: "eu-1"
+        config: "${{ inputs.config }}"
+        image: "${{ inputs.image }}"
+      env:
+        FALCON_CLIENT_SECRET: ${{ secrets.FALCON_CLIENT_SECRET }}
