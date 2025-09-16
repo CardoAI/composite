@@ -27,6 +27,7 @@ runs:
       with:
         falcon_client_id: ${{ inputs.FALCON_CLIENT_ID }}
         falcon_region: "eu-1"
+        scan_type: "${{ inputs.scan_type }}"
         config: "${{ inputs.config }}"
         image: "${{ inputs.image }}"
       env:
