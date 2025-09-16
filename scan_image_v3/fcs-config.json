@@ -1,5 +1,4 @@
 {
-    "scan_type": "image",
     "fail-on": [
         "critical=1",
         "high=10"

@@ -1,6 +1,10 @@
 name: "Scan Image"
 description: "This action scans an image"
 inputs:
+  scan_type:
+    description: "Type of scan to perform (iac or image)"
+    required: false
+    default: "image"
   image:
     description: "Image to scan"
     required: true
