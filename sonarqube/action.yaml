@@ -1,5 +1,13 @@
 name: "SonarQube"
 description: "This action scans the code with SonarQube"
+inputs:
+  sonar-token:
+    description: "SonarQube Token"
+    required: true
+  sonar-host-url:
+    description: "SonarQube Host URL"
+    required: true
+
 runs:
   using: composite
   steps:
@@ -14,8 +22,8 @@ runs:
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v6.0.0
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
+        SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
       with:
         args: >
           -Dsonar.projectName=${{ github.repository }}
