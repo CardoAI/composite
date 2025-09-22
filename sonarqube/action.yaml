@@ -27,4 +27,4 @@ runs:
       with:
         args: >
           -Dsonar.projectName=${{ github.repository }}
-          -Dsonar.projectKey=${{ github.repository_id }}
+          -Dsonar.projectKey=repository_id:${{ github.repository_id }}
