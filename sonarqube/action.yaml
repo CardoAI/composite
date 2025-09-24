@@ -26,5 +26,4 @@ runs:
         SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
       with:
         args: >
-          -Dsonar.projectName=${{ github.repository }}
           -Dsonar.projectKey=repository_id:${{ github.repository_id }}

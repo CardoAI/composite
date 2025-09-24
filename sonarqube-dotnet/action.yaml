@@ -80,7 +80,6 @@ runs:
         MSBUILDNODECOUNT: 1
       run: |
         $SCANNER begin \
-          /n:"${{ github.repository }}" \
           /k:"repository_id:${{ github.repository_id }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
           /d:sonar.host.url="${{ inputs.sonar-host-url }}"
