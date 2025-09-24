@@ -19,11 +19,12 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 22
-    - name: Get SonarQube Project Name
-      id: project-name
+    - name: Get SonarQube Project Info
+      id: project-info
       shell: bash
       run: |
         echo "project_name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+        echo "project_key=repository_id:${{ github.repository_id }}" >> "$GITHUB_OUTPUT"
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v6.0.0
       env:
@@ -31,5 +32,5 @@ runs:
         SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
       with:
         args: >
-          -Dsonar.projectName=${{ steps.project-name.outputs.project_name }}
-          -Dsonar.projectKey=repository_id:${{ github.repository_id }}
+          -Dsonar.projectName=${{ steps.project-info.outputs.project_name }}
+          -Dsonar.projectKey=${{ steps.project-info.outputs.project_key }}

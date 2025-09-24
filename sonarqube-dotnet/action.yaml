@@ -73,6 +73,12 @@ runs:
           --password "${{ steps.codeartifact.outputs.token }}" \
           --store-password-in-clear-text \
           "${{ steps.codeartifact.outputs.registry }}"
+    - name: Get SonarQube Project Info
+      id: project-info
+      shell: bash
+      run: |
+        echo "project_name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+        echo "project_key=repository_id:${{ github.repository_id }}" >> "$GITHUB_OUTPUT"
     - name: Build and analyze
       shell: bash
       env:
@@ -80,8 +86,8 @@ runs:
         MSBUILDNODECOUNT: 1
       run: |
         $SCANNER begin \
-          /n:"${{ github.repository }}" \
-          /k:"repository_id:${{ github.repository_id }}" \
+          /n:"${{ steps.project-info.outputs.project_name }}" \
+          /k:"${{ steps.project-info.outputs.project_key }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
           /d:sonar.host.url="${{ inputs.sonar-host-url }}"
         dotnet build
