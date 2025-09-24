@@ -75,12 +75,13 @@ runs:
           "${{ steps.codeartifact.outputs.registry }}"
     - name: Build and analyze
       shell: bash
+      env:
+        SCANNER: "./.sonar/scanner/dotnet-sonarscanner"
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin \
+        $SCANNER begin \
           /n:"${{ github.repository }}" \
-          /k:"repository_id:${{ github.repository_id }}" \  
+          /k:"repository_id:${{ github.repository_id }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
           /d:sonar.host.url="${{ inputs.sonar-host-url }}"
         dotnet build
-        ./.sonar/scanner/dotnet-sonarscanner end \
-          /d:sonar.token="${{ inputs.sonar-token }}"
+        $SCANNER end /d:sonar.token="${{ inputs.sonar-token }}"
