@@ -77,6 +77,7 @@ runs:
       shell: bash
       env:
         SCANNER: "./.sonar/scanner/dotnet-sonarscanner"
+        MSBUILDNODECOUNT: 1
       run: |
         $SCANNER begin \
           /n:"${{ github.repository }}" \
