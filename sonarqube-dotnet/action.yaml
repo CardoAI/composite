@@ -61,7 +61,7 @@ runs:
       uses: CardoAI/composite/codeartifact-auth-nuget@main
       with:
         domain: ${{ inputs.codeartifact-domain }}
-        domain-owner: ${{ inputs.coreartifact-domain-owner }}
+        domain-owner: ${{ inputs.codeartifact-domain-owner }}
         region: ${{ inputs.codeartifact-region }}
         repository: ${{ inputs.codeartifact-repository }}
     - name: Add CodeArtifact as a NuGet source
