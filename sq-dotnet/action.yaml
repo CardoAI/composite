@@ -97,7 +97,6 @@ runs:
         SCANNER: "./.sonar/scanner/dotnet-sonarscanner"
       run: |
         $SCANNER begin \
-          /d:sonar.exclusions="**/bin/**,**/obj/**,**/node_modules/**"
           /n:"${{ steps.project-info.outputs.project_name }}" \
           /k:"${{ steps.project-info.outputs.project_key }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
