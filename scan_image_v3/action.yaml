@@ -32,3 +32,7 @@ runs:
         output_path: "${{ inputs.output_path }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
+
+    - name: Display vulnerability scan results (JSON)
+      uses: shell
+      run: cat ${{ ${{ inputs.output_path }} }}
