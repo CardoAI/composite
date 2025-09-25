@@ -101,7 +101,7 @@ runs:
           /k:"${{ steps.project-info.outputs.project_key }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
           /d:sonar.host.url="${{ inputs.sonar-host-url }}" ${{ inputs.sonar-additional-args }}
-        dotnet build src/CardoAi.Core.Abl.Infrastructure/CardoAi.Core.Abl.Infrastructure.csproj -c Release --no-restore /m:1 /nr:false /p:RunAnalyzers=false /p:RunAnalyzersDuringBuild=false /p:EnableNETAnalyzers=false /p:UseSharedCompilation=false /p:ProduceReferenceAssembly=false /clp:ErrorsOnly /p:SonarQubeExclude=true
+        dotnet build src/CardoAi.Core.Abl.Infrastructure/CardoAi.Core.Abl.Infrastructure.csproj -c Release --no-restore /m:1 /nr:false /p:RunAnalyzers=false /p:RunAnalyzersDuringBuild=false /p:EnableNETAnalyzers=false /p:UseSharedCompilation=false /p:ProduceReferenceAssembly=false /clp:ErrorsOnly 
          
         dotnet build ${{ inputs.dotnet-build-args }}
         
