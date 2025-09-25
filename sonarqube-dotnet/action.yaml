@@ -23,6 +23,10 @@ inputs:
     description: "Additional arguments to pass to .Net SonarScanner"
     required: false
     default: ""
+  dotnet-build-args:
+    description: "dotnet build command arguments"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -93,5 +97,5 @@ runs:
           /k:"${{ steps.project-info.outputs.project_key }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
           /d:sonar.host.url="${{ inputs.sonar-host-url }}" ${{ inputs.sonar-additional-args }}
-        dotnet build
+        dotnet build ${{ inputs.dotnet-build-args }}
         $SCANNER end /d:sonar.token="${{ inputs.sonar-token }}"
