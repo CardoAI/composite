@@ -1,5 +1,5 @@
-name: "SonarQube .Net"
-description: "This action scans the code with SonarQube"
+name: ".Net SonarQube Scan"
+description: "This action scans .Net code with SonarQube"
 inputs:
   codeartifact-domain:
     description: "CodeArtifact domain name"
@@ -19,6 +19,10 @@ inputs:
   sonar-host-url:
     description: "SonarQube Host URL"
     required: true
+  sonar-additional-args:
+    description: "Additional arguments to pass to .Net SonarScanner"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -83,12 +87,11 @@ runs:
       shell: bash
       env:
         SCANNER: "./.sonar/scanner/dotnet-sonarscanner"
-        MSBUILDNODECOUNT: 1
       run: |
         $SCANNER begin \
           /n:"${{ steps.project-info.outputs.project_name }}" \
           /k:"${{ steps.project-info.outputs.project_key }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
-          /d:sonar.host.url="${{ inputs.sonar-host-url }}"
+          /d:sonar.host.url="${{ inputs.sonar-host-url }}" ${{ inputs.sonar-additional-args }}
         dotnet build
         $SCANNER end /d:sonar.token="${{ inputs.sonar-token }}"

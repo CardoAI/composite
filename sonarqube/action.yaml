@@ -1,5 +1,5 @@
-name: "SonarQube"
-description: "This action scans the code with SonarQube"
+name: "SonarQube Scan"
+description: "This action scans code with SonarQube"
 inputs:
   sonar-token:
     description: "SonarQube Token"
@@ -7,6 +7,10 @@ inputs:
   sonar-host-url:
     description: "SonarQube Host URL"
     required: true
+  sonar-additional-args:
+    description: "Additional arguments to pass to SonarQube Scanner"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -31,6 +35,7 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
         SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
       with:
-        args: >
+        args: >-
           -Dsonar.projectName=${{ steps.project-info.outputs.project_name }}
           -Dsonar.projectKey=${{ steps.project-info.outputs.project_key }}
+          ${{ inputs.sonar-additional-args }}
