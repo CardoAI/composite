@@ -4,7 +4,6 @@ on:
 env:
   EU_AWS_ID: 861208160487
   EU_AWS_REGION: eu-central-1
-  EU_ECR_REGISTRY: $EU_AWS_ID.dkr.ecr.eu-central-1.amazonaws.com
 jobs:
   build:
     name: Scan Image

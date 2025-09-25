@@ -8,16 +8,20 @@ inputs:
   image:
     description: "Image to scan"
     required: true
-  config:
-    description: "Path to the configuration file"
-    required: false
-    default: "fcs-config.json"
   falcon_client_id:
     description: "Falcon Client ID (passed as a secret)"
     required: true
   falcon_client_secret:
     description: "Falcon Client Secret (passed as a secret)"
     required: true
+  output_path:
+    description: "Path to save the scan results"
+    required: false
+    default: "./upload-results/"
+  report_formats:
+    description: "Report formats to generate (comma-separated)"
+    required: false
+    default: "json"
 
 runs:
   using: composite
@@ -28,7 +32,8 @@ runs:
         falcon_client_id: ${{ inputs.FALCON_CLIENT_ID }}
         falcon_region: "eu-1"
         scan_type: "${{ inputs.scan_type }}"
-        config: "${{ inputs.config }}"
         image: "${{ inputs.image }}"
+        output_path: "${{ inputs.output_path }}"
+        report_formats: "${{ inputs.report_formats }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.FALCON_CLIENT_SECRET }}
