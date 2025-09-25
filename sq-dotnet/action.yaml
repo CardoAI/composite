@@ -1,0 +1,108 @@
+name: ".Net SonarQube Scan"
+description: "This action scans .Net code with SonarQube"
+inputs:
+  codeartifact-domain:
+    description: "CodeArtifact domain name"
+    required: true
+  codeartifact-domain-owner:
+    description: "AWS account ID that owns the domain"
+    required: true
+  codeartifact-region:
+    description: "AWS region where the domain lives (e.g. eu-central-1)"
+    required: true
+  codeartifact-repository:
+    description: "Repository name that should appear in the npm URL path"
+    required: true
+  sonar-token:
+    description: "SonarQube Token"
+    required: true
+  sonar-host-url:
+    description: "SonarQube Host URL"
+    required: true
+  sonar-additional-args:
+    description: "Additional arguments to pass to .Net SonarScanner"
+    required: false
+    default: ""
+  dotnet-build-args:
+    description: "dotnet build command arguments"
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'zulu' # Alternative distribution options are available.
+    - name: Expose baked-in .NET globally
+      shell: bash
+      run: |
+        sudo ln -sf /home/runner/.dotnet/dotnet /usr/bin/dotnet
+        echo "DOTNET_ROOT=/home/runner/.dotnet" >> $GITHUB_ENV
+    - name: Cache SonarQube packages
+      uses: actions/cache@v4
+      with:
+        path: ~\.sonar\cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache SonarQube scanner
+      id: cache-sonar-scanner
+      uses: actions/cache@v4
+      with:
+        path: .\.sonar\scanner
+        key: ${{ runner.os }}-sonar-scanner
+        restore-keys: ${{ runner.os }}-sonar-scanner
+    - name: Install SonarQube scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir -p ./.sonar/scanner
+        dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+    - name: Get CodeArtifact Auth Token and Registry
+      id: codeartifact
+      uses: CardoAI/composite/codeartifact-auth-nuget@main
+      with:
+        domain: ${{ inputs.codeartifact-domain }}
+        domain-owner: ${{ inputs.codeartifact-domain-owner }}
+        region: ${{ inputs.codeartifact-region }}
+        repository: ${{ inputs.codeartifact-repository }}
+    - name: Add CodeArtifact as a NuGet source
+      shell: bash
+      run: |
+        dotnet nuget add source \
+          --name codeartifact \
+          --username aws \
+          --password "${{ steps.codeartifact.outputs.token }}" \
+          --store-password-in-clear-text \
+          "${{ steps.codeartifact.outputs.registry }}"
+    - name: Get SonarQube Project Info
+      id: project-info
+      shell: bash
+      run: |
+        echo "project_name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+        echo "project_key=repository_id:${{ github.repository_id }}" >> "$GITHUB_OUTPUT"
+    - name: Restore
+      shell: bash
+      run: dotnet restore -p:RestoreDisableParallel=true
+              
+    - name: Build and analyze
+      shell: bash
+      env:
+        SCANNER: "./.sonar/scanner/dotnet-sonarscanner"
+      run: |
+        $SCANNER begin \
+          /n:"${{ steps.project-info.outputs.project_name }}" \
+          /k:"${{ steps.project-info.outputs.project_key }}" \
+          /d:sonar.token="${{ inputs.sonar-token }}" \
+          /d:sonar.host.url="${{ inputs.sonar-host-url }}" ${{ inputs.sonar-additional-args }}
+        dotnet build src/CardoAi.Core.Abl.Infrastructure/CardoAi.Core.Abl.Infrastructure.csproj -c Release --no-restore /m:1 /nr:false /p:RunAnalyzers=false /p:RunAnalyzersDuringBuild=false /p:EnableNETAnalyzers=false /p:UseSharedCompilation=false /p:ProduceReferenceAssembly=false /clp:ErrorsOnly 
+         
+        dotnet build ${{ inputs.dotnet-build-args }}
+        
+        $SCANNER end /d:sonar.token="${{ inputs.sonar-token }}"

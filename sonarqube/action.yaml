@@ -1,0 +1,41 @@
+name: "SonarQube Scan"
+description: "This action scans code with SonarQube"
+inputs:
+  sonar-token:
+    description: "SonarQube Token"
+    required: true
+  sonar-host-url:
+    description: "SonarQube Host URL"
+    required: true
+  sonar-additional-args:
+    description: "Additional arguments to pass to SonarQube Scanner"
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+        fetch-depth: 0
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Get SonarQube Project Info
+      id: project-info
+      shell: bash
+      run: |
+        echo "project_name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+        echo "project_key=repository_id:${{ github.repository_id }}" >> "$GITHUB_OUTPUT"
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v6.0.0
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
+        SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
+      with:
+        args: >-
+          -Dsonar.projectName=${{ steps.project-info.outputs.project_name }}
+          -Dsonar.projectKey=${{ steps.project-info.outputs.project_key }}
+          ${{ inputs.sonar-additional-args }}
