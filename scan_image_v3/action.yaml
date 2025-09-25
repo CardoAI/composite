@@ -17,11 +17,7 @@ inputs:
   output_path:
     description: "Path to save the scan results"
     required: false
-    default: "./upload-results/"
-  report_formats:
-    description: "Report formats to generate (comma-separated)"
-    required: false
-    default: "json"
+    default: "./scan-results.json"
 
 runs:
   using: composite
@@ -34,6 +30,5 @@ runs:
         scan_type: "${{ inputs.scan_type }}"
         image: "${{ inputs.image }}"
         output_path: "${{ inputs.output_path }}"
-        report_formats: "${{ inputs.report_formats }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
