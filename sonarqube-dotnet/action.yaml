@@ -97,5 +97,5 @@ runs:
           /k:"${{ steps.project-info.outputs.project_key }}" \
           /d:sonar.token="${{ inputs.sonar-token }}" \
           /d:sonar.host.url="${{ inputs.sonar-host-url }}" ${{ inputs.sonar-additional-args }}
-        dotnet build ${{ inputs.dotnet-build-args }}
+        dotnet publish ${{ inputs.dotnet-build-args }}
         $SCANNER end /d:sonar.token="${{ inputs.sonar-token }}"
