@@ -17,7 +17,7 @@ inputs:
   output_path:
     description: "Path to save the scan results"
     required: false
-    default: "./scan-results.sarif"
+    default: "./scan-results.json"
 
 runs:
   using: composite
