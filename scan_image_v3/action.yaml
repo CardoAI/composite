@@ -32,3 +32,7 @@ runs:
         output_path: "${{ inputs.output_path }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
+    - name: Read and display JSON output in Action summary
+      run: |
+        cat "${{ inputs.output_path }}" >> $GITHUB_STEP_SUMMARY
+      shell: bash
