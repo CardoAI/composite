@@ -87,10 +87,6 @@ runs:
       run: |
         echo "project_name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
         echo "project_key=repository_id:${{ github.repository_id }}" >> "$GITHUB_OUTPUT"
-    - name: Restore
-      shell: bash
-      run: dotnet restore -p:RestoreDisableParallel=true
-              
     - name: Build and analyze
       shell: bash
       env:
