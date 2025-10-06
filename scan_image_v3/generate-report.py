@@ -32,10 +32,22 @@ def create_markdown_report(data):
     vulnerabilities = data.get('Vulnerabilities', [])
     vuln_table_md = "\n### 🔍 Vulnerabilities Found\n\n"
     if vulnerabilities:
+        # Define the order of severities
+        severity_order = { "CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "UNKNOWN": 4 }
+
+        # Sort the vulnerabilities list based on the severity order
+        sorted_vulnerabilities = sorted(
+            vulnerabilities,
+            key=lambda item: severity_order.get(
+                item.get("Vulnerability", {}).get("Details", {}).get("severity", "UNKNOWN").upper(), 
+                99  # Default value for any unexpected severities, placing them at the end
+            )
+        )
+
         vuln_table_md += "| VULNERABILITY | EXPRT RATING | SEVERITY | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
         vuln_table_md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
 
-        for item in vulnerabilities:
+        for item in sorted_vulnerabilities:
             # (The rest of this function remains the same as before)
             vuln_data = item.get("Vulnerability", {})
             details = vuln_data.get("Details", {})
