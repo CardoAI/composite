@@ -37,4 +37,4 @@ runs:
       id: generate-report
       shell: bash
       run: |
-        python ${{ github.action_path }}/generate-markdown.py ${{ inputs.output_path }}
+        python ${{ github.action_path }}/generate-report.py ${{ inputs.output_path }}
