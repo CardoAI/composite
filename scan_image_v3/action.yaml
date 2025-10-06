@@ -32,3 +32,9 @@ runs:
         output_path: "${{ inputs.output_path }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
+
+    - name: Generate Report Summary
+      id: generate-report
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/generate-markdown.py ${{ inputs.output_path }}
