@@ -8,6 +8,30 @@ inputs:
   image:
     description: "Image to scan"
     required: true
+  minimum_score:
+    description: "Minimum score to pass the scan"
+    required: false
+  minimum_severity:
+    description: "Minimum severity to fail the scan (low, medium, high, critical)"
+    required: false
+  minimum_exprt:
+    description: "Minimum exploitability to fail the scan (low, medium, high, critical)"
+    required: false
+  exclude_vulnerabilities:
+    description: "Comma-separated list of vulnerability IDs to exclude from the scan"
+    required: false
+  vuln_fixable_only:
+    description: "Consider only fixable vulnerabilities"
+    required: false
+  minimum_detection_severity:
+    description: "Minimum detection severity to fail the scan (low, medium, high, critical)"
+    required: false
+  show_full_description:
+    description: "Show full vuln description in the report"
+    default: "true"
+  show_full_detection_details:
+    description: "Show full detection details in the report"
+    default: "false"
   falcon_client_id:
     description: "Falcon Client ID (passed as a secret)"
     required: true
@@ -30,6 +54,14 @@ runs:
         falcon_region: "eu-1"
         scan_type: "${{ inputs.scan_type }}"
         image: "${{ inputs.image }}"
+        minimum_score: "${{ inputs.minimum_score }}"
+        minimum_severity: "${{ inputs.minimum_severity }}"
+        minimum_exprt: "${{ inputs.minimum_exprt }}"
+        exclude_vulnerabilities: "${{ inputs.exclude_vulnerabilities }}"
+        vuln_fixable_only: "${{ inputs.vuln_fixable_only }}"
+        minimum_detection_severity: "${{ inputs.minimum_detection_severity }}"
+        show_full_description: "${{ inputs.show_full_description }}"
+        show_full_detection_details: "${{ inputs.show_full_detection_details }}"
         output_path: "${{ inputs.output_path }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
