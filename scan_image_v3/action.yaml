@@ -23,6 +23,7 @@ runs:
   using: composite
   steps:
     - name: Run FCS IaC Scan
+      id: fcs-scan
       uses: crowdstrike/fcs-action@v2.0.2
       with:
         falcon_client_id: ${{ inputs.falcon_client_id }}
@@ -32,6 +33,14 @@ runs:
         output_path: "${{ inputs.output_path }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
+
+    - name: Check Scan Exit Code
+      shell: bash
+      run: |
+        if [[ "${{ steps.fcs-scan.outputs.exit-code }}" != "0" ]]; then
+          echo "::error::CrowdStrike scan failed with exit code: ${{ steps.fcs-scan.outputs.exit-code }}"
+          exit 1
+        fi
 
     - name: Generate Report Summary
       id: generate-report
