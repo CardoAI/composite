@@ -7,12 +7,12 @@ env:
 jobs:
   build:
     name: Scan Image
-    runs-on: ${{ vars.EU_GITHUB_RUNNER }}-amd64-medium
+    runs-on: ${{ vars.EU_GITHUB_RUNNER }}
     strategy:
       fail-fast: false
       matrix:
         image:
-          - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-oxygen:backend-main-amd64
+          - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-abl:backend-main-amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v3
