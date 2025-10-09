@@ -35,7 +35,7 @@ inputs:
   timeout:
     description: "Timeout for the scan in seconds"
     required: false
-    default: "900"
+    default: "300"
   falcon_client_id:
     description: "Falcon Client ID (passed as a secret)"
     required: true
