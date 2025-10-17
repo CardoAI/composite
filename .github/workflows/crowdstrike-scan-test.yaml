@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         image:
-          - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-equalizer-core:backend-main
+          - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-oxygen:backend-main
     steps:
       - name: Checkout
         uses: actions/checkout@v3
