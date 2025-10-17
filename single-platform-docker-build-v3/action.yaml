@@ -34,12 +34,6 @@ inputs:
   base-image-aws-region:
     description: The AWS region where the base image is located.
     default: eu-central-1
-  falcon-client-id:
-    description: "Falcon Client ID (passed as a secret)"
-    required: false
-  falcon-client-secret:
-    description: "Falcon Client Secret (passed as a secret)"
-    required: false
 
 runs:
   using: composite
@@ -121,8 +115,8 @@ runs:
       id: scan-image
       with:
         image: ${{ inputs.tag }}
-        falcon-client-id: ${{ inputs.falcon-client-id }}
-        falcon-client-secret: ${{ inputs.falcon-client-secret }}
+        falcon-client-id: ${{ secrets.FALCON_CLIENT_ID }}
+        falcon-client-secret: ${{ secrets.FALCON_CLIENT_SECRET }}
 
     - name: Push Docker image
       id: push-image
