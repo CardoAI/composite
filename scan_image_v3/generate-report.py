@@ -44,7 +44,7 @@ def create_markdown_report(data):
             )
         )
 
-        vuln_table_md += "| VULNERABILITY | EXPRT RATING | SEVERITY | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
+        vuln_table_md += "| VULNERABILITY | SEVERITY | EXPRT RATING | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
         vuln_table_md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
 
         for item in sorted_vulnerabilities:
@@ -68,7 +68,7 @@ def create_markdown_report(data):
             fixed_versions = vuln_data.get("FixedVersions", [])
             fixed_version = fixed_versions[0] if fixed_versions else "No fix"
             description = (details.get("description", "N/A")[:50] + '...').replace('\n', ' ')
-            vuln_table_md += f"| {cve_id} | {exprt_rating} | {severity} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
+            vuln_table_md += f"| {cve_id} | {severity} | {exprt_rating} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
 
     # --- 3. Detections Table ---
     detections = data.get('Detections', [])
