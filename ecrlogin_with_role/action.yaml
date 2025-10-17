@@ -22,5 +22,6 @@ runs:
       env:
         REGISTRY: ${{ inputs.aws-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com
       run: |
+        set -e
         docker login --username AWS -p $(aws ecr get-login-password --region ${{ inputs.aws-region }}) $REGISTRY
         echo "registry=$REGISTRY" >> $GITHUB_OUTPUT
