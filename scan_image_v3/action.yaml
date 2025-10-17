@@ -14,10 +14,10 @@ inputs:
   minimum_severity:
     description: "Minimum severity to fail the scan (low, medium, high, critical)"
     required: false
-    default: "critical"
   minimum_exprt:
     description: "Minimum exploitability to fail the scan (low, medium, high, critical)"
     required: false
+    default: "medium"
   exclude_vulnerabilities:
     description: "Comma-separated list of vulnerability IDs to exclude from the scan"
     required: false
