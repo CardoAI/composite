@@ -14,6 +14,7 @@ inputs:
   minimum_severity:
     description: "Minimum severity to fail the scan (low, medium, high, critical)"
     required: false
+    default: "critical"
   minimum_exprt:
     description: "Minimum exploitability to fail the scan (low, medium, high, critical)"
     required: false
@@ -31,7 +32,7 @@ inputs:
     default: "true"
   show_full_detection_details:
     description: "Show full detection details in the report"
-    default: "false"
+    default: "true"
   timeout:
     description: "Timeout for the scan in seconds"
     required: false
