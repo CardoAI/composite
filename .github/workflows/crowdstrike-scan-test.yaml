@@ -27,5 +27,5 @@ jobs:
         id: scan-image
         with:
           image: ${{ matrix.image.name }}
-          falcon_client_id: ${{ secrets.FALCON_CLIENT_ID }}
-          falcon_client_secret: ${{ secrets.FALCON_CLIENT_SECRET }}
+          falcon-client-id: ${{ secrets.FALCON_CLIENT_ID }}
+          falcon-client-secret: ${{ secrets.FALCON_CLIENT_SECRET }}

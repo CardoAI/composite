@@ -37,10 +37,10 @@ inputs:
     description: "Timeout for the scan in seconds"
     required: false
     default: "300"
-  falcon_client_id:
+  falcon-client-id:
     description: "Falcon Client ID (passed as a secret)"
     required: true
-  falcon_client_secret:
+  falcon-client-secret:
     description: "Falcon Client Secret (passed as a secret)"
     required: true
   output_path:
@@ -55,7 +55,7 @@ runs:
       id: fcs-scan
       uses: crowdstrike/fcs-action@v2.0.2
       with:
-        falcon_client_id: ${{ inputs.falcon_client_id }}
+        falcon_client_id: ${{ inputs.falcon-client-id }}
         falcon_region: "eu-1"
         scan_type: "${{ inputs.scan_type }}"
         image: "${{ inputs.image }}"
@@ -70,7 +70,7 @@ runs:
         timeout: "${{ inputs.timeout }}"
         output_path: "${{ inputs.output_path }}"
       env:
-        FALCON_CLIENT_SECRET: ${{ inputs.falcon_client_secret }}
+        FALCON_CLIENT_SECRET: ${{ inputs.falcon-client-secret }}
 
     - name: Check Scan Exit Code
       shell: bash
