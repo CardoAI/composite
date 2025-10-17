@@ -33,18 +33,18 @@ def create_markdown_report(data):
     vuln_table_md = "\n### 🔍 Vulnerabilities Found\n\n"
     if vulnerabilities:
         # Define the order of severities
-        severity_order = { "CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "UNKNOWN": 4 }
+        exprt_rating = { "CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "UNKNOWN": 4 }
 
-        # Sort the vulnerabilities list based on the severity order
+        # Sort the vulnerabilities list based on the exprt_rating order
         sorted_vulnerabilities = sorted(
             vulnerabilities,
-            key=lambda item: severity_order.get(
-                item.get("Vulnerability", {}).get("Details", {}).get("severity", "UNKNOWN").upper(), 
+            key=lambda item: exprt_rating.get(
+                item.get("Vulnerability", {}).get("Details", {}).get("exprt_rating", "UNKNOWN").upper(), 
                 99  # Default value for any unexpected severities, placing them at the end
             )
         )
 
-        vuln_table_md += "| VULNERABILITY | SEVERITY | EXPRT RATING | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
+        vuln_table_md += "| VULNERABILITY | EXPRT RATING | SEVERITY | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
         vuln_table_md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
 
         for item in sorted_vulnerabilities:
@@ -68,7 +68,7 @@ def create_markdown_report(data):
             fixed_versions = vuln_data.get("FixedVersions", [])
             fixed_version = fixed_versions[0] if fixed_versions else "No fix"
             description = (details.get("description", "N/A")[:50] + '...').replace('\n', ' ')
-            vuln_table_md += f"| {cve_id} | {severity} | {exprt_rating} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
+            vuln_table_md += f"| {cve_id} | {exprt_rating} | {severity} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
 
     # --- 3. Detections Table ---
     detections = data.get('Detections', [])
