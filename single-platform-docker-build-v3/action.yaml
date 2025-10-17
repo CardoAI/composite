@@ -3,47 +3,36 @@ description: "Build a docker image for a given platform and push it to ECR"
 inputs:
   sha:
     description: The commit SHA that triggered the workflow.
-    type: string
     required: true
   folder:
     description: The folder containing the Dockerfile.
-    type: string
     required: true
   context:
     description: The Docker build context.
-    type: string
     default: "."
   repositories:
     description: The AWS ECR repositories to push the image to (JSON string list).
-    type: string
     required: true
   scan:
     description: Whether to scan the image for vulnerabilities.
-    type: boolean
-    default: false
+    default: "false"
   platform:
     description: The platform to build the image for.
-    type: string
     required: true
   tag:
     description: The Docker image tag.
-    type: string
     required: true
   extra-args:
     description: The extra arguments to pass to the Docker build command.
-    type: string
     default: ""
   docker-driver:
     description: The Docker driver to use for building the image.
-    type: string
     default: "docker-container"
   base-image-aws-account-id:
     description: The AWS account ID where the base image is located.
-    type: string
     default: "861208160487"
   base-image-aws-region:
     description: The AWS region where the base image is located.
-    type: string
     default: eu-central-1
   falcon-client-id:
     description: "Falcon Client ID (passed as a secret)"
@@ -135,22 +124,22 @@ runs:
         falcon-client-id: ${{ inputs.falcon-client-id }}
         falcon-client-secret: ${{ inputs.falcon-client-secret }}
 
-    # - name: Push Docker image
-    #   id: push-image
-    #   shell: bash
-    #   env:
-    #     REPOSITORIES: ${{ inputs.repositories }}
-    #   run: |
-    #     set -e
-    #     for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
-    #       NAME=$(echo "${repo}" | jq -r '.name')
-    #       ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
-    #       REGION=$(echo "${repo}" | jq -r '.region')
-    #       REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+    - name: Push Docker image
+      id: push-image
+      shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
+      run: |
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+          NAME=$(echo "${repo}" | jq -r '.name')
+          ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+          REGION=$(echo "${repo}" | jq -r '.region')
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 
-    #       IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
-    #       docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
-    #       echo "Pushing image ${IMAGE_TAG}..."
-    #       docker push "${IMAGE_TAG}"
-    #       echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
-    #     done
+          IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
+          docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
+          echo "Pushing image ${IMAGE_TAG}..."
+          docker push "${IMAGE_TAG}"
+          echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
+        done

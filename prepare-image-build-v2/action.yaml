@@ -1,16 +1,16 @@
-name: 'Prepare Docker Image build'
-description: 'Action to prepare JSONS that will be used to build docker images'
+name: "Prepare Docker Image build"
+description: "Action to prepare JSONS that will be used to build docker images"
 inputs:
   config:
-    description: 'JSON-encoded configuration for images and repositories'
+    description: "JSON-encoded configuration for images and repositories"
     required: true
 
 outputs:
   images:
-    description: 'Full JSON with parsed os and architecture'
+    description: "Full JSON with parsed os and architecture"
     value: ${{ steps.prepare.outputs.IMAGES }}
   image_manifests:
-    description: 'Full JSON but only comma-separated tag_suffixes for manifest'
+    description: "Full JSON but only comma-separated tag_suffixes for manifest"
     value: ${{ steps.prepare.outputs.IMAGE_MANIFESTS }}
 
 runs:
