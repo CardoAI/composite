@@ -115,12 +115,6 @@ runs:
           ${{ inputs.extra-args }} ${{ inputs.context }}
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
-    - name: Debug Inputs
-      shell: bash
-      run: |
-        echo "Falcon Client ID: ${{ inputs.falcon-client-id }}"
-        echo "Falcon Client Secret: ${{ inputs.falcon-client-secret }}"
-
     - name: Scan Image
       if: ${{ inputs.scan == true || inputs.scan == 'true' }}
       uses: CardoAI/composite/scan_image_v3@main
