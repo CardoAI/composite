@@ -116,6 +116,7 @@ runs:
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
     - name: Debug Inputs
+      shell: bash
       run: |
         echo "Falcon Client ID: ${{ inputs.falcon-client-id }}"
         echo "Falcon Client Secret: ${{ inputs.falcon-client-secret }}"
