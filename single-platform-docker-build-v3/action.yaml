@@ -34,6 +34,12 @@ inputs:
   base-image-aws-region:
     description: The AWS region where the base image is located.
     default: eu-central-1
+  falcon-client-id:
+    description: The CrowdStrike Falcon client ID for image scanning.
+    required: false
+  falcon-client-secret:
+    description: The CrowdStrike Falcon client secret for image scanning.
+    required: false
 
 runs:
   using: composite
@@ -115,8 +121,8 @@ runs:
       id: scan-image
       with:
         image: ${{ inputs.tag }}
-        falcon-client-id: ${{ secrets.FALCON_CLIENT_ID }}
-        falcon-client-secret: ${{ secrets.FALCON_CLIENT_SECRET }}
+        falcon-client-id: ${{ inputs.falcon-client-id }}
+        falcon-client-secret: ${{ inputs.falcon-client-secret }}
 
     - name: Push Docker image
       id: push-image
