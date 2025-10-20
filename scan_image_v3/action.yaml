@@ -2,36 +2,38 @@ name: "Scan Image"
 description: "This action scans an image"
 inputs:
   scan_type:
-    description: "Type of scan to perform (iac or image)"
+    description: "Type of scan to perform: iac or image"
     required: false
     default: "image"
   image:
-    description: "Image to scan"
-    required: true
+    description: "Container image to scan (e.g., nginx:latest, docker://image:tag)"
+    required: false
   minimum_score:
-    description: "Minimum score to pass the scan"
+    description: "Only show vulnerabilities with CVSS score at or above this threshold (0.0-10.0)"
     required: false
   minimum_severity:
-    description: "Minimum severity to fail the scan (low, medium, high, critical)"
+    description: "Only show vulnerabilities with this severity or higher (low, medium, high, critical)"
     required: false
   minimum_exprt:
-    description: "Minimum exploitability to fail the scan (low, medium, high, critical)"
+    description: "Only show vulnerabilities with this ExPRT rating or higher (low, medium, high, critical)"
     required: false
-    default: "medium"
   exclude_vulnerabilities:
-    description: "Comma-separated list of vulnerability IDs to exclude from the scan"
+    description: "Comma-separated list of vulnerability IDs to exclude"
     required: false
   vuln_fixable_only:
-    description: "Consider only fixable vulnerabilities"
+    description: "Exclude vulnerabilities without a fix"
     required: false
+    default: "false"
   minimum_detection_severity:
-    description: "Minimum detection severity to fail the scan (low, medium, high, critical)"
+    description: "Only show detections with this severity or higher (low, medium, high, critical)"
     required: false
   show_full_description:
-    description: "Show full vuln description in the report"
+    description: "Show full vulnerability descriptions without truncation"
+    required: false
     default: "true"
   show_full_detection_details:
-    description: "Show full detection details in the report"
+    description: "Show full detection details without truncation"
+    required: false
     default: "true"
   timeout:
     description: "Timeout for the scan in seconds"
