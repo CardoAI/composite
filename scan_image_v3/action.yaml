@@ -45,6 +45,10 @@ inputs:
   falcon-client-secret:
     description: "Falcon Client Secret (passed as a secret)"
     required: true
+  fail_on:
+    description: "Comma-separated list of which kind of results should return an exit code different from 0"
+    required: false
+    default: "critical=1. high=1"
   output_path:
     description: "Path to save the scan results"
     required: false
@@ -70,6 +74,7 @@ runs:
         show_full_description: "${{ inputs.show_full_description }}"
         show_full_detection_details: "${{ inputs.show_full_detection_details }}"
         timeout: "${{ inputs.timeout }}"
+        fail_on: "${{ inputs.fail_on }}"
         output_path: "${{ inputs.output_path }}"
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon-client-secret }}
