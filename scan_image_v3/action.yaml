@@ -48,7 +48,7 @@ inputs:
   fail_on:
     description: "Comma-separated list of which kind of results should return an exit code different from 0"
     required: false
-    default: "critical=1. high=1"
+    default: "critical=1, high=1"
   output_path:
     description: "Path to save the scan results"
     required: false
