@@ -79,6 +79,12 @@ runs:
       env:
         FALCON_CLIENT_SECRET: ${{ inputs.falcon-client-secret }}
 
+    - name: Generate Report Summary
+      id: generate-report
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/generate-report.py ${{ inputs.output_path }}
+
     - name: Check Scan Exit Code
       shell: bash
       run: |
@@ -86,9 +92,3 @@ runs:
           echo "::error::CrowdStrike scan failed with exit code: ${{ steps.fcs-scan.outputs.exit-code }}"
           exit 1
         fi
-
-    - name: Generate Report Summary
-      id: generate-report
-      shell: bash
-      run: |
-        python ${{ github.action_path }}/generate-report.py ${{ inputs.output_path }}
