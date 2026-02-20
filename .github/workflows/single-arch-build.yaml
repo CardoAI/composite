@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ inputs.runner-id }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
         #   token: ${{ secrets.gh_pat }}
           ref: ${{ inputs.sha }}

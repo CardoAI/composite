@@ -14,7 +14,7 @@ jobs:
           - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-oxygen:backend-main
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: EU ECR login
         uses: CardoAI/composite/ecrlogin_with_role@main

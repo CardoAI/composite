@@ -34,7 +34,7 @@ runs:
   using: composite
   steps:
     - name: Checkout manifest repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.repository }}
         token: ${{ inputs.token }}
@@ -112,4 +112,4 @@ runs:
     - name: Commit and Push
       uses: CardoAI/composite/pull_commit_push@main
     - name: Checkout POST dev
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
