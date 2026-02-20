@@ -26,7 +26,7 @@ runs:
         ls -la
 
     - name: Run FCS IaC Scan
-      uses: crowdstrike/fcs-action@v1.0.6
+      uses: crowdstrike/fcs-action@v1.1.0
       with:
         falcon_client_id: "${{ inputs.falcon_client_id }}"
         falcon_region: "${{ inputs.falcon_region }}"
