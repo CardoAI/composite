@@ -1,0 +1,94 @@
+name: "Scan Image"
+description: "This action scans an image"
+inputs:
+  scan_type:
+    description: "Type of scan to perform: iac or image"
+    required: false
+    default: "image"
+  image:
+    description: "Container image to scan (e.g., nginx:latest, docker://image:tag)"
+    required: false
+  minimum_score:
+    description: "Only show vulnerabilities with CVSS score at or above this threshold (0.0-10.0)"
+    required: false
+  minimum_severity:
+    description: "Only show vulnerabilities with this severity or higher (low, medium, high, critical)"
+    required: false
+  minimum_exprt:
+    description: "Only show vulnerabilities with this ExPRT rating or higher (low, medium, high, critical)"
+    required: false
+  exclude_vulnerabilities:
+    description: "Comma-separated list of vulnerability IDs to exclude"
+    required: false
+  vuln_fixable_only:
+    description: "Exclude vulnerabilities without a fix"
+    required: false
+    default: "false"
+  minimum_detection_severity:
+    description: "Only show detections with this severity or higher (low, medium, high, critical)"
+    required: false
+  show_full_description:
+    description: "Show full vulnerability descriptions without truncation"
+    required: false
+    default: "true"
+  show_full_detection_details:
+    description: "Show full detection details without truncation"
+    required: false
+    default: "true"
+  timeout:
+    description: "Timeout for the scan in seconds"
+    required: false
+    default: "300"
+  falcon-client-id:
+    description: "Falcon Client ID (passed as a secret)"
+    required: true
+  falcon-client-secret:
+    description: "Falcon Client Secret (passed as a secret)"
+    required: true
+  fail_on:
+    description: "Comma-separated list of which kind of results should return an exit code different from 0"
+    required: false
+    default: "critical=1,high=1"
+  output_path:
+    description: "Path to save the scan results"
+    required: false
+    default: "./scan-results.json"
+
+runs:
+  using: composite
+  steps:
+    - name: Run FCS IaC Scan
+      id: fcs-scan
+      uses: crowdstrike/fcs-action@v3.0.0
+      with:
+        falcon_client_id: ${{ inputs.falcon-client-id }}
+        falcon_region: "eu-1"
+        scan_type: "${{ inputs.scan_type }}"
+        image: "${{ inputs.image }}"
+        minimum_score: "${{ inputs.minimum_score }}"
+        minimum_severity: "${{ inputs.minimum_severity }}"
+        minimum_exprt: "${{ inputs.minimum_exprt }}"
+        exclude_vulnerabilities: "${{ inputs.exclude_vulnerabilities }}"
+        vuln_fixable_only: "${{ inputs.vuln_fixable_only }}"
+        minimum_detection_severity: "${{ inputs.minimum_detection_severity }}"
+        show_full_description: "${{ inputs.show_full_description }}"
+        show_full_detection_details: "${{ inputs.show_full_detection_details }}"
+        timeout: "${{ inputs.timeout }}"
+        fail_on: "${{ inputs.fail_on }}"
+        output_path: "${{ inputs.output_path }}"
+      env:
+        FALCON_CLIENT_SECRET: ${{ inputs.falcon-client-secret }}
+
+    - name: Generate Report Summary
+      id: generate-report
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/generate-report.py ${{ inputs.output_path }}
+
+    - name: Check Scan Exit Code
+      shell: bash
+      run: |
+        if [[ "${{ steps.fcs-scan.outputs.exit-code }}" != "0" ]]; then
+          echo "::error::CrowdStrike scan failed with exit code: ${{ steps.fcs-scan.outputs.exit-code }}"
+          exit 1
+        fi
