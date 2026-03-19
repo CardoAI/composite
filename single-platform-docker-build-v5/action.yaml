@@ -27,7 +27,7 @@ inputs:
     default: ""
   docker-driver:
     description: The Docker driver to use for building the image.
-    default: "docker"
+    default: "docker-container"
   base-image-aws-account-id:
     description: The AWS account ID where the base image is located.
     default: "861208160487"
@@ -115,21 +115,10 @@ runs:
           ${{ inputs.extra-args }} ${{ inputs.context }}
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
-    - name: Debug
+    - name: Reload image into local daemon
       shell: bash
       run: |
-        docker images
-        docker inspect ${{ inputs.tag }}
-
-    - name: Normalize image tag
-      id: normalize-tag
-      shell: bash
-      run: |
-        IMAGE="${{ inputs.image }}"
-        if [[ "$IMAGE" != *":"* ]]; then
-          IMAGE="${IMAGE}:latest"
-        fi
-        echo "image=${IMAGE}" >> $GITHUB_OUTPUT
+        docker pull ${{ inputs.tag }}
 
     - name: Scan Image
       if: ${{ inputs.scan == true || inputs.scan == 'true' }}
