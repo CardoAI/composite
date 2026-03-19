@@ -103,7 +103,7 @@ runs:
         CACHE_ARGS=""
         if [[ "${{ inputs.docker-driver }}" != "docker" ]]; then
           CACHE_ARGS="--cache-from=type=registry,ref=${CACHE_REF} \
-          --cache-to=type=registry,ref=${CACHE_REF},mode=max"
+          --cache-to=type=registry,ref=${CACHE_REF},mode=min"
         fi
 
         docker buildx build \
