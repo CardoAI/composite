@@ -27,7 +27,7 @@ inputs:
     default: ""
   docker-driver:
     description: The Docker driver to use for building the image.
-    default: "docker-container"
+    default: "docker"
   base-image-aws-account-id:
     description: The AWS account ID where the base image is located.
     default: "861208160487"
