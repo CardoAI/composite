@@ -50,9 +50,9 @@ inputs:
     required: false
     default: "critical=1,high=1"
   socket:
-    description: "Path to the Docker socket to use for scanning (e.g., /var/run/docker.sock)"
+    description: "Path to the Docker socket to use for scanning (e.g., unix://var/run/docker.sock)"
     required: false
-    default: "/var/run/docker.sock"
+    default: "unix://var/run/docker.sock"
   output_path:
     description: "Path to save the scan results"
     required: false
