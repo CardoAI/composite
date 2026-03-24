@@ -11,19 +11,19 @@ jobs:
     strategy:
       matrix:
         image:
-          - name: 861208160487.dkr.ecr.eu-central-1.amazonaws.com/cardoai-eu-ar-ecr-repository-oxygen:backend-main
+          - name: nginx:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: EU ECR login
-        uses: CardoAI/composite/ecrlogin_with_role@main
-        with:
-          aws-region: ${{ env.EU_AWS_REGION }}
-          aws-id: ${{ env.EU_AWS_ID }}
+      # - name: EU ECR login
+      #   uses: CardoAI/composite/ecrlogin_with_role@main
+      #   with:
+      #     aws-region: ${{ env.EU_AWS_REGION }}
+      #     aws-id: ${{ env.EU_AWS_ID }}
 
       - name: Scan Image
-        uses: CardoAI/composite/scan_image_v3@main
+        uses: CardoAI/composite/scan_image_v5@main
         id: scan-image
         with:
           image: ${{ matrix.image.name }}
