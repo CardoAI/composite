@@ -22,19 +22,19 @@ runs:
       run: |
         echo "Registry: ${{ inputs.registry }}"
         echo "Image: ${{ inputs.image }}"
-        echo "Tag: ${{ inputs.tag }}" 
+        echo "Tag: ${{ inputs.tag }}"
         echo "Tag Suffixes: ${{ inputs.tag-suffixes }}"
 
     - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      
+      uses: docker/setup-buildx-action@v4
+
     - name: Create and push manifest
       shell: bash
       run: |
         #! /bin/bash
         # Enable docker manifest command
         export DOCKER_CLI_EXPERIMENTAL=enabled
-        
+
         IFS=',' read -ra suffixes <<< "${{ inputs.tag-suffixes }}"
 
         # Build manifest create command
@@ -45,6 +45,6 @@ runs:
             suffix="${suffixes[$i]}"
             manifest_cmd+=" ${{ inputs.registry }}/${{ inputs.image }}:${{ inputs.tag }}-${suffix}"
         done
-      
+
         echo "Running manifest command: $manifest_cmd"
         $manifest_cmd

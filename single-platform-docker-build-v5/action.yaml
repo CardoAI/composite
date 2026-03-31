@@ -52,7 +52,7 @@ runs:
         submodules: 'true'
 
     - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
       with:
         driver: ${{ inputs.docker-driver }}
 
