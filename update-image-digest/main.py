@@ -25,14 +25,24 @@ def get_latest_digest(repository, tag):
     return response["imageDetails"][0]["imageDigest"]
 
 
-def validate_tag_for_branch(tag, branch):
-    if not branch:
+def branch_to_tag_suffix(branch):
+    if branch is None:
         raise ValueError("Branch validation failed: current branch is empty")
 
-    if not tag.endswith(f"-{branch}"):
+    normalized_branch = branch.strip()
+    if not normalized_branch:
+        raise ValueError("Branch validation failed: current branch is empty")
+
+    return normalized_branch.replace("/", "-")
+
+
+def validate_tag_for_branch(tag, branch):
+    normalized_branch_suffix = branch_to_tag_suffix(branch)
+
+    if not tag.endswith(f"-{normalized_branch_suffix}"):
         raise ValueError(
             f"Tag validation failed for branch '{branch}': expected tag ending with "
-            f"'-{branch}', found '{tag}'"
+            f"'-{normalized_branch_suffix}', found '{tag}'"
         )
 
 
