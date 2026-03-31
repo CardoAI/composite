@@ -18,14 +18,14 @@ runs:
   using: composite
   steps:
     - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      
+      uses: docker/setup-buildx-action@v4
+
     - name: Build and tag image
       id: build-image
       shell: bash
       run: |
         echo "${{ inputs.arguments }}"
-        DOCKER_BUILDKIT=1 docker buildx build -f ${{ inputs.location }} . --cache-from ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1 --load       
+        DOCKER_BUILDKIT=1 docker buildx build -f ${{ inputs.location }} . --cache-from ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} -t ${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/} ${{ inputs.arguments }} --build-arg BUILDKIT_INLINE_CACHE=1 --load
         image_tag="${{ inputs.ECR_REGISTRY }}/${{ inputs.service }}:${GITHUB_REF#refs/heads/}"
         echo "image-tag=$image_tag" >> $GITHUB_ENV
         echo "image-tag=$image_tag" >> $GITHUB_OUTPUT

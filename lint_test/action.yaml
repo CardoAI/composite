@@ -1,22 +1,22 @@
-name: 'lint and test'
-description: 'This action will lint and test the code'
+name: "lint and test"
+description: "This action will lint and test the code"
 inputs:
   requirements:
     required: true
-    description: 'requirements namefile'
+    description: "requirements namefile"
   virtualenv:
     required: true
-    description: 'virtualenv name'
+    description: "virtualenv name"
   lint:
-    description: 'lint condition'
+    description: "lint condition"
   test:
-    description: 'test condition'
+    description: "test condition"
 runs:
   using: composite
   steps:
     - uses: actions/checkout@v6
     # - name: Set up Python 3.10
-    #   uses: actions/setup-python@v4
+    #   uses: actions/setup-python@v6.2.0
     #   with:
     #     python-version: '3.10'
     - name: Lint and Test

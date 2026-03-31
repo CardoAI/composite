@@ -12,7 +12,7 @@ inputs:
   context:
     description: The Docker build context.
     type: string
-    default: '.'
+    default: "."
   repositories:
     description: The AWS ECR repositories to push the image to (JSON string list).
     type: string
@@ -32,11 +32,11 @@ inputs:
   extra-args:
     description: The extra arguments to pass to the Docker build command.
     type: string
-    default: ''
+    default: ""
   docker-driver:
     description: The Docker driver to use for building the image.
     type: string
-    default: 'docker-container'
+    default: "docker-container"
   base-image-aws-account-id:
     description: The AWS account ID where the base image is located.
     type: string
@@ -54,10 +54,10 @@ runs:
       with:
         ref: ${{ inputs.sha }}
         fetch-depth: 0
-        submodules: 'true'
+        submodules: "true"
 
     - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
       with:
         driver: ${{ inputs.docker-driver }}
 
@@ -95,17 +95,17 @@ runs:
       run: |
         #! /bin/bash
         echo "Building image ${{ inputs.tag }}"
-        
+
         # Get the first repository for caching
         FIRST_REPO=$(echo "${REPOSITORIES}" | jq -c '.[0]')
         NAME=$(echo "${FIRST_REPO}" | jq -r '.name')
         ACCOUNT_ID=$(echo "${FIRST_REPO}" | jq -r '.account_id')
         REGION=$(echo "${FIRST_REPO}" | jq -r '.region')
         REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
-    
+
         # Cache reference
         CACHE_REF="${REGISTRY}/${NAME}:cache-${{ inputs.tag }}"
-        
+
         # Cache args if not using Docker driver
         CACHE_ARGS=""
         if [[ "${{ inputs.docker-driver }}" != "docker" ]]; then
