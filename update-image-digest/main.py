@@ -25,6 +25,17 @@ def get_latest_digest(repository, tag):
     return response["imageDetails"][0]["imageDigest"]
 
 
+def validate_tag_for_branch(tag, branch):
+    if not branch:
+        raise ValueError("Branch validation failed: current branch is empty")
+
+    if not tag.endswith(f"-{branch}"):
+        raise ValueError(
+            f"Tag validation failed for branch '{branch}': expected tag ending with "
+            f"'-{branch}', found '{tag}'"
+        )
+
+
 # Traverse to repository, tag, and digest
 def get_by_path(obj, path):
     for part in path.split("."):
@@ -53,13 +64,14 @@ def set_by_path(obj, path, value):
         obj[last] = value
 
 
-def update_yaml_file(path, repo_path, tag_path, digest_path):
+def update_yaml_file(path, repo_path, tag_path, digest_path, current_branch):
     yaml_ruamel = YAML()
     with open(path) as f:
         data = yaml_ruamel.load(f)
 
     repository = get_by_path(data, repo_path)
     tag = get_by_path(data, tag_path)
+    validate_tag_for_branch(tag, current_branch)
     digest = get_latest_digest(repository, tag)
 
     set_by_path(data, digest_path, digest)
@@ -80,6 +92,7 @@ def main():
                 repo_path=target["repositoryPath"],
                 tag_path=target["tagPath"],
                 digest_path=target["digestPath"],
+                current_branch=current_branch,
             )
 
 

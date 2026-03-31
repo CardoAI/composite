@@ -61,4 +61,5 @@ def test_update_yaml_file():
                 repo_path=target["repositoryPath"],
                 tag_path=target["tagPath"],
                 digest_path=target["digestPath"],
+                current_branch=current_branch,
             )
