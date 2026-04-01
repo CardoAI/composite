@@ -118,7 +118,7 @@ runs:
 
     - name: Docker Images
       shell: bash
-      run: docker image ls
+      run: docker buildx imagetools inspect ${{ inputs.tag }}
 
     - name: Scan Image
       if: ${{ inputs.scan == true || inputs.scan == 'true' }}
