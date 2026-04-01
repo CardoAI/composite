@@ -70,11 +70,9 @@ def update_yaml_file(path, repo_path, tag_path, digest_path):
 def main():
     current_branch = os.environ.get("GITHUB_BRANCH")
     config = yaml.safe_load(os.environ["CONFIGURATION"])
-    processed = False
     for c in config:
         if c["branch"] != current_branch:
             continue
-        processed = True
         print(f"Updating configuration {c['name']} for branch: {c['branch']}")
         for target in c["targets"]:
             update_yaml_file(
@@ -83,11 +81,6 @@ def main():
                 tag_path=target["tagPath"],
                 digest_path=target["digestPath"],
             )
-    if not processed:
-        raise ValueError(
-            f"No configuration entry matched the current branch '{current_branch}'. "
-            "Check your workflow configuration."
-        )
 
 
 if __name__ == "__main__":

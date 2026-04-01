@@ -14,11 +14,7 @@ git config user.email "${GITOPS_EMAIL}"
 
 # Commit changes first
 git add .
-if git diff --cached --quiet; then
-  echo "No changes to commit, skipping."
-  exit 0
-fi
-git commit -m ":robot: Action URL: ${GITHUB_ACTION_RUN_URL}"
+git commit -m ":robot: Action URL: ${GITHUB_ACTION_RUN_URL}" --allow-empty
 
 # Retry logic for pushing changes with rebase
 RETRY_COUNT=0
