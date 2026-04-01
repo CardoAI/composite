@@ -116,6 +116,7 @@ runs:
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
     - name: Docker Images
+      shell: bash
       run: docker image ls
 
     - name: Scan Image
