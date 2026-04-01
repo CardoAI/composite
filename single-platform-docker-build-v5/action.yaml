@@ -110,9 +110,10 @@ runs:
           --platform ${{ inputs.platform }} \
           --tag ${{ inputs.tag }} \
           ${CACHE_ARGS} \
-          --load \
+          --output type=docker \
           --file ${{ inputs.folder }}/Dockerfile \
-          ${{ inputs.extra-args }} ${{ inputs.context }}
+          ${{ inputs.extra-args }} ${{ inputs.context }} \
+          | docker load
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
     - name: Docker Images
