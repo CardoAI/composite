@@ -28,6 +28,9 @@ jobs:
       - name: Docker Tag
         run: docker tag ${{ matrix.image.name }} backend-main-amd64
 
+      - name: Docker Images
+        run: docker image ls
+
       - name: Scan Image
         uses: CardoAI/composite/scan_image_v5@main
         id: scan-image
