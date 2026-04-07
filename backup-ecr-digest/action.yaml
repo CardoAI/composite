@@ -1,0 +1,42 @@
+name: "Backup ECR Digest"
+description: "Backs up ECR Digest in order to eventually restore it to avoid orphaned SHAs in use"
+
+inputs:
+  image-manifests:
+    required: true
+
+outputs:
+  digests:
+    description: "JSON map of repo:tag to digest"
+    value: ${{ steps.backup.outputs.digests }}
+
+runs:
+  using: composite
+  steps:
+    - name: Backup ECR Digest
+      id: backup          
+      shell: bash
+      env:
+        IMAGE_MANIFESTS: ${{ inputs.image-manifests }}
+      run: |
+        set -e
+        digests="{}"
+        for manifest in $(echo "$IMAGE_MANIFESTS" | jq -c '.[]'); do
+          ACCOUNT_ID=$(echo "$manifest" | jq -r '.account_id')
+          REGION=$(echo "$manifest" | jq -r '.region')
+          REPO=$(echo "$manifest" | jq -r '.repository')
+          BASE_TAG=$(echo "$manifest" | jq -r '.tag')
+          for suffix in $(echo "$manifest" | jq -r '.tag_suffixes[]'); do
+            PLATFORM_TAG="${BASE_TAG}-${suffix}"
+            DIGEST=$(aws ecr describe-images \
+              --registry-id "$ACCOUNT_ID" \
+              --repository-name "$REPO" \
+              --region "$REGION" \
+              --image-ids "imageTag=${PLATFORM_TAG}" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2>/dev/null || echo "NONE")
+            digests=$(echo "$digests" | jq -c --arg k "${REPO}:${PLATFORM_TAG}" --arg v "$DIGEST" '. + {($k): $v}')
+          done
+        done
+        echo "digests=$(echo "$digests" | jq -c .)" >> $GITHUB_OUTPUT
+  

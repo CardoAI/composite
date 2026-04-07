@@ -1,0 +1,60 @@
+name: "Restore ECR Digest"
+description: "Restores ECR Digest to avoid orphaned SHAs"
+
+inputs:
+  image-manifests:
+    required: true
+  snapshots:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Restore ECR Digest
+      shell: bash
+      env:
+        IMAGE_MANIFESTS: ${{ inputs.image-manifests }}
+        SNAPSHOTS: ${{ inputs.snapshots }}
+      run: |
+        set -e
+        for manifest in $(echo "$IMAGE_MANIFESTS" | jq -c '.[]'); do
+          ACCOUNT_ID=$(echo "$manifest" | jq -r '.account_id')
+          REGION=$(echo "$manifest" | jq -r '.region')
+          REPO=$(echo "$manifest" | jq -r '.repository')
+          BASE_TAG=$(echo "$manifest" | jq -r '.tag')
+          for suffix in $(echo "$manifest" | jq -r '.tag_suffixes[]'); do
+            PLATFORM_TAG="${BASE_TAG}-${suffix}"
+            KEY="${REPO}:${PLATFORM_TAG}"
+            OLD_DIGEST=$(echo "$SNAPSHOTS" | jq -r --arg k "$KEY" '.[$k] // "NONE"')
+            if [ "$OLD_DIGEST" = "NONE" ]; then
+              echo "${PLATFORM_TAG}: no snapshot found, skipping"
+              continue
+            fi
+            CURRENT_DIGEST=$(aws ecr describe-images \
+              --registry-id "$ACCOUNT_ID" \
+              --repository-name "$REPO" \
+              --region "$REGION" \
+              --image-ids "imageTag=${PLATFORM_TAG}" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2>/dev/null || echo "NONE")
+            if [ "$CURRENT_DIGEST" = "$OLD_DIGEST" ]; then
+              echo "${PLATFORM_TAG}: digest unchanged, no restore needed"
+              continue
+            fi
+            echo "${PLATFORM_TAG}: digest changed (${OLD_DIGEST} -> ${CURRENT_DIGEST}), restoring..."
+            OLD_MANIFEST=$(aws ecr batch-get-image \
+              --registry-id "$ACCOUNT_ID" \
+              --repository-name "$REPO" \
+              --region "$REGION" \
+              --image-ids "imageDigest=${OLD_DIGEST}" \
+              --query 'images[0].imageManifest' \
+              --output text)
+            aws ecr put-image \
+              --registry-id "$ACCOUNT_ID" \
+              --repository-name "$REPO" \
+              --region "$REGION" \
+              --image-tag "$PLATFORM_TAG" \
+              --image-manifest "$OLD_MANIFEST"
+            echo "${PLATFORM_TAG}: restored to ${OLD_DIGEST}"
+          done
+        done
