@@ -14,7 +14,7 @@ def get_latest_digest(repository, tag):
 
     account_id = match.group("account_id")
     region = match.group("region")
-    repo_name = match.group("repo_name")
+    repo_name = match.group("repo_name").split(":")[0]
 
     ecr = boto3.client("ecr", region_name=region)
     response = ecr.describe_images(
