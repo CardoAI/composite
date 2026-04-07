@@ -6,10 +6,23 @@ inputs:
     required: true
   snapshots:
     required: true
+  base-image-aws-account-id:
+    description: The AWS account ID where the base image is located.
+    default: "861208160487"
+  base-image-aws-region:
+    description: The AWS region where the base image is located.
+    default: eu-central-1
 
 runs:
   using: composite
   steps:
+    - name: Configure AWS Credentials
+      uses: CardoAI/composite/ecrlogin_with_role@main
+      if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
+      with:
+        aws-region: ${{ inputs.base-image-aws-region }}
+        aws-id: ${{ inputs.base-image-aws-account-id }}
+
     - name: Restore ECR Digest
       shell: bash
       env:

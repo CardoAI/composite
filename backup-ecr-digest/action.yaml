@@ -4,6 +4,12 @@ description: "Backs up ECR Digest in order to eventually restore it to avoid orp
 inputs:
   image-manifests:
     required: true
+  base-image-aws-account-id:
+    description: The AWS account ID where the base image is located.
+    default: "861208160487"
+  base-image-aws-region:
+    description: The AWS region where the base image is located.
+    default: eu-central-1
 
 outputs:
   digests:
@@ -13,6 +19,13 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Configure AWS Credentials
+      uses: CardoAI/composite/ecrlogin_with_role@main
+      if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
+      with:
+        aws-region: ${{ inputs.base-image-aws-region }}
+        aws-id: ${{ inputs.base-image-aws-account-id }}
+
     - name: Backup ECR Digest
       id: backup          
       shell: bash
@@ -28,14 +41,13 @@ runs:
           BASE_TAG=$(echo "$manifest" | jq -r '.tag')
           for suffix in $(echo "$manifest" | jq -r '.tag_suffixes[]'); do
             PLATFORM_TAG="${BASE_TAG}-${suffix}"
-            echo "Querying: account=${ACCOUNT_ID} region=${REGION} repo=${REPO} tag=${PLATFORM_TAG}"
             DIGEST=$(aws ecr describe-images \
               --registry-id "$ACCOUNT_ID" \
               --repository-name "$REPO" \
               --region "$REGION" \
               --image-ids "imageTag=${PLATFORM_TAG}" \
               --query 'imageDetails[0].imageDigest' \
-              --output text 2>&1 || echo "NONE")
+              --output text 2>/dev/null || echo "NONE")
             digests=$(echo "$digests" | jq -c --arg k "${REPO}:${PLATFORM_TAG}" --arg v "$DIGEST" '. + {($k): $v}')
           done
         done
