@@ -16,12 +16,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure AWS Credentials
-      uses: CardoAI/composite/ecrlogin_with_role@main
-      if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
-      with:
-        aws-region: ${{ inputs.base-image-aws-region }}
-        aws-id: ${{ inputs.base-image-aws-account-id }}
 
     - name: Restore ECR Digest
       shell: bash
