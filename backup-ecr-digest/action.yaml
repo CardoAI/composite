@@ -28,13 +28,14 @@ runs:
           BASE_TAG=$(echo "$manifest" | jq -r '.tag')
           for suffix in $(echo "$manifest" | jq -r '.tag_suffixes[]'); do
             PLATFORM_TAG="${BASE_TAG}-${suffix}"
+            echo "Querying: account=${ACCOUNT_ID} region=${REGION} repo=${REPO} tag=${PLATFORM_TAG}"
             DIGEST=$(aws ecr describe-images \
               --registry-id "$ACCOUNT_ID" \
               --repository-name "$REPO" \
               --region "$REGION" \
               --image-ids "imageTag=${PLATFORM_TAG}" \
               --query 'imageDetails[0].imageDigest' \
-              --output text 2>/dev/null || echo "NONE")
+              --output text 2>&1 || echo "NONE")
             digests=$(echo "$digests" | jq -c --arg k "${REPO}:${PLATFORM_TAG}" --arg v "$DIGEST" '. + {($k): $v}')
           done
         done
