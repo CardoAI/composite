@@ -1,0 +1,33 @@
+name: "GitOps Slack Notification"
+description: "Notify to Slack GitOps channel for failed deployments"
+
+inputs:
+  token:
+    description: "The Slack access token to write messages"
+    required: true
+  channel-id:
+    description: "The Slack Channel ID in which to write"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Send Slack notification
+      uses: slackapi/slack-github-action@v3.0.1
+      with:
+        method: chat.postMessage
+        token: ${{ inputs.token }}
+        payload: |
+          {
+            "channel": "${{ inputs.channel-id }}",
+            "text": "⚠️ GitOps update failed for *${{ github.workflow }}* on `${{ github.ref_name }}`",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "⚠️ *GitOps Update Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* `${{ github.ref_name }}`\n*Region:* EU\n*Run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                }
+              }
+            ]
+          }
