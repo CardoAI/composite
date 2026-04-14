@@ -21,11 +21,14 @@ jobs:
           aws-region: ${{ env.EU_AWS_REGION }}
           aws-id: ${{ env.EU_AWS_ID }}
 
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Docker Build
-        run: docker build -t backend-main-amd64 -f deployment/Dockerfile .
+        run: docker buildx build --load -t backend-main-amd64 -f deployment/Dockerfile .
 
       - name: Docker Images
-        run: docker image ls
+        run: docker image ls --format
 
       - name: Scan Image
         uses: CardoAI/composite/scan_image_v5@main
