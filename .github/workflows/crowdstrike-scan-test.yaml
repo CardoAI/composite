@@ -22,7 +22,7 @@ jobs:
           aws-id: ${{ env.EU_AWS_ID }}
 
       - name: Docker Build
-        run: docker build -t backend-main-amd64 ./deployment/Dockerfile
+        run: docker build -t backend-main-amd64 -f deployment/Dockerfile .
 
       - name: Docker Images
         run: docker image ls
