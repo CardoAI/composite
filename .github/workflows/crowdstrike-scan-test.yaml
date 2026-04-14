@@ -28,7 +28,7 @@ jobs:
         run: docker buildx build --load -t backend-main-amd64 -f deployment/Dockerfile .
 
       - name: Docker Images
-        run: docker image ls --format
+        run: docker image ls
 
       - name: Scan Image
         uses: CardoAI/composite/scan_image_v5@main
