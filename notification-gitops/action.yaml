@@ -26,7 +26,7 @@ runs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "⚠️ *GitOps Update Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* `${{ github.ref_name }}`\n*Region:* EU\n*Run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  "text": "⚠️ *GitOps Update Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* `${{ github.ref_name }}`\n*Run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
                 }
               }
             ]
