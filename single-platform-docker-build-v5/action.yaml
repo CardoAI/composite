@@ -124,22 +124,22 @@ runs:
         falcon-client-id: ${{ inputs.falcon-client-id }}
         falcon-client-secret: ${{ inputs.falcon-client-secret }}
 
-    # - name: Push Docker image
-    #   id: push-image
-    #   shell: bash
-    #   env:
-    #     REPOSITORIES: ${{ inputs.repositories }}
-    #   run: |
-    #     set -e
-    #     for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
-    #       NAME=$(echo "${repo}" | jq -r '.name')
-    #       ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
-    #       REGION=$(echo "${repo}" | jq -r '.region')
-    #       REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+    - name: Push Docker image
+      id: push-image
+      shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
+      run: |
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+          NAME=$(echo "${repo}" | jq -r '.name')
+          ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+          REGION=$(echo "${repo}" | jq -r '.region')
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 
-    #       IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
-    #       docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
-    #       echo "Pushing image ${IMAGE_TAG}..."
-    #       docker push "${IMAGE_TAG}"
-    #       echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
-    #     done
+          IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
+          docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
+          echo "Pushing image ${IMAGE_TAG}..."
+          docker push "${IMAGE_TAG}"
+          echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
+        done
