@@ -29,9 +29,10 @@ runs:
     - name: Validate CalVer format
       id: parse
       shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
       run: |
         set -e
-        TAG="${{ inputs.tag }}"
 
         if [[ ! "$TAG" =~ ^v[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
           echo "ERROR: Tag '$TAG' does not match CalVer format v<YEAR>.<MINOR>.<PATCH>"
@@ -52,9 +53,10 @@ runs:
 
     - name: Validate year is not in the past
       shell: bash
+      env:
+        TAG_YEAR: ${{ steps.parse.outputs.year }}
       run: |
         set -e
-        TAG_YEAR="${{ steps.parse.outputs.year }}"
         CURRENT_YEAR=$(date +%Y)
 
         if [ "$TAG_YEAR" -lt "$CURRENT_YEAR" ]; then
@@ -67,9 +69,10 @@ runs:
     - name: Validate release branch
       id: branch
       shell: bash
+      env:
+        TARGET: ${{ github.event.release.target_commitish }}
       run: |
         set -e
-        TARGET="${{ github.event.release.target_commitish }}"
 
         if [ "$TARGET" = "main" ]; then
           echo "is-hotfix=false" >> "$GITHUB_OUTPUT"
@@ -84,11 +87,11 @@ runs:
 
     - name: Validate hotfix-patch coherence
       shell: bash
+      env:
+        IS_HOTFIX: ${{ steps.branch.outputs.is-hotfix }}
+        PATCH: ${{ steps.parse.outputs.patch }}
       run: |
         set -e
-        IS_HOTFIX="${{ steps.branch.outputs.is-hotfix }}"
-        PATCH="${{ steps.parse.outputs.patch }}"
-        TARGET="${{ github.event.release.target_commitish }}"
 
         if [ "$IS_HOTFIX" = "false" ] && [ "$PATCH" -ne 0 ]; then
           echo "ERROR: Feature releases from 'main' must have patch version 0, got $PATCH"
@@ -104,9 +107,11 @@ runs:
 
     - name: Rollback protection
       shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
       run: |
         set -e
-        LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -v "^${{ inputs.tag }}$" | head -1)
+        LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -v "^${TAG}$" | head -1)
 
         if [ -z "$LATEST_TAG" ]; then
           echo "First release, skipping rollback check"
@@ -114,7 +119,7 @@ runs:
         fi
 
         if ! git merge-base --is-ancestor "$LATEST_TAG" "$GITHUB_SHA"; then
-          echo "ERROR: Tag ${{ inputs.tag }} is based on a commit older than $LATEST_TAG. Releases must not roll back production."
+          echo "ERROR: Tag $TAG is based on a commit older than $LATEST_TAG. Releases must not roll back production."
           exit 1
         fi
 

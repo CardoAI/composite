@@ -10,10 +10,14 @@ runs:
   steps:
     - name: Update production tag
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        COMMIT_SHA: ${{ github.sha }}
       run: |
         set -e
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git tag -f production "${{ github.sha }}"
-        git push "https://x-access-token:${{ inputs.token }}@github.com/${{ github.repository }}.git" production --force
-        echo "Updated production tag to ${{ github.sha }}"
+        git tag -f production "$COMMIT_SHA"
+        git push "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" production --force
+        echo "Updated production tag to $COMMIT_SHA"
