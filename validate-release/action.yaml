@@ -106,7 +106,7 @@ runs:
       shell: bash
       run: |
         set -e
-        LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -1)
+        LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -v "^${{ inputs.tag }}$" | head -1)
 
         if [ -z "$LATEST_TAG" ]; then
           echo "First release, skipping rollback check"
