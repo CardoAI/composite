@@ -11,7 +11,7 @@ runs:
     - name: Update production tag
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.token }}
+        GH_TOKEN: ${{ secrets.GH_PAT }}
         GH_REPO: ${{ github.repository }}
         COMMIT_SHA: ${{ github.sha }}
       run: |
