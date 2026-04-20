@@ -1,0 +1,19 @@
+name: "Update production tag"
+description: "Force-update the floating production tag to the current commit after a successful production deployment"
+inputs:
+  token:
+    required: true
+    description: "GitHub token with push permissions for force-pushing the tag"
+
+runs:
+  using: composite
+  steps:
+    - name: Update production tag
+      shell: bash
+      run: |
+        set -e
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -f production "${{ github.sha }}"
+        git push "https://x-access-token:${{ inputs.token }}@github.com/${{ github.repository }}.git" production --force
+        echo "Updated production tag to ${{ github.sha }}"
