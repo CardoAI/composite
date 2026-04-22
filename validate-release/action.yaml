@@ -3,19 +3,16 @@ description: "Validate a GitHub release for CalVer format, branch targeting, hot
 inputs:
   tag:
     required: false
-    description: "Release tag name (e.g., v2026.3.0). Defaults to github.ref_name"
+    description: "Release tag name (e.g., v20260422.0). Defaults to github.ref_name"
     default: ${{ github.ref_name }}
 
 outputs:
   version:
-    description: "Validated tag without v prefix (e.g., 2026.3.1)"
+    description: "Validated tag without v prefix (e.g., 20260422.1)"
     value: ${{ steps.parse.outputs.version }}
-  year:
-    description: "Year component (e.g., 2026)"
-    value: ${{ steps.parse.outputs.year }}
-  minor:
-    description: "Minor component (e.g., 3)"
-    value: ${{ steps.parse.outputs.minor }}
+  date:
+    description: "Date component in YYYYMMDD format (e.g., 20260422)"
+    value: ${{ steps.parse.outputs.date }}
   patch:
     description: "Patch component (e.g., 1)"
     value: ${{ steps.parse.outputs.patch }}
@@ -34,29 +31,28 @@ runs:
       run: |
         set -e
 
-        if [[ ! "$TAG" =~ ^v[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
-          echo "ERROR: Tag '$TAG' does not match CalVer format v<YEAR>.<MINOR>.<PATCH>"
+        if [[ ! "$TAG" =~ ^v[0-9]{8}\.[0-9]+$ ]]; then
+          echo "ERROR: Tag '$TAG' does not match CalVer format v<YYYYMMDD>.<PATCH>"
           exit 1
         fi
 
         VERSION="${TAG#v}"
-        YEAR=$(echo "$VERSION" | cut -d. -f1)
-        MINOR=$(echo "$VERSION" | cut -d. -f2)
-        PATCH=$(echo "$VERSION" | cut -d. -f3)
+        DATE=$(echo "$VERSION" | cut -d. -f1)
+        PATCH=$(echo "$VERSION" | cut -d. -f2)
 
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-        echo "year=$YEAR" >> "$GITHUB_OUTPUT"
-        echo "minor=$MINOR" >> "$GITHUB_OUTPUT"
+        echo "date=$DATE" >> "$GITHUB_OUTPUT"
         echo "patch=$PATCH" >> "$GITHUB_OUTPUT"
 
-        echo "Parsed tag: year=$YEAR minor=$MINOR patch=$PATCH"
+        echo "Parsed tag: date=$DATE patch=$PATCH"
 
     - name: Validate year is not in the past
       shell: bash
       env:
-        TAG_YEAR: ${{ steps.parse.outputs.year }}
+        TAG_DATE: ${{ steps.parse.outputs.date }}
       run: |
         set -e
+        TAG_YEAR="${TAG_DATE:0:4}"
         CURRENT_YEAR=$(date +%Y)
 
         if [ "$TAG_YEAR" -lt "$CURRENT_YEAR" ]; then
@@ -94,12 +90,12 @@ runs:
         set -e
 
         if [ "$IS_HOTFIX" = "false" ] && [ "$PATCH" -ne 0 ]; then
-          echo "ERROR: Feature releases from 'main' must have patch version 0, got $PATCH"
+          echo "ERROR: Releases from 'main' must have patch 0, got $PATCH"
           exit 1
         fi
 
         if [ "$IS_HOTFIX" = "true" ] && [ "$PATCH" -eq 0 ]; then
-          echo "ERROR: Hotfix releases must have patch version > 0, got 0"
+          echo "ERROR: Hotfix releases must have patch > 0, got 0"
           exit 1
         fi
 
