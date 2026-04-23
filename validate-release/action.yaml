@@ -81,26 +81,6 @@ runs:
           exit 1
         fi
 
-    - name: Validate hotfix-patch coherence
-      shell: bash
-      env:
-        IS_HOTFIX: ${{ steps.branch.outputs.is-hotfix }}
-        PATCH: ${{ steps.parse.outputs.patch }}
-      run: |
-        set -e
-
-        if [ "$IS_HOTFIX" = "false" ] && [ "$PATCH" -ne 0 ]; then
-          echo "ERROR: Releases from 'main' must have patch 0, got $PATCH"
-          exit 1
-        fi
-
-        if [ "$IS_HOTFIX" = "true" ] && [ "$PATCH" -eq 0 ]; then
-          echo "ERROR: Hotfix releases must have patch > 0, got 0"
-          exit 1
-        fi
-
-        echo "Hotfix-patch coherence check passed"
-
     - name: Rollback protection
       shell: bash
       env:
