@@ -1,13 +1,18 @@
 name: "Update production tag"
 description: "Force-update the floating production tag to the current commit after a successful production deployment"
 
+inputs:
+  token:
+    required: true
+    description: "GitHub token with push permissions for force-pushing the tag"
+
 runs:
   using: composite
   steps:
     - name: Update production tag
       shell: bash
       env:
-        GH_TOKEN: ${{ secrets.GH_PAT }}
+        GH_TOKEN: ${{ inputs.token }}
         GH_REPO: ${{ github.repository }}
         COMMIT_SHA: ${{ github.sha }}
       run: |
