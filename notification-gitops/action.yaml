@@ -8,26 +8,30 @@ inputs:
   channel-id:
     description: "The Slack Channel ID in which to write"
     required: true
+  payload:
+    description: "Slack message payload (JSON). Override to customize the notification."
+    required: false
+    default: |
+      {
+        "channel": "${{ inputs.channel-id }}",
+        "text": "⚠️ GitOps update failed for *${{ github.workflow }}* on `${{ github.ref_name }}`",
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "⚠️ *GitOps Update Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* `${{ github.ref_name }}`\n*Run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+            }
+          }
+        ]
+      }
 
 runs:
   using: composite
   steps:
     - name: Send Slack notification
-      uses: slackapi/slack-github-action@v3.0.1
+      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c #v3.0.2
       with:
         method: chat.postMessage
         token: ${{ inputs.token }}
-        payload: |
-          {
-            "channel": "${{ inputs.channel-id }}",
-            "text": "⚠️ GitOps update failed for *${{ github.workflow }}* on `${{ github.ref_name }}`",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "⚠️ *GitOps Update Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* `${{ github.ref_name }}`\n*Run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
-                }
-              }
-            ]
-          }
+        payload: ${{ inputs.payload }}
