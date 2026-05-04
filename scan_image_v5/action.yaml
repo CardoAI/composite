@@ -67,7 +67,7 @@ runs:
   steps:
     - name: Run FCS IaC Scan
       id: fcs-scan
-      uses: crowdstrike/fcs-action@v4.0.1
+      uses: crowdstrike/fcs-action@340a86029db9fcb0287b5df183639f8d487dc206 #v4.0.1
       with:
         falcon_client_id: ${{ inputs.falcon-client-id }}
         falcon_region: "eu-1"
