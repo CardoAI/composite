@@ -35,6 +35,7 @@ runs:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
         SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
       with:
+        skipSignatureVerification: true
         args: >-
           -Dsonar.projectName=${{ steps.project-info.outputs.project_name }}
           -Dsonar.projectKey=${{ steps.project-info.outputs.project_key }}
