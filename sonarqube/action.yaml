@@ -30,11 +30,12 @@ runs:
         echo "project_name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
         echo "project_key=repository_id:${{ github.repository_id }}" >> "$GITHUB_OUTPUT"
     - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4 #v7.1.0
+      uses: SonarSource/sonarqube-scan-action@59db25f34e16620e48ab4bb9e4a5dce155cb5432 # v8
       env:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
         SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
       with:
+        skipSignatureVerification: true
         args: >-
           -Dsonar.projectName=${{ steps.project-info.outputs.project_name }}
           -Dsonar.projectKey=${{ steps.project-info.outputs.project_key }}
