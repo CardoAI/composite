@@ -30,7 +30,7 @@ runs:
   using: "composite"
   steps:
     - name: Login to source ECR
-      uses: CardoAI/composite/ecrlogin_with_role@main
+      uses: CardoAI/composite/ecrlogin_with_role@bb13b6ced44b79dd834aefc6702eb4746a2d2a5c # main
       with:
         aws-region: ${{ inputs.src-aws-region }}
         aws-id: ${{ inputs.src-aws-account-id }}

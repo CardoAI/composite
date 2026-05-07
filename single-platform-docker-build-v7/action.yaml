@@ -57,7 +57,7 @@ runs:
         driver: ${{ inputs.docker-driver }}
 
     - name: Login to ECR for base image
-      uses: CardoAI/composite/ecrlogin_with_role@main
+      uses: CardoAI/composite/ecrlogin_with_role@bb13b6ced44b79dd834aefc6702eb4746a2d2a5c # main
       if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
       with:
         aws-region: ${{ inputs.base-image-aws-region }}
@@ -122,7 +122,7 @@ runs:
 
     - name: Scan Image
       if: ${{ inputs.scan == true || inputs.scan == 'true' }}
-      uses: CardoAI/composite/scan_image_v5@main
+      uses: CardoAI/composite/scan_image_v5@bb13b6ced44b79dd834aefc6702eb4746a2d2a5c # main
       id: scan-image
       with:
         image: ${{ steps.build-image.outputs.full_image_tag }}

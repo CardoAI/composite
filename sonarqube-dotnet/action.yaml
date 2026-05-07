@@ -66,7 +66,7 @@ runs:
         dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
     - name: Get CodeArtifact Auth Token and Registry
       id: codeartifact
-      uses: CardoAI/composite/codeartifact-auth-nuget@main
+      uses: CardoAI/composite/codeartifact-auth-nuget@bb13b6ced44b79dd834aefc6702eb4746a2d2a5c # main
       with:
         domain: ${{ inputs.codeartifact-domain }}
         domain-owner: ${{ inputs.codeartifact-domain-owner }}

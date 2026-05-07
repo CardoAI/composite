@@ -84,7 +84,7 @@ jobs:
 
       - name: Scan Image
         if: ${{ inputs.scan }}
-        uses: CardoAI/composite/scan_image@main
+        uses: CardoAI/composite/scan_image@bb13b6ced44b79dd834aefc6702eb4746a2d2a5c # main
         id: scan-image
         with:
           image-tag: ${{ inputs.tag }}

@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Configure AWS Credentials
-      uses: CardoAI/composite/ecrlogin_with_role@main
+      uses: CardoAI/composite/ecrlogin_with_role@bb13b6ced44b79dd834aefc6702eb4746a2d2a5c # main
       if: ${{ (inputs.base-image-aws-region != '') && (inputs.base-image-aws-account-id != '') }}
       with:
         aws-region: ${{ inputs.base-image-aws-region }}
