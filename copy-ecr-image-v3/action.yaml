@@ -1,0 +1,103 @@
+name: "Copy Docker Image From one AWS ECR repository to another"
+description: "Copies a Docker image (manifest + multi-arch images) from one ECR repository to another. Ensures that all image tags are copied."
+inputs:
+  src-aws-account-id:
+    description: "The AWS account ID of the source ECR repository."
+    required: true
+  src-aws-region:
+    description: "The AWS region of the source ECR repository."
+    required: true
+  src-ecr-repository:
+    description: "The source ECR repository name."
+    required: true
+  src-ecr-image-tag:
+    description: "The source ECR image tag."
+    required: true
+  dst-aws-account-id:
+    description: "The AWS account ID of the destination ECR repository."
+    required: true
+  dst-aws-region:
+    description: "The AWS region of the destination ECR repository."
+    required: true
+  dst-ecr-repository:
+    description: "The destination ECR repository name."
+    required: true
+  dst-ecr-image-tag:
+    description: "The destination ECR image tag."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login to source ECR
+      uses: CardoAI/composite/ecrlogin_with_role@main
+      with:
+        aws-region: ${{ inputs.src-aws-region }}
+        aws-id: ${{ inputs.src-aws-account-id }}
+
+    - name: Copy ECR images
+      shell: bash
+      run: |
+        # If the image is not a multi-arch index, copy it directly
+        is_index=$(docker buildx imagetools inspect \
+            ${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} \
+            --raw | jq 'has("manifests")')
+
+        if [ "$is_index" != "true" ]; then
+            echo "Image is not a multi-arch index. Copying single image."
+            skopeo copy \
+                --src-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.src-aws-region }})" \
+                --dest-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.dst-aws-region }})" \
+                docker://${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} \
+                docker://${{ inputs.dst-aws-account-id }}.dkr.ecr.${{ inputs.dst-aws-region }}.amazonaws.com/${{ inputs.dst-ecr-repository }}:${{ inputs.dst-ecr-image-tag }}
+            exit 0
+        fi
+
+        # If the image is a multi-arch index, copy each architecture-specific image
+        manifests=$(docker buildx imagetools inspect \
+                ${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} \
+                --raw | jq -c ".manifests[] | {digest: .digest, arch: .platform.architecture}")
+        echo "Found manifests: ${manifests}"
+
+        while IFS= read -r manifest; do
+            digest=$(echo "$manifest" | jq -r ".digest")
+            arch=$(echo "$manifest" | jq -r ".arch")
+            expected_tag="${{ inputs.src-ecr-image-tag }}-${arch}"
+            echo "Processing digest=${digest} arch=${arch} expected_tag=${expected_tag}"
+
+            all_tags=$(aws ecr batch-get-image \
+                --repository-name ${{ inputs.src-ecr-repository }} \
+                --registry-id ${{ inputs.src-aws-account-id }} \
+                --region ${{ inputs.src-aws-region }} \
+                --image-ids imageDigest="${digest}" \
+                --query "images[].imageId.imageTag" \
+                --output json)
+
+            tag=$(echo "$all_tags" | jq -r --arg expected "$expected_tag" '.[] | select(. == $expected)' | head -1)
+
+            if [ -z "$tag" ]; then
+                echo "WARNING: No tag matching '${expected_tag}' for digest ${digest}. Falling back to first available tag."
+                tag=$(echo "$all_tags" | jq -r '.[0]')
+            fi
+
+            if [ -z "$tag" ] || [ "$tag" = "null" ]; then
+                echo "No tag found for digest ${digest}."
+                exit 1
+            fi
+
+            echo "Using tag: ${tag}"
+            skopeo copy \
+                --multi-arch index-only \
+                --src-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.src-aws-region }})" \
+                --dest-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.dst-aws-region }})" \
+                docker://${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${tag} \
+                docker://${{ inputs.dst-aws-account-id }}.dkr.ecr.${{ inputs.dst-aws-region }}.amazonaws.com/${{ inputs.dst-ecr-repository }}:${tag}
+        done <<< "$manifests"
+
+        # Finally, copy the original tag to point to the same multi-arch index
+        skopeo copy \
+            --multi-arch index-only \
+            --src-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.src-aws-region }})" \
+            --dest-creds "AWS:$(aws ecr get-login-password --region ${{ inputs.dst-aws-region }})" \
+            docker://${{ inputs.src-aws-account-id }}.dkr.ecr.${{ inputs.src-aws-region }}.amazonaws.com/${{ inputs.src-ecr-repository }}:${{ inputs.src-ecr-image-tag }} \
+            docker://${{ inputs.dst-aws-account-id }}.dkr.ecr.${{ inputs.dst-aws-region }}.amazonaws.com/${{ inputs.dst-ecr-repository }}:${{ inputs.dst-ecr-image-tag }}
