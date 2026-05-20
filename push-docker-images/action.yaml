@@ -1,0 +1,54 @@
+name: "Push docker images"
+description: "Push a prebuilt local Docker image tag to one or more ECR repositories"
+inputs:
+  repositories:
+    description: The AWS ECR repositories to push the image to (JSON string list).
+    required: true
+  tag:
+    description: The local Docker image tag to push.
+    required: true
+  platform:
+    description: The platform of the image for log messages.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Login to target ECR repositories
+      id: multi-ecr-login
+      shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
+      run: |
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+          ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+          REGION=$(echo "${repo}" | jq -r '.region')
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+          docker login --username AWS -p $(aws ecr get-login-password --region "${REGION}") "${REGISTRY}"
+        done
+
+    - name: Push Docker image
+      id: push-image
+      shell: bash
+      env:
+        REPOSITORIES: ${{ inputs.repositories }}
+      run: |
+        set -e
+        for repo in $(echo "${REPOSITORIES}" | jq -c '.[]'); do
+          NAME=$(echo "${repo}" | jq -r '.name')
+          ACCOUNT_ID=$(echo "${repo}" | jq -r '.account_id')
+          REGION=$(echo "${repo}" | jq -r '.region')
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+
+          IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
+          docker image tag "${{ inputs.tag }}" "${IMAGE_TAG}"
+          echo "Pushing image ${IMAGE_TAG}..."
+          docker push "${IMAGE_TAG}"
+          if [[ -n "${{ inputs.platform }}" ]]; then
+            echo "Image ${IMAGE_TAG} for platform ${{ inputs.platform }} pushed to ECR!"
+          else
+            echo "Image ${IMAGE_TAG} pushed to ECR!"
+          fi
+        done
