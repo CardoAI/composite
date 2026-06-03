@@ -57,7 +57,7 @@ runs:
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
       with:
         ref: ${{ inputs.sha }}
-        fetch-depth: 0
+        fetch-depth: 1
         submodules: "true"
 
     - name: Setup Docker Buildx
@@ -106,16 +106,18 @@ runs:
         REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
         FULL_IMAGE_TAG="${REGISTRY}/${NAME}:${{ inputs.tag }}"
 
-        # Stable cache ref: uses cache-key (e.g. branch name) + platform, NOT the
-        # commit SHA. This ensures every build can read from and write to the same
-        # cache entry, so layer cache is actually reused across runs.
+        # Stable cache ref: cache-key (branch name) + platform slug, NOT the commit SHA.
+        # Must be stable across builds so layers are actually reused.
+        # Also adds main branch as fallback so feature branches benefit from warm cache.
         PLATFORM_SLUG=$(echo "${{ inputs.platform }}" | tr '/' '-')
         CACHE_REF="${REGISTRY}/${NAME}:cache-${{ inputs.cache-key }}-${PLATFORM_SLUG}"
+        CACHE_REF_MAIN="${REGISTRY}/${NAME}:cache-main-${PLATFORM_SLUG}"
 
         # Cache args if not using Docker driver
         CACHE_ARGS=""
         if [[ "${{ inputs.docker-driver }}" != "docker" ]]; then
           CACHE_ARGS="--cache-from=type=registry,ref=${CACHE_REF} \
+          --cache-from=type=registry,ref=${CACHE_REF_MAIN} \
           --cache-to=type=registry,ref=${CACHE_REF},mode=max"
         fi
 
