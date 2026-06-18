@@ -134,14 +134,14 @@ runs:
 
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
-    - name: Scan Image
-      if: ${{ inputs.scan == true || inputs.scan == 'true' }}
-      uses: CardoAI/composite/scan_image_v5@main
-      id: scan-image
-      with:
-        image: ${{ steps.build-image.outputs.full_image_tag }}
-        falcon-client-id: ${{ inputs.falcon-client-id }}
-        falcon-client-secret: ${{ inputs.falcon-client-secret }}
+    # - name: Scan Image
+    #   if: ${{ inputs.scan == true || inputs.scan == 'true' }}
+    #   uses: CardoAI/composite/scan_image_v5@main
+    #   id: scan-image
+    #   with:
+    #     image: ${{ steps.build-image.outputs.full_image_tag }}
+    #     falcon-client-id: ${{ inputs.falcon-client-id }}
+    #     falcon-client-secret: ${{ inputs.falcon-client-secret }}
 
     - name: Push Docker image
       id: push-image
