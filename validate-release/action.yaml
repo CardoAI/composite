@@ -5,6 +5,10 @@ inputs:
     required: false
     description: "Release tag name (e.g., v20260422.0). Defaults to github.ref_name"
     default: ${{ github.ref_name }}
+  rollback-check:
+    required: false
+    description: "Enable rollback protection check (default: true). Disable if you want to squash merge hotfix branches into main."
+    default: "true"
 
 outputs:
   version:
@@ -83,6 +87,7 @@ runs:
 
     - name: Rollback protection
       shell: bash
+      if: ${{ inputs.rollback-check == 'true' }}
       env:
         TAG: ${{ inputs.tag }}
       run: |
