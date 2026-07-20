@@ -1,0 +1,43 @@
+#!/bin/bash
+# Set default value for BUILD_DIRECTORY if it's not set
+: ${BUILD_DIRECTORY:="dist"}
+# Set default value for NODE_OPTIONS if it's not set
+: ${NODE_OPTIONS:="--max-old-space-size=2048"}
+# Ensure failure on any command failure (set -e)
+set -euo pipefail
+
+# Install Yarn globally only if not already available
+command -v yarn &>/dev/null || npm install -g yarn
+
+# Configure npm registry
+echo "registry=https://registry.npmjs.org/" > .npmrc
+echo "@cardoai:registry=$CODEARTIFACT_REGISTRY" >> .npmrc
+echo "//$(echo $CODEARTIFACT_REGISTRY | sed -e 's|https://||'):_authToken=$CODEARTIFACT_AUTH_TOKEN" >> .npmrc
+
+# Install dependencies
+echo "Installing dependencies..."
+yarn install --frozen-lockfile --ignore-engines --prefer-offline
+
+# Build the project
+echo "Building the project..."
+NODE_OPTIONS=$NODE_OPTIONS yarn build
+
+# Check if the BUILD_DIRECTORY exists and sync to S3
+if [ -d "$BUILD_DIRECTORY" ]; then
+    echo "Syncing hashed assets to S3 (no delete, long cache, immutable)..."
+    aws s3 sync "$BUILD_DIRECTORY" "s3://$CLOUDFRONT_DISTRIBUTION_BUCKET" \
+        --exclude "index.html" \
+        --cache-control "public,max-age=31536000,immutable"
+
+    echo "Uploading index.html last (no-cache, always revalidated)..."
+    aws s3 cp "$BUILD_DIRECTORY/index.html" "s3://$CLOUDFRONT_DISTRIBUTION_BUCKET/index.html" \
+        --cache-control "no-cache,no-store,must-revalidate"
+
+    echo "Sync completed successfully."
+else
+    # If directory doesn't exist, print error and exit
+    echo "Error: $BUILD_DIRECTORY directory does not exist. Build may have failed."
+    exit 1
+fi
+
+echo "Build and deployment completed successfully."
