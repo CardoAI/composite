@@ -3,6 +3,8 @@
 : ${BUILD_DIRECTORY:="dist"}
 # Set default value for NODE_OPTIONS if it's not set
 : ${NODE_OPTIONS:="--max-old-space-size=2048"}
+# Set default value for DELETE_OLD_ASSETS if it's not set
+: ${CLEANUP_BUCKET:="false"}
 # Ensure failure on any command failure (set -e)
 set -euo pipefail
 
@@ -24,8 +26,17 @@ NODE_OPTIONS=$NODE_OPTIONS yarn build
 
 # Check if the BUILD_DIRECTORY exists and sync to S3
 if [ -d "$BUILD_DIRECTORY" ]; then
+
+    DELETE_FLAG=""
+    if [ "$DELETE_OLD_ASSETS" = "true" ]; then
+        echo "DELETE_FLAG set to true. Deleting old assets from S3..."
+        DELETE_FLAG="--delete"
+    fi
+
+
     echo "Syncing hashed assets to S3 (no delete, long cache, immutable)..."
     aws s3 sync "$BUILD_DIRECTORY" "s3://$CLOUDFRONT_DISTRIBUTION_BUCKET" \
+        $DELETE_FLAG \
         --exclude "index.html" \
         --cache-control "public,max-age=31536000,immutable"
 

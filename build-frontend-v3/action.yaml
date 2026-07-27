@@ -5,6 +5,11 @@ inputs:
   working-directory:
     description: Directory containing package.json and yarn.lock.
     default: "."
+  cleanup-bucket:
+    description: "Delete files from s3 that no longer exist on build."
+    default: "false"
+    required: false
+
 
 runs:
   using: composite
@@ -22,3 +27,5 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: $GITHUB_ACTION_PATH/build.sh
+      env:
+        CLEANUP_BUCKET: ${{ inputs.cleanup-bucket }}
