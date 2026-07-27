@@ -28,7 +28,7 @@ NODE_OPTIONS=$NODE_OPTIONS yarn build
 if [ -d "$BUILD_DIRECTORY" ]; then
 
     DELETE_FLAG=""
-    if [ "$DELETE_OLD_ASSETS" = "true" ]; then
+    if [ "$CLEANUP_BUCKET" = "true" ]; then
         echo "DELETE_FLAG set to true. Deleting old assets from S3..."
         DELETE_FLAG="--delete"
     fi
