@@ -26,7 +26,7 @@ runs:
         shell: bash
         run: echo "current_tag=${GITHUB_SHA::7}" >> $env:GITHUB_OUTPUT
         id: current
-      - uses: oltisa/last_successful_build@main
+      - uses: oltisa/last_successful_build@d63da0fad2865f73ecf57bb431a6cbe0352e452d # main
         id: last_successful_commit
         with:
           token: "${{ inputs.token }}"
