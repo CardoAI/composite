@@ -28,5 +28,5 @@ runs:
         SOURCE_BUCKET: ${{ inputs.source-bucket }}
         DESTINATION_BUCKET: ${{ inputs.destination-bucket }}
       run: |
-        aws s3 sync "s3://${SOURCE_BUCKET}/index.html" "s3://${DESTINATION_BUCKET}/index.html" \
+        aws s3 cp "s3://${SOURCE_BUCKET}/index.html" "s3://${DESTINATION_BUCKET}/index.html" \
           --cache-control "no-cache,no-store,must-revalidate"
