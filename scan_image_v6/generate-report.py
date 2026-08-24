@@ -40,7 +40,7 @@ def create_markdown_report(data):
         sorted_vulnerabilities = sorted(
             [item for item in vulnerabilities if item],
             key=lambda item: exprt_rating.get(
-                item.get("Vulnerability", {}).get("Details", {}).get("exprt_rating", "UNKNOWN").upper(),
+                (item.get("Vulnerability") or {}).get("Details", {}).get("exprt_rating", "UNKNOWN").upper(),
                 99,  # Default value for any unexpected severities, placing them at the end
             ),
         )
