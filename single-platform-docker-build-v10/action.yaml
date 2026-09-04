@@ -49,6 +49,10 @@ inputs:
   push:
     description: Whether to push the image to ECR.
     default: "true"
+  token:
+    description: The GitHub token to use for authentication on checkout (needed for private submodules).
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: composite
@@ -59,6 +63,7 @@ runs:
         ref: ${{ inputs.sha }}
         fetch-depth: 1
         submodules: "true"
+        token: ${{ inputs.token }}
 
     - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
