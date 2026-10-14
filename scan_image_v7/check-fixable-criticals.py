@@ -4,14 +4,15 @@ import sys
 
 def find_fixable_criticals(data):
     """
-    Returns the critical vulnerabilities that have at least one fixed version available.
+    Returns the vulnerabilities with a critical ExPRT rating that have at least one fixed version available.
     """
     fixable = []
     for item in data.get("Vulnerabilities") or []:
         vuln_data = (item or {}).get("Vulnerability") or {}
-        severity = (vuln_data.get("Details") or {}).get("severity", "")
+        details = vuln_data.get("Details") or {}
+        exprt_rating = ((details.get("cps_rating") or {}).get("CurrentRating") or {}).get("Rating") or ""
         fixed_versions = vuln_data.get("FixedVersions") or []
-        if severity.upper() == "CRITICAL" and fixed_versions:
+        if exprt_rating.upper() == "CRITICAL" and fixed_versions:
             fixable.append(vuln_data)
     return fixable
 
@@ -35,14 +36,14 @@ if __name__ == "__main__":
 
     fixable_criticals = find_fixable_criticals(report_data)
     if not fixable_criticals:
-        print("✅ No critical vulnerabilities with an available fix were found.")
+        print("✅ No vulnerabilities with a critical ExPRT rating and an available fix were found.")
         sys.exit(0)
 
     for vuln_data in fixable_criticals:
         product = vuln_data.get("Product") or {}
         print(
             f"::error::{vuln_data.get('CVEID', 'N/A')} in {product.get('Product', 'N/A')} "
-            f"{product.get('MajorVersion', 'N/A')} is critical and fixed in {', '.join(vuln_data['FixedVersions'])}"
+            f"{product.get('MajorVersion', 'N/A')} has a critical ExPRT rating and is fixed in {', '.join(vuln_data['FixedVersions'])}"
         )
-    print(f"❌ Found {len(fixable_criticals)} critical vulnerabilities with an available fix.")
+    print(f"❌ Found {len(fixable_criticals)} vulnerabilities with a critical ExPRT rating and an available fix.")
     sys.exit(1)
