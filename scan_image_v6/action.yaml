@@ -95,7 +95,10 @@ runs:
       run: |
         python ${{ github.action_path }}/generate-report.py ${{ inputs.output_path }}
 
-    - name: Check Fixable Critical Vulnerabilities
+    - name: Check Scan Exit Code
       shell: bash
       run: |
-        python ${{ github.action_path }}/check-fixable-criticals.py ${{ inputs.output_path }}
+        if [[ "${{ steps.fcs-scan.outputs.exit-code }}" != "0" ]]; then
+          echo "::error::CrowdStrike scan failed with exit code: ${{ steps.fcs-scan.outputs.exit-code }}"
+          exit 1
+        fi
