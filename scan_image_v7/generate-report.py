@@ -3,6 +3,10 @@ import os
 import sys  # Import the sys module
 
 
+# Number of vulnerabilities shown before the "Show more" toggle
+VISIBLE_VULNERABILITY_ROWS = 20
+
+
 def create_markdown_report(data):
     """
     Generates a complete Markdown report string from the JSON data.
@@ -45,8 +49,11 @@ def create_markdown_report(data):
             ),
         )
 
-        vuln_table_md += "| VULNERABILITY | EXPRT RATING | SEVERITY | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
-        vuln_table_md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
+        table_header = (
+            "| VULNERABILITY | EXPRT RATING | SEVERITY | SCORE | EXPLOIT STATUS | PACKAGE | INSTALLED VERSION | PATH | FIXED VERSION | DESCRIPTION |\n"
+            "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
+        )
+        vuln_rows = []
 
         for item in sorted_vulnerabilities:
             # (The rest of this function remains the same as before)
@@ -69,7 +76,20 @@ def create_markdown_report(data):
             fixed_versions = vuln_data.get("FixedVersions", [])
             fixed_version = fixed_versions[0] if fixed_versions else "No fix"
             description = (details.get("description", "N/A")[:50] + "...").replace("\n", " ")
-            vuln_table_md += f"| {cve_id} | {exprt_rating} | {severity} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
+            vuln_rows.append(
+                f"| {cve_id} | {exprt_rating} | {severity} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
+            )
+
+        # Show only the first rows and collapse the rest behind a "Show more" toggle
+        vuln_table_md += table_header + "".join(vuln_rows[:VISIBLE_VULNERABILITY_ROWS])
+        hidden_rows = vuln_rows[VISIBLE_VULNERABILITY_ROWS:]
+        if hidden_rows:
+            vuln_table_md += (
+                f"\n<details>\n<summary>Show {len(hidden_rows)} more vulnerabilities</summary>\n\n"
+                + table_header
+                + "".join(hidden_rows)
+                + "\n</details>\n"
+            )
 
     # --- 3. Detections Table ---
     detections = data.get("Detections", [])
