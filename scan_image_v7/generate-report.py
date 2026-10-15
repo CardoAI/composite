@@ -3,8 +3,24 @@ import os
 import sys  # Import the sys module
 
 
-# Number of vulnerabilities shown before the "Show more" toggle
-VISIBLE_VULNERABILITY_ROWS = 20
+# Number of rows shown before the "Show more" toggle
+VISIBLE_ROWS = 10
+
+
+def render_collapsible_table(table_header, rows, label):
+    """
+    Renders the first VISIBLE_ROWS rows as a table and collapses the rest behind a "Show more" toggle.
+    """
+    table_md = table_header + "".join(rows[:VISIBLE_ROWS])
+    hidden_rows = rows[VISIBLE_ROWS:]
+    if hidden_rows:
+        table_md += (
+            f"\n<details>\n<summary>Show {len(hidden_rows)} more {label}</summary>\n\n"
+            + table_header
+            + "".join(hidden_rows)
+            + "\n</details>\n"
+        )
+    return table_md
 
 
 def create_markdown_report(data):
@@ -80,23 +96,17 @@ def create_markdown_report(data):
                 f"| {cve_id} | {exprt_rating} | {severity} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
             )
 
-        # Show only the first rows and collapse the rest behind a "Show more" toggle
-        vuln_table_md += table_header + "".join(vuln_rows[:VISIBLE_VULNERABILITY_ROWS])
-        hidden_rows = vuln_rows[VISIBLE_VULNERABILITY_ROWS:]
-        if hidden_rows:
-            vuln_table_md += (
-                f"\n<details>\n<summary>Show {len(hidden_rows)} more vulnerabilities</summary>\n\n"
-                + table_header
-                + "".join(hidden_rows)
-                + "\n</details>\n"
-            )
+        vuln_table_md += render_collapsible_table(table_header, vuln_rows, "vulnerabilities")
 
     # --- 3. Detections Table ---
     detections = data.get("Detections", [])
     det_table_md = "\n### 🚨 Detections Found\n\n"
     if detections:
-        det_table_md += "| TYPE | SEVERITY | NAME | TITLE | DESCRIPTION | REMEDIATION | DETAILS |\n"
-        det_table_md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
+        table_header = (
+            "| TYPE | SEVERITY | NAME | TITLE | DESCRIPTION | REMEDIATION | DETAILS |\n"
+            "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
+        )
+        det_rows = []
 
         for item in detections:
             if not item:
@@ -113,9 +123,11 @@ def create_markdown_report(data):
                 details = details_obj.get("Match", "N/A")
             else:
                 details = "N/A"
-            det_table_md += (
+            det_rows.append(
                 f"| {dtype} | {severity} | {name} | {title} | {description} | {remediation} | `{details}` |\n"
             )
+
+        det_table_md += render_collapsible_table(table_header, det_rows, "detections")
 
     return summary_md + vuln_table_md + det_table_md
 
