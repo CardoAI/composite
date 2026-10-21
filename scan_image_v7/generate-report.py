@@ -7,6 +7,15 @@ import sys  # Import the sys module
 VISIBLE_ROWS = 10
 
 
+def get_exprt_rating(vuln_data):
+    """
+    Returns the current ExPRT rating of a vulnerability, or None when CrowdStrike didn't provide one
+    (the cps_rating fields can be missing or null).
+    """
+    details = vuln_data.get("Details") or {}
+    return ((details.get("cps_rating") or {}).get("CurrentRating") or {}).get("Rating")
+
+
 def render_collapsible_table(table_header, rows, label):
     """
     Renders the first VISIBLE_ROWS rows as a table and collapses the rest behind a "Show more" toggle.
@@ -54,13 +63,13 @@ def create_markdown_report(data):
     vuln_table_md = "\n### 🔍 Vulnerabilities Found\n\n"
     if vulnerabilities:
         # Define the order of severities
-        exprt_rating = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "UNKNOWN": 4}
+        exprt_rating_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "UNKNOWN": 4}
 
         # Sort the vulnerabilities list based on the exprt_rating order
         sorted_vulnerabilities = sorted(
             [item for item in vulnerabilities if item],
-            key=lambda item: exprt_rating.get(
-                (item.get("Vulnerability") or {}).get("Details", {}).get("exprt_rating", "UNKNOWN").upper(),
+            key=lambda item: exprt_rating_order.get(
+                (get_exprt_rating(item.get("Vulnerability") or {}) or "UNKNOWN").upper(),
                 99,  # Default value for any unexpected severities, placing them at the end
             ),
         )
@@ -78,7 +87,7 @@ def create_markdown_report(data):
             product = vuln_data.get("Product", {})
             exploit_details = vuln_data.get("ExploitDetails", {})
             cve_id = vuln_data.get("CVEID", "N/A")
-            exprt_rating = details.get("cps_rating", {}).get("CurrentRating", {}).get("Rating", "N/A")
+            exprt_rating = get_exprt_rating(vuln_data) or "N/A"
             severity = details.get("severity", "N/A")
             score = details.get("base_score", "N/A")
             if exploit_details.get("exploit_found"):
