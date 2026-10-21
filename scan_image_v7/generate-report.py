@@ -38,13 +38,13 @@ def create_markdown_report(data):
     """
 
     # --- 1. Beautified Summary Table ---
-    vuln_summary = data.get("VulnerabilitiesSummary", {})
+    vuln_summary = data.get("VulnerabilitiesSummary") or {}
     vuln_count = vuln_summary.get("count", 0)
-    vuln_sev = vuln_summary.get("severities", {})
+    vuln_sev = vuln_summary.get("severities") or {}
 
-    det_summary = data.get("DetectionsSummary", {})
+    det_summary = data.get("DetectionsSummary") or {}
     det_count = det_summary.get("count", 0)
-    det_sev = det_summary.get("severities", {})
+    det_sev = det_summary.get("severities") or {}
 
     summary_md = (
         "### 📊 Scan Summary\n\n"
@@ -82,10 +82,10 @@ def create_markdown_report(data):
 
         for item in sorted_vulnerabilities:
             # (The rest of this function remains the same as before)
-            vuln_data = item.get("Vulnerability", {})
-            details = vuln_data.get("Details", {})
-            product = vuln_data.get("Product", {})
-            exploit_details = vuln_data.get("ExploitDetails", {})
+            vuln_data = item.get("Vulnerability") or {}
+            details = vuln_data.get("Details") or {}
+            product = vuln_data.get("Product") or {}
+            exploit_details = vuln_data.get("ExploitDetails") or {}
             cve_id = vuln_data.get("CVEID", "N/A")
             exprt_rating = get_exprt_rating(vuln_data) or "N/A"
             severity = details.get("severity", "N/A")
@@ -100,7 +100,7 @@ def create_markdown_report(data):
             path = "N/A"
             fixed_versions = vuln_data.get("FixedVersions", [])
             fixed_version = fixed_versions[0] if fixed_versions else "No fix"
-            description = (details.get("description", "N/A")[:50] + "...").replace("\n", " ")
+            description = ((details.get("description") or "N/A")[:50] + "...").replace("\n", " ")
             vuln_rows.append(
                 f"| {cve_id} | {exprt_rating} | {severity} | {score} | {exploit_status} | `{package}` | `{installed_version}` | {path} | `{fixed_version}` | {description} |\n"
             )
@@ -120,13 +120,13 @@ def create_markdown_report(data):
         for item in detections:
             if not item:
                 continue
-            detection_data = item.get("Detection", {})
+            detection_data = item.get("Detection") or {}
             dtype = detection_data.get("Type", "N/A")
             severity = detection_data.get("Severity", "N/A")
             name = detection_data.get("Name", "N/A")
             title = detection_data.get("Title", "N/A")
-            description = (detection_data.get("Description", "N/A")[:25] + "...").replace("\n", " ")
-            remediation = (detection_data.get("Remediation", "N/A")[:25] + "...").replace("\n", " ")
+            description = ((detection_data.get("Description") or "N/A")[:25] + "...").replace("\n", " ")
+            remediation = ((detection_data.get("Remediation") or "N/A")[:25] + "...").replace("\n", " ")
             details_obj = detection_data.get("Details") or {}
             if isinstance(details_obj, dict):
                 details = details_obj.get("Match", "N/A")
