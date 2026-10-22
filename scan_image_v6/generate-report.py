@@ -9,13 +9,13 @@ def create_markdown_report(data):
     """
 
     # --- 1. Beautified Summary Table ---
-    vuln_summary = data.get("VulnerabilitiesSummary", {})
+    vuln_summary = data.get("VulnerabilitiesSummary") or {}
     vuln_count = vuln_summary.get("count", 0)
-    vuln_sev = vuln_summary.get("severities", {})
+    vuln_sev = vuln_summary.get("severities") or {}
 
-    det_summary = data.get("DetectionsSummary", {})
+    det_summary = data.get("DetectionsSummary") or {}
     det_count = det_summary.get("count", 0)
-    det_sev = det_summary.get("severities", {})
+    det_sev = det_summary.get("severities") or {}
 
     summary_md = (
         "### 📊 Scan Summary\n\n"
@@ -40,7 +40,7 @@ def create_markdown_report(data):
         sorted_vulnerabilities = sorted(
             [item for item in vulnerabilities if item],
             key=lambda item: exprt_rating.get(
-                (item.get("Vulnerability") or {}).get("Details", {}).get("exprt_rating", "UNKNOWN").upper(),
+                (((item.get("Vulnerability") or {}).get("Details") or {}).get("exprt_rating") or "UNKNOWN").upper(),
                 99,  # Default value for any unexpected severities, placing them at the end
             ),
         )
@@ -50,12 +50,12 @@ def create_markdown_report(data):
 
         for item in sorted_vulnerabilities:
             # (The rest of this function remains the same as before)
-            vuln_data = item.get("Vulnerability", {})
-            details = vuln_data.get("Details", {})
-            product = vuln_data.get("Product", {})
-            exploit_details = vuln_data.get("ExploitDetails", {})
+            vuln_data = item.get("Vulnerability") or {}
+            details = vuln_data.get("Details") or {}
+            product = vuln_data.get("Product") or {}
+            exploit_details = vuln_data.get("ExploitDetails") or {}
             cve_id = vuln_data.get("CVEID", "N/A")
-            exprt_rating = details.get("cps_rating", {}).get("CurrentRating", {}).get("Rating", "N/A")
+            exprt_rating = ((details.get("cps_rating") or {}).get("CurrentRating") or {}).get("Rating", "N/A")
             severity = details.get("severity", "N/A")
             score = details.get("base_score", "N/A")
             if exploit_details.get("exploit_found"):
@@ -81,7 +81,7 @@ def create_markdown_report(data):
         for item in detections:
             if not item:
                 continue
-            detection_data = item.get("Detection", {})
+            detection_data = item.get("Detection") or {}
             dtype = detection_data.get("Type", "N/A")
             severity = detection_data.get("Severity", "N/A")
             name = detection_data.get("Name", "N/A")
