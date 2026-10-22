@@ -18,9 +18,10 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: ${{ inputs.working-directory }}/node_modules
-        key: node-modules-${{ runner.os }}-${{ inputs.working-directory }}-${{ hashFiles(format('{0}/yarn.lock', inputs.working-directory)) }}
+        # runner.arch: runners are multi-arch; native modules from an x64 cache forced yarn to reinstall on arm64 and vice versa.
+        key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ inputs.working-directory }}-${{ hashFiles(format('{0}/yarn.lock', inputs.working-directory)) }}
         restore-keys: |
-          node-modules-${{ runner.os }}-${{ inputs.working-directory }}-
+          node-modules-${{ runner.os }}-${{ runner.arch }}-${{ inputs.working-directory }}-
 
     - name: Build
       id: build-frontend
