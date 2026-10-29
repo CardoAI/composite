@@ -6,7 +6,7 @@ inputs:
     required: false
     default: "image"
   image:
-    description: "Container image reference or path to a local Docker image archive (.tar) to scan"
+    description: "Container image to scan (e.g., nginx:latest, docker://image:tag)"
     required: false
   minimum_score:
     description: "Only show vulnerabilities with CVSS score at or above this threshold (0.0-10.0)"

@@ -139,36 +139,14 @@ runs:
 
         echo "Image ${{ inputs.tag }} for platform ${{ inputs.platform }} built!"
 
-    - name: Export local image for scanning
-      id: scan-input
-      if: ${{ inputs.scan == true || inputs.scan == 'true' }}
-      shell: bash
-      env:
-        IMAGE: ${{ steps.build-image.outputs.full_image_tag }}
-      run: |
-        ARCHIVE_DIR=$(mktemp -d "${RUNNER_TEMP}/image-scan.XXXXXX")
-        IMAGE_ARCHIVE="${ARCHIVE_DIR}/image.tar"
-        echo "image_archive=${IMAGE_ARCHIVE}" >> "$GITHUB_OUTPUT"
-        # Scan the build itself; resolving the ECR tag can pull the previous image.
-        docker image save --output "${IMAGE_ARCHIVE}" "${IMAGE}"
-
     - name: Scan Image
       if: ${{ inputs.scan == true || inputs.scan == 'true' }}
       uses: CardoAI/composite/scan_image_v7@main
       id: scan-image
       with:
-        image: ${{ steps.scan-input.outputs.image_archive }}
+        image: ${{ steps.build-image.outputs.full_image_tag }}
         falcon-client-id: ${{ inputs.falcon-client-id }}
         falcon-client-secret: ${{ inputs.falcon-client-secret }}
-
-    - name: Remove scan archive
-      if: ${{ always() && steps.scan-input.outputs.image_archive != '' }}
-      shell: bash
-      env:
-        IMAGE_ARCHIVE: ${{ steps.scan-input.outputs.image_archive }}
-      run: |
-        rm -f -- "${IMAGE_ARCHIVE}"
-        rmdir -- "$(dirname "${IMAGE_ARCHIVE}")"
 
     - name: Push Docker image
       id: push-image
