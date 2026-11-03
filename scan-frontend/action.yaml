@@ -15,7 +15,6 @@ runs:
       run: |
         report_dir=$(mktemp -d "${RUNNER_TEMP}/frontend-scan.XXXXXX")
         echo "directory=${report_dir}" >> "$GITHUB_OUTPUT"
-        echo "name=$(basename "$report_dir")" >> "$GITHUB_OUTPUT"
         echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
 
     - name: Install Trivy
@@ -42,23 +41,12 @@ runs:
         TRIVY_CACHE_DIR: ${{ runner.temp }}/frontend-trivy-cache
       run: bash "${GITHUB_ACTION_PATH}/scan.sh"
 
-    - name: Upload findings
-      id: upload
-      if: ${{ !cancelled() && steps.scan.outcome != 'skipped' }}
-      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      with:
-        name: ${{ steps.report.outputs.name }}
-        path: ${{ steps.report.outputs.directory }}/trivy.json
-        if-no-files-found: ignore
-        retention-days: 7
-
     - name: Publish workflow summary
       if: ${{ !cancelled() }}
       shell: bash
       env:
         REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
         SCAN_OUTCOME: ${{ steps.scan.outcome }}
-        ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
       run: bash "${GITHUB_ACTION_PATH}/write-summary.sh"
 
     - name: Remove local report

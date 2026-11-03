@@ -29,7 +29,6 @@ class SummaryTest(unittest.TestCase):
             'GITHUB_STEP_SUMMARY': str(self.summary),
             'REPORT_DIRECTORY': str(self.root),
             'SCAN_OUTCOME': 'success',
-            'ARTIFACT_URL': 'https://github.com/example/frontend/actions/runs/1/artifacts/2',
         }
 
     def write_report(self, vulnerabilities):
@@ -59,7 +58,7 @@ class SummaryTest(unittest.TestCase):
         )
         return result, self.summary.read_text()
 
-    def test_blocked_summary_has_counts_details_and_artifact_link(self):
+    def test_blocked_summary_has_counts_and_details(self):
         self.write_report([self.vuln('HIGH'), self.vuln(), self.vuln(fixed='')])
         result, summary = self.render(SCAN_OUTCOME='failed')
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -68,7 +67,6 @@ class SummaryTest(unittest.TestCase):
         self.assertIn('| 2 | 1 | 0 | 0 | 0 | 3 | 1 |', summary)
         self.assertIn('| example | 1.0.0 | 2.0.0 | yarn.lock | Yes |', summary)
         self.assertIn('No fix available', summary)
-        self.assertIn(self.env['ARTIFACT_URL'], summary)
         self.assertLess(summary.index('| CRITICAL |'), summary.index('| HIGH |'))
 
     def test_unfixed_critical_and_fixable_high_do_not_claim_blocking(self):
@@ -81,7 +79,7 @@ class SummaryTest(unittest.TestCase):
 
     def test_clean_scan(self):
         self.write_report([])
-        result, summary = self.render(ARTIFACT_URL='')
+        result, summary = self.render()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('No dependency vulnerabilities detected', summary)
         self.assertIn('| 0 | 0 | 0 | 0 | 0 | 0 | 0 |', summary)
@@ -112,7 +110,6 @@ class SummaryTest(unittest.TestCase):
                 self.assertNotIn('Dependency gate passed', summary)
                 self.assertNotIn('No dependency vulnerabilities detected', summary)
                 self.assertIn('Review the scan logs', summary)
-                self.assertIn(self.env['ARTIFACT_URL'], summary)
 
     def test_untrusted_metadata_cannot_inject_table_rows_or_links(self):
         self.write_report([self.vuln(PkgName='<script>|[click](https://example.com)\nnext')])
@@ -130,6 +127,7 @@ class SummaryTest(unittest.TestCase):
         self.assertIn('| 110 | 0 | 0 | 0 | 0 | 110 | 110 |', summary)
         self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in summary.splitlines()), 100)
         self.assertIn('Showing the first 100 findings', summary)
+        self.assertIn('See the scan logs for all findings', summary)
         self.assertNotIn('x' * 121, summary)
         self.assertLess(len(summary.encode()), 1024 * 1024)
 

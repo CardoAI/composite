@@ -57,11 +57,12 @@ class FrontendScanTest(unittest.TestCase):
     def test_complete_report_and_fixable_critical_gate(self):
         result = self.run_scan()
         self.assertEqual(result.returncode, 0, result.stderr)
-        report, summary, gate = self.commands()
+        report, console, gate = self.commands()
         self.assertIn('--ignore-unfixed=false', report)
         self.assertEqual(report[report.index('--exit-code') + 1], '0')
         self.assertEqual(report[report.index('--severity') + 1], 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL')
-        self.assertEqual(summary[summary.index('--table-mode') + 1], 'summary')
+        self.assertEqual(console[console.index('--format') + 1], 'table')
+        self.assertNotIn('--table-mode', console)
         self.assertEqual(gate[gate.index('--scanners') + 1], 'vuln')
         self.assertEqual(gate[gate.index('--severity') + 1], 'CRITICAL')
         self.assertIn('--ignore-unfixed', gate)
@@ -71,7 +72,7 @@ class FrontendScanTest(unittest.TestCase):
             self.assertIn('--include-dev-deps', command)
             self.assertEqual(command[-1], '.')
 
-    def test_gate_failure_keeps_report(self):
+    def test_gate_failure_keeps_local_report_for_summary(self):
         result = self.run_scan(GATE_STATUS='1')
         self.assertEqual(result.returncode, 1)
         self.assertTrue((self.report / 'trivy.json').is_file())

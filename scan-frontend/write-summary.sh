@@ -30,9 +30,5 @@ summary_status=0
         printf '**Scan incomplete:** no complete JSON report was produced. Review the scan logs.\n'
         summary_status=1
     fi
-
-    if [[ -n "${ARTIFACT_URL:-}" ]]; then
-        printf '\n[Download the full JSON report](%s)\n' "$ARTIFACT_URL"
-    fi
 } >> "$GITHUB_STEP_SUMMARY"
 exit "$summary_status"

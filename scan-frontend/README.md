@@ -41,17 +41,14 @@ lockfiles, scanner errors, and database download failures also fail the action.
 Repository-owned Trivy configuration and ignore files follow Trivy's normal
 behavior; review changes to them as security policy changes.
 
-Each invocation uploads a uniquely named `frontend-scan-*` artifact containing
-`trivy.json`, including dependency findings of every severity and unfixed
-vulnerabilities. Reports remain available when the gate fails and expire after
-seven days. Logs show the report summary and the blocking vulnerabilities.
-
 The workflow run's GitHub job summary shows the scan outcome, severity counts,
-fixable critical count, and dependency vulnerability details, with a download link
-when the JSON artifact was uploaded. The summary is also published after scan
-failures; missing or invalid reports are marked incomplete. Details are limited
-to 100 findings, ordered by severity, with long fields shortened. The JSON
-artifact contains the complete report. This uses `GITHUB_STEP_SUMMARY`, like the
+fixable critical count, and dependency vulnerability details. The summary is also
+published after scan failures; missing or invalid reports are marked incomplete. Details are limited
+to 100 findings, ordered by severity, with long fields shortened. Workflow logs
+contain all dependency findings, including lower severities and unfixed issues.
+No scan artifact is uploaded: the temporary JSON report is used to render the
+logs and summary, then removed even when the gate fails.
+This uses `GITHUB_STEP_SUMMARY`, like the
 CrowdStrike action, and needs no extra token permissions or PR comments.
 
 Run this action once in a separate job with `contents: read`, no deployment

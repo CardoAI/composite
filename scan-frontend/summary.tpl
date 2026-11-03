@@ -36,6 +36,6 @@ No dependency vulnerabilities detected.
 {{- end }}
 
 {{ if gt (len $findings) 100 -}}
-Showing the first 100 findings, ordered by severity. Download the JSON report for all findings and complete field values.
+Showing the first 100 findings, ordered by severity. See the scan logs for all findings and complete field values.
 {{ end -}}
 {{ end -}}
