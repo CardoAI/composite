@@ -27,6 +27,7 @@ fi
 trivy fs \
     --scanners vuln \
     --include-dev-deps \
+    --skip-db-update=false \
     --list-all-pkgs \
     --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
     --ignore-unfixed=false \
@@ -36,11 +37,6 @@ trivy fs \
     --timeout 10m \
     --no-progress \
     .
-
-# A completed first scan has prepared the database, even if the gate later fails.
-if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-    echo "database-ready=true" >> "$GITHUB_OUTPUT"
-fi
 
 EXPECTED_LOCKFILE="$expected_lockfile" trivy convert \
     --format template \
@@ -53,10 +49,11 @@ touch "$REPORT_DIRECTORY/coverage-ok"
 # Keep all dependency findings visible in the workflow logs.
 trivy convert --format table --exit-code 0 --output '' "$REPORT_DIRECTORY/trivy.json"
 
-# Only fixable critical CVEs block deployment.
+# Reuse the first pass's database; only fixable critical CVEs block deployment.
 trivy fs \
     --scanners vuln \
     --include-dev-deps \
+    --skip-db-update \
     --severity CRITICAL \
     --ignore-unfixed \
     --exit-code 1 \

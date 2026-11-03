@@ -69,10 +69,13 @@ build's security decision rather than rescanning tag source unrelated to the
 copied assets. Establish artifact identity in the promotion process independently.
 It needs Bash and outbound access to GitHub releases and the
 Trivy database registries, and works without Docker. The scanner version and
-upstream actions are pinned; the database cache is refreshed through Trivy's
-normal update checks. Database restore and save are separate: a completed first
-scan permits saving a fresh database even if coverage checks or the vulnerability
-gate fail later. Failed database preparation and exact cache hits are not saved.
+upstream actions are pinned. Only the Trivy executable is cached across runs.
+Every scan job uses a fresh database directory inside its unique temporary report
+directory. The first pass explicitly enables database updates and downloads the
+database; the gate pass disables database updates and reuses that same snapshot.
+The database is deleted with the report after use, including on failure. Registry
+or database download failures block the build. Freshness still depends on the
+advisories included in Trivy's published database.
 
 Run the local contract checks with `python3 -m unittest discover -s scan-frontend`.
 Coverage and summary rendering tests also run when `trivy` is on `PATH`, or when

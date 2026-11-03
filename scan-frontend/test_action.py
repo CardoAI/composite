@@ -47,7 +47,6 @@ class FrontendScanTest(unittest.TestCase):
             "REPORT_DIRECTORY": str(self.report),
             "CALLS": str(self.calls),
             "GITHUB_ACTION_PATH": str(SCRIPT.parent),
-            "GITHUB_OUTPUT": str(self.root / 'github-output'),
         }
 
     def run_scan(self, **env):
@@ -67,6 +66,7 @@ class FrontendScanTest(unittest.TestCase):
         self.assertEqual(report[report.index('--exit-code') + 1], '0')
         self.assertEqual(report[report.index('--severity') + 1], 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL')
         self.assertIn('--list-all-pkgs', report)
+        self.assertIn('--skip-db-update=false', report)
         self.assertTrue(coverage[coverage.index('--template') + 1].endswith('/check-coverage.tpl'))
         self.assertTrue((self.report / 'coverage-ok').is_file())
         self.assertEqual(console[console.index('--format') + 1], 'table')
@@ -74,6 +74,7 @@ class FrontendScanTest(unittest.TestCase):
         self.assertEqual(gate[gate.index('--scanners') + 1], 'vuln')
         self.assertEqual(gate[gate.index('--severity') + 1], 'CRITICAL')
         self.assertIn('--ignore-unfixed', gate)
+        self.assertIn('--skip-db-update', gate)
         self.assertEqual(gate[gate.index('--exit-code') + 1], '1')
         for command in (report, gate):
             self.assertEqual(command[command.index('--scanners') + 1], 'vuln')
@@ -86,7 +87,6 @@ class FrontendScanTest(unittest.TestCase):
         result = self.run_scan(GATE_STATUS='1')
         self.assertEqual(result.returncode, 1)
         self.assertTrue((self.report / 'trivy.json').is_file())
-        self.assertIn('database-ready=true', (self.root / 'github-output').read_text())
 
     def test_gate_scanner_error_fails(self):
         self.assertEqual(self.run_scan(GATE_STATUS='2').returncode, 2)
@@ -95,14 +95,12 @@ class FrontendScanTest(unittest.TestCase):
         result = self.run_scan(FAIL_REPORT='1')
         self.assertEqual(result.returncode, 2)
         self.assertEqual(len(self.commands()), 1)
-        self.assertFalse((self.root / 'github-output').exists())
 
-    def test_coverage_error_stops_before_gate_and_keeps_database_ready(self):
+    def test_coverage_error_stops_before_gate(self):
         result = self.run_scan(FAIL_COVERAGE='1')
         self.assertEqual(result.returncode, 2)
         self.assertEqual(len(self.commands()), 2)
         self.assertFalse((self.report / 'coverage-ok').exists())
-        self.assertIn('database-ready=true', (self.root / 'github-output').read_text())
 
     def test_missing_manifest_or_lockfile_fails_before_scan(self):
         for filename in ('package.json', 'yarn.lock'):
