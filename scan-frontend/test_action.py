@@ -29,10 +29,13 @@ class FrontendScanTest(unittest.TestCase):
             "args = sys.argv[1:]\n"
             "with open(os.environ['CALLS'], 'a') as log:\n"
             "    log.write(json.dumps(args) + '\\n')\n"
-            "if '--output' in args:\n"
+            "if '--output' in args and args[args.index('--output') + 1]:\n"
             "    if os.environ.get('FAIL_REPORT'):\n"
             "        sys.exit(2)\n"
-            "    pathlib.Path(args[args.index('--output') + 1]).write_text('{}')\n"
+            "    data = {'SchemaVersion': 2, 'Results': [{'Target': 'yarn.lock', 'Class': 'lang-pkgs', 'Type': 'yarn', 'Packages': [{'Name': 'example', 'Version': '1.0.0'}]}]}\n"
+            "    pathlib.Path(args[args.index('--output') + 1]).write_text(json.dumps(data))\n"
+            "if '--template' in args and os.environ.get('FAIL_COVERAGE'):\n"
+            "    sys.exit(2)\n"
             "if '--ignore-unfixed' in args:\n"
             "    sys.exit(int(os.environ.get('GATE_STATUS', '0')))\n"
         )
@@ -43,6 +46,8 @@ class FrontendScanTest(unittest.TestCase):
             "WORKING_DIRECTORY": str(self.frontend),
             "REPORT_DIRECTORY": str(self.report),
             "CALLS": str(self.calls),
+            "GITHUB_ACTION_PATH": str(SCRIPT.parent),
+            "GITHUB_OUTPUT": str(self.root / 'github-output'),
         }
 
     def run_scan(self, **env):
@@ -57,10 +62,13 @@ class FrontendScanTest(unittest.TestCase):
     def test_complete_report_and_fixable_critical_gate(self):
         result = self.run_scan()
         self.assertEqual(result.returncode, 0, result.stderr)
-        report, console, gate = self.commands()
+        report, coverage, console, gate = self.commands()
         self.assertIn('--ignore-unfixed=false', report)
         self.assertEqual(report[report.index('--exit-code') + 1], '0')
         self.assertEqual(report[report.index('--severity') + 1], 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL')
+        self.assertIn('--list-all-pkgs', report)
+        self.assertTrue(coverage[coverage.index('--template') + 1].endswith('/check-coverage.tpl'))
+        self.assertTrue((self.report / 'coverage-ok').is_file())
         self.assertEqual(console[console.index('--format') + 1], 'table')
         self.assertNotIn('--table-mode', console)
         self.assertEqual(gate[gate.index('--scanners') + 1], 'vuln')
@@ -71,11 +79,14 @@ class FrontendScanTest(unittest.TestCase):
             self.assertEqual(command[command.index('--scanners') + 1], 'vuln')
             self.assertIn('--include-dev-deps', command)
             self.assertEqual(command[-1], '.')
+        for command in (coverage, console, gate):
+            self.assertEqual(command[command.index('--output') + 1], '')
 
     def test_gate_failure_keeps_local_report_for_summary(self):
         result = self.run_scan(GATE_STATUS='1')
         self.assertEqual(result.returncode, 1)
         self.assertTrue((self.report / 'trivy.json').is_file())
+        self.assertIn('database-ready=true', (self.root / 'github-output').read_text())
 
     def test_gate_scanner_error_fails(self):
         self.assertEqual(self.run_scan(GATE_STATUS='2').returncode, 2)
@@ -84,6 +95,14 @@ class FrontendScanTest(unittest.TestCase):
         result = self.run_scan(FAIL_REPORT='1')
         self.assertEqual(result.returncode, 2)
         self.assertEqual(len(self.commands()), 1)
+        self.assertFalse((self.root / 'github-output').exists())
+
+    def test_coverage_error_stops_before_gate_and_keeps_database_ready(self):
+        result = self.run_scan(FAIL_COVERAGE='1')
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(len(self.commands()), 2)
+        self.assertFalse((self.report / 'coverage-ok').exists())
+        self.assertIn('database-ready=true', (self.root / 'github-output').read_text())
 
     def test_missing_manifest_or_lockfile_fails_before_scan(self):
         for filename in ('package.json', 'yarn.lock'):

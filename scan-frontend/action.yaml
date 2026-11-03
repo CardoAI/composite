@@ -24,8 +24,9 @@ runs:
         path: ${{ runner.temp }}/frontend-trivy
         cache: "true"
 
-    - name: Cache Trivy database
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+    - name: Restore Trivy database
+      id: database-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: ${{ runner.temp }}/frontend-trivy-cache
         key: frontend-trivy-${{ runner.os }}-${{ runner.arch }}-${{ steps.report.outputs.date }}
@@ -40,6 +41,13 @@ runs:
         REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
         TRIVY_CACHE_DIR: ${{ runner.temp }}/frontend-trivy-cache
       run: bash "${GITHUB_ACTION_PATH}/scan.sh"
+
+    - name: Save Trivy database
+      if: ${{ !cancelled() && steps.scan.outputs.database-ready == 'true' && steps.database-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: ${{ runner.temp }}/frontend-trivy-cache
+        key: ${{ steps.database-cache.outputs.cache-primary-key }}
 
     - name: Publish workflow summary
       if: ${{ !cancelled() }}

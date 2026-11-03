@@ -21,6 +21,7 @@ class SummaryTest(unittest.TestCase):
         self.summary = self.root / 'github-summary.md'
         self.summary.write_text('Existing summary\n\n')
         self.report = self.root / 'trivy.json'
+        (self.root / 'coverage-ok').touch()
         self.vulnerability_count = 0
         self.env = {
             **os.environ,
@@ -98,6 +99,15 @@ class SummaryTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('Build and deployment blocked', summary)
         self.assertNotIn('Dependency gate passed', summary)
+
+    def test_unverified_dependency_coverage_is_never_shown_as_clean(self):
+        self.write_report([])
+        (self.root / 'coverage-ok').unlink()
+        result, summary = self.render(SCAN_OUTCOME='failed')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Scan incomplete', summary)
+        self.assertNotIn('Dependency gate passed', summary)
+        self.assertNotIn('No dependency vulnerabilities detected', summary)
 
     def test_missing_or_invalid_report_is_never_shown_as_clean(self):
         for content in (None, 'not valid json'):

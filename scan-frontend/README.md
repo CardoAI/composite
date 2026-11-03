@@ -29,17 +29,28 @@ jobs:
 ```
 
 The working directory defaults to `.` and must contain `package.json` and a
-supported lockfile: `yarn.lock`, `package-lock.json`, `npm-shrinkwrap.json`,
-`pnpm-lock.yaml`, or `bun.lock`. Use the workspace root for monorepos so the shared
+supported lockfile: `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, or `bun.lock`.
+Use the workspace root for monorepos so the shared
 lockfile and workspace manifests are scanned together. Commit an up-to-date
 lockfile; `package.json` alone cannot provide resolved dependency versions.
+Coverage must include resolved packages from the selected root lockfile, even
+when no vulnerabilities are found. Selection prefers `yarn.lock`, matching the
+frontend build actions. npm shrinkwrap takes precedence over `package-lock.json`,
+followed by `pnpm-lock.yaml` and `bun.lock`. Trivy v0.76.1 does not analyze
+`npm-shrinkwrap.json`; those projects fail as incomplete rather than falling back
+to a different lockfile. Other lockfiles cannot substitute for a skipped
+or unparseable selected lockfile. Projects without an analyzable package inventory
+fail as incomplete.
 
 The gate fails on **CRITICAL dependency vulnerabilities with an available fix**
 (`--severity CRITICAL --ignore-unfixed --exit-code 1`). Lower severities and unfixed
 vulnerabilities are reported without blocking. Missing manifests or
-lockfiles, scanner errors, and database download failures also fail the action.
+lockfiles, incomplete dependency coverage, scanner errors, and database download
+failures also fail the action.
 Repository-owned Trivy configuration and ignore files follow Trivy's normal
-behavior; review changes to them as security policy changes.
+behavior; review changes to them as security policy changes. Output paths are
+controlled by the action so repository output settings cannot overwrite scan
+inputs or redirect the findings away from the logs.
 
 The workflow run's GitHub job summary shows the scan outcome, severity counts,
 fixable critical count, and dependency vulnerability details. The summary is also
@@ -52,12 +63,17 @@ This uses `GITHUB_STEP_SUMMARY`, like the
 CrowdStrike action, and needs no extra token permissions or PR comments.
 
 Run this action once in a separate job with `contents: read`, no deployment
-credentials, and no inherited secrets. Require it through `needs` on every build
-or deployment job. It needs Bash and outbound access to GitHub releases and the
+credentials, and no inherited secrets. Require it through `needs` on build jobs.
+Run it only for the workflow's supported build branches; promotion jobs reuse the
+build's security decision rather than rescanning tag source unrelated to the
+copied assets. Establish artifact identity in the promotion process independently.
+It needs Bash and outbound access to GitHub releases and the
 Trivy database registries, and works without Docker. The scanner version and
 upstream actions are pinned; the database cache is refreshed through Trivy's
-normal update checks.
+normal update checks. Database restore and save are separate: a completed first
+scan permits saving a fresh database even if coverage checks or the vulnerability
+gate fail later. Failed database preparation and exact cache hits are not saved.
 
 Run the local contract checks with `python3 -m unittest discover -s scan-frontend`.
-Summary rendering tests also run when `trivy` is on `PATH`, or when `TRIVY_BIN`
-points to a Trivy binary.
+Coverage and summary rendering tests also run when `trivy` is on `PATH`, or when
+`TRIVY_BIN` points to a Trivy binary.
