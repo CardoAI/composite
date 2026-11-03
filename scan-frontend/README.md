@@ -46,6 +46,14 @@ Each invocation uploads a uniquely named `frontend-scan-*` artifact containing
 vulnerabilities. Reports remain available when the gate fails and expire after
 seven days. Logs show the report summary and the blocking vulnerabilities.
 
+The workflow run's GitHub job summary shows the scan outcome, severity counts,
+fixable critical count, and dependency vulnerability details, with a download link
+when the JSON artifact was uploaded. The summary is also published after scan
+failures; missing or invalid reports are marked incomplete. Details are limited
+to 100 findings, ordered by severity, with long fields shortened. The JSON
+artifact contains the complete report. This uses `GITHUB_STEP_SUMMARY`, like the
+CrowdStrike action, and needs no extra token permissions or PR comments.
+
 Run this action once in a separate job with `contents: read`, no deployment
 credentials, and no inherited secrets. Require it through `needs` on every build
 or deployment job. It needs Bash and outbound access to GitHub releases and the
@@ -54,3 +62,5 @@ upstream actions are pinned; the database cache is refreshed through Trivy's
 normal update checks.
 
 Run the local contract checks with `python3 -m unittest discover -s scan-frontend`.
+Summary rendering tests also run when `trivy` is on `PATH`, or when `TRIVY_BIN`
+points to a Trivy binary.
