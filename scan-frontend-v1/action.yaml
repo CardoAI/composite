@@ -1,0 +1,53 @@
+name: "Scan frontend v1"
+description: "Scan frontend dependencies in normal or report-only mode."
+
+inputs:
+  working-directory:
+    description: Directory containing package.json and a supported frontend lockfile.
+    default: "."
+  mode:
+    description: "normal blocks fixable CRITICAL vulnerabilities; report-only does not block findings. Scanner errors fail in both modes."
+    default: "normal"
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare scan report
+      id: report
+      shell: bash
+      run: |
+        report_dir=$(mktemp -d "${RUNNER_TEMP}/frontend-scan.XXXXXX")
+        echo "directory=${report_dir}" >> "$GITHUB_OUTPUT"
+
+    - name: Install Trivy
+      uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+      with:
+        version: v0.76.1
+        path: ${{ runner.temp }}/frontend-trivy
+        cache: "true"
+
+    - name: Scan frontend
+      id: scan
+      shell: bash
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        SCAN_MODE: ${{ inputs.mode }}
+        REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
+        TRIVY_CACHE_DIR: ${{ steps.report.outputs.directory }}/trivy-cache
+      run: bash "${GITHUB_ACTION_PATH}/scan.sh"
+
+    - name: Publish workflow summary
+      if: ${{ !cancelled() }}
+      shell: bash
+      env:
+        REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
+        SCAN_OUTCOME: ${{ steps.scan.outcome }}
+        SCAN_MODE: ${{ inputs.mode }}
+      run: bash "${GITHUB_ACTION_PATH}/write-summary.sh"
+
+    - name: Remove local report
+      if: ${{ always() && steps.report.outcome == 'success' }}
+      shell: bash
+      env:
+        REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
+      run: rm -rf -- "$REPORT_DIRECTORY"
