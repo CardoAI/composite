@@ -3,6 +3,14 @@ set -euo pipefail
 
 : "${WORKING_DIRECTORY:=.}"
 : "${REPORT_DIRECTORY:?Report directory is required}"
+case "${SCAN_MODE:-normal}" in
+    normal) gate_exit_code=1 ;;
+    report-only) gate_exit_code=0 ;;
+    *)
+        echo "::error::Frontend scan mode must be normal or report-only."
+        exit 1
+        ;;
+esac
 cd -- "$WORKING_DIRECTORY"
 
 if [[ ! -f package.json ]]; then
@@ -49,14 +57,14 @@ touch "$REPORT_DIRECTORY/coverage-ok"
 # Keep all dependency findings visible in the workflow logs.
 trivy convert --format table --exit-code 0 --output '' "$REPORT_DIRECTORY/trivy.json"
 
-# Reuse the first pass's database; only fixable critical CVEs block deployment.
+# Reuse the same database; the mode only changes whether findings block the build.
 trivy fs \
     --scanners vuln \
     --include-dev-deps \
     --skip-db-update \
     --severity CRITICAL \
     --ignore-unfixed \
-    --exit-code 1 \
+    --exit-code "$gate_exit_code" \
     --format table \
     --output '' \
     --timeout 10m \

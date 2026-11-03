@@ -22,7 +22,7 @@
 {{ if not $findings -}}
 No dependency vulnerabilities detected.
 {{ else -}}
-| Vulnerability | Severity | Package | Installed | Fixed versions | Manifest | Blocks deployment |
+| Vulnerability | Severity | Package | Installed | Fixed versions | Manifest | {{ if eq (env "SCAN_MODE") "report-only" }}Blocks in normal mode{{ else }}Blocks deployment{{ end }} |
 | --- | --- | --- | --- | --- | --- | --- |
 {{- $shown := 0 -}}
 {{- range $severity := $severities -}}

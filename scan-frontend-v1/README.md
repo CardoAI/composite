@@ -1,4 +1,4 @@
-# Scan frontend
+# Scan frontend v1
 
 Scans frontend dependencies with Trivy before build or deployment. Includes
 production and development dependencies from dependency manifests and lockfiles.
@@ -19,9 +19,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: CardoAI/composite/scan-frontend@main
-        # with:
-        #   working-directory: frontend
+      - uses: CardoAI/composite/scan-frontend-v1@main
+        with:
+          mode: normal
+          # working-directory: frontend
 
   build:
     needs: security-scan
@@ -42,7 +43,18 @@ to a different lockfile. Other lockfiles cannot substitute for a skipped
 or unparseable selected lockfile. Projects without an analyzable package inventory
 fail as incomplete.
 
-The gate fails on **CRITICAL dependency vulnerabilities with an available fix**
+The `mode` input accepts `normal` (default) or `report-only`:
+
+| Mode | Vulnerability findings | Scanner errors or incomplete coverage |
+| --- | --- | --- |
+| `normal` | Fixable CRITICAL findings fail the action. | Fail the action. |
+| `report-only` | Report findings without failing the vulnerability gate. | Fail the action. |
+
+Invalid mode values fail before scanning. To start a non-enforcing rollout, set
+`mode: report-only` on the action invocation; this does not use `continue-on-error`
+or hide scanner failures.
+
+In normal mode, the gate fails on **CRITICAL dependency vulnerabilities with an available fix**
 (`--severity CRITICAL --ignore-unfixed --exit-code 1`). Lower severities and unfixed
 vulnerabilities are reported without blocking. Missing manifests or
 lockfiles, incomplete dependency coverage, scanner errors, and database download
@@ -53,7 +65,9 @@ controlled by the action so repository output settings cannot overwrite scan
 inputs or redirect the findings away from the logs.
 
 The workflow run's GitHub job summary shows the scan outcome, severity counts,
-fixable critical count, and dependency vulnerability details. The summary is also
+selected mode, fixable critical count, and dependency vulnerability details. In
+report-only mode it labels the scan as non-enforcing and identifies findings that
+would block in normal mode. The summary is also
 published after scan failures; missing or invalid reports are marked incomplete. Details are limited
 to 100 findings, ordered by severity, with long fields shortened. Workflow logs
 contain all dependency findings, including lower severities and unfixed issues.
@@ -77,6 +91,6 @@ The database is deleted with the report after use, including on failure. Registr
 or database download failures block the build. Freshness still depends on the
 advisories included in Trivy's published database.
 
-Run the local contract checks with `python3 -m unittest discover -s scan-frontend`.
+Run the local contract checks with `python3 -m unittest discover -s scan-frontend-v1`.
 Coverage and summary rendering tests also run when `trivy` is on `PATH`, or when
 `TRIVY_BIN` points to a Trivy binary.

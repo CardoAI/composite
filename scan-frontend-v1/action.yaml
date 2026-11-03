@@ -1,10 +1,13 @@
-name: "Scan frontend"
-description: "Scan dependencies; fail on fixable CRITICAL dependency vulnerabilities."
+name: "Scan frontend v1"
+description: "Scan frontend dependencies in normal or report-only mode."
 
 inputs:
   working-directory:
     description: Directory containing package.json and a supported frontend lockfile.
     default: "."
+  mode:
+    description: "normal blocks fixable CRITICAL vulnerabilities; report-only does not block findings. Scanner errors fail in both modes."
+    default: "normal"
 
 runs:
   using: composite
@@ -28,6 +31,7 @@ runs:
       shell: bash
       env:
         WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        SCAN_MODE: ${{ inputs.mode }}
         REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
         TRIVY_CACHE_DIR: ${{ steps.report.outputs.directory }}/trivy-cache
       run: bash "${GITHUB_ACTION_PATH}/scan.sh"
@@ -38,6 +42,7 @@ runs:
       env:
         REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
         SCAN_OUTCOME: ${{ steps.scan.outcome }}
+        SCAN_MODE: ${{ inputs.mode }}
       run: bash "${GITHUB_ACTION_PATH}/write-summary.sh"
 
     - name: Remove local report

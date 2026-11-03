@@ -30,6 +30,7 @@ class SummaryTest(unittest.TestCase):
             'GITHUB_STEP_SUMMARY': str(self.summary),
             'REPORT_DIRECTORY': str(self.root),
             'SCAN_OUTCOME': 'success',
+            'SCAN_MODE': 'normal',
         }
 
     def write_report(self, vulnerabilities):
@@ -85,6 +86,33 @@ class SummaryTest(unittest.TestCase):
         self.assertIn('No dependency vulnerabilities detected', summary)
         self.assertIn('| 0 | 0 | 0 | 0 | 0 | 0 | 0 |', summary)
         self.assertNotIn('Download the full JSON report', summary)
+
+    def test_report_only_summary_retains_findings_without_claiming_enforcement(self):
+        self.write_report([self.vuln()])
+        result, summary = self.render(SCAN_MODE='report-only')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Mode: report-only', summary)
+        self.assertIn('Report-only scan completed', summary)
+        self.assertIn('Blocks in normal mode', summary)
+        self.assertIn('| 1 | 0 | 0 | 0 | 0 | 1 | 1 |', summary)
+        self.assertIn('| Yes |', summary)
+        self.assertNotIn('Dependency gate passed', summary)
+        self.assertNotIn('Build and deployment blocked', summary)
+
+    def test_report_only_summary_shows_operational_failure(self):
+        self.write_report([])
+        result, summary = self.render(SCAN_MODE='report-only', SCAN_OUTCOME='failed')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Mode: report-only', summary)
+        self.assertIn('Build and deployment blocked', summary)
+        self.assertNotIn('Report-only scan completed', summary)
+
+    def test_invalid_summary_mode_is_incomplete(self):
+        self.write_report([])
+        result, summary = self.render(SCAN_MODE='skip')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Scan incomplete', summary)
+        self.assertNotIn('Dependency gate passed', summary)
 
     def test_summary_file_is_separate_from_rendered_fragment(self):
         self.write_report([])

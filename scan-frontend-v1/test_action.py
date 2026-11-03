@@ -37,7 +37,12 @@ class FrontendScanTest(unittest.TestCase):
             "if '--template' in args and os.environ.get('FAIL_COVERAGE'):\n"
             "    sys.exit(2)\n"
             "if '--ignore-unfixed' in args:\n"
-            "    sys.exit(int(os.environ.get('GATE_STATUS', '0')))\n"
+            "    if os.environ.get('GATE_ERROR'):\n"
+            "        sys.exit(int(os.environ['GATE_ERROR']))\n"
+            "    status = int(os.environ.get('GATE_STATUS', '0'))\n"
+            "    if status == 1:\n"
+            "        status = int(args[args.index('--exit-code') + 1])\n"
+            "    sys.exit(status)\n"
         )
         binary.chmod(0o755)
         self.env = {
@@ -47,6 +52,7 @@ class FrontendScanTest(unittest.TestCase):
             "REPORT_DIRECTORY": str(self.report),
             "CALLS": str(self.calls),
             "GITHUB_ACTION_PATH": str(SCRIPT.parent),
+            "SCAN_MODE": "normal",
         }
 
     def run_scan(self, **env):
@@ -90,6 +96,28 @@ class FrontendScanTest(unittest.TestCase):
 
     def test_gate_scanner_error_fails(self):
         self.assertEqual(self.run_scan(GATE_STATUS='2').returncode, 2)
+
+    def test_report_only_reports_findings_without_blocking(self):
+        result = self.run_scan(SCAN_MODE='report-only', GATE_STATUS='1')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        gate = self.commands()[-1]
+        self.assertEqual(gate[gate.index('--exit-code') + 1], '0')
+        self.assertTrue((self.report / 'trivy.json').is_file())
+        self.assertTrue((self.report / 'coverage-ok').is_file())
+
+    def test_report_only_still_fails_on_operational_errors(self):
+        for error in ({'FAIL_REPORT': '1'}, {'FAIL_COVERAGE': '1'}, {'GATE_ERROR': '1'}):
+            with self.subTest(error=error):
+                result = self.run_scan(SCAN_MODE='report-only', **error)
+                self.assertNotEqual(result.returncode, 0)
+
+    def test_invalid_mode_fails_before_scanning(self):
+        for mode in ('skip', 'report_only', 'NORMAL'):
+            with self.subTest(mode=mode):
+                result = self.run_scan(SCAN_MODE=mode)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('mode must be normal or report-only', result.stdout)
+                self.assertFalse(self.calls.exists())
 
     def test_report_scanner_error_stops_before_gate(self):
         result = self.run_scan(FAIL_REPORT='1')
