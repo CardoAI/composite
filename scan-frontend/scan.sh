@@ -15,9 +15,9 @@ if [[ ! -f yarn.lock && ! -f package-lock.json && ! -f npm-shrinkwrap.json && ! 
     exit 1
 fi
 
-# Keep the complete report; filtering it here would hide secrets and unfixed issues.
+# Keep all dependency findings in the report, including unfixed issues.
 trivy fs \
-    --scanners vuln,secret \
+    --scanners vuln \
     --include-dev-deps \
     --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
     --ignore-unfixed=false \
@@ -28,10 +28,10 @@ trivy fs \
     --no-progress \
     .
 
-# Show counts without printing detected secret values to the workflow log.
+# Show the dependency finding counts before applying the deployment policy.
 trivy convert --format table --table-mode summary --exit-code 0 "$REPORT_DIRECTORY/trivy.json"
 
-# Secret findings have no fixed version; only fixable critical CVEs block deployment.
+# Only fixable critical CVEs block deployment.
 trivy fs \
     --scanners vuln \
     --include-dev-deps \

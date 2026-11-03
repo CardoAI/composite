@@ -1,9 +1,13 @@
 # Scan frontend
 
-Scans the checked-out frontend with Trivy before build or deployment. Includes
-production and development dependencies from the lockfile, plus secrets in source
-files. Dependencies are not installed and application scripts are not executed.
-This is dependency and secret scanning, not application-code SAST or an IaC scan.
+Scans frontend dependencies with Trivy before build or deployment. Includes
+production and development dependencies from dependency manifests and lockfiles.
+Dependencies are not installed and application scripts are not executed.
+Both scans explicitly select only `--scanners vuln`; secret scanning is disabled.
+This is dependency vulnerability scanning, not application-code SAST or an IaC scan.
+Trivy still reads dependency metadata, so keep credential values out of manifests
+and lockfiles. This configuration does not sandbox the scanner from credentials
+already present on the runner.
 
 ```yaml
 jobs:
@@ -31,17 +35,16 @@ lockfile and workspace manifests are scanned together. Commit an up-to-date
 lockfile; `package.json` alone cannot provide resolved dependency versions.
 
 The gate fails on **CRITICAL dependency vulnerabilities with an available fix**
-(`--severity CRITICAL --ignore-unfixed --exit-code 1`). Lower severities, unfixed
-vulnerabilities, and secrets are reported without blocking. Missing manifests or
+(`--severity CRITICAL --ignore-unfixed --exit-code 1`). Lower severities and unfixed
+vulnerabilities are reported without blocking. Missing manifests or
 lockfiles, scanner errors, and database download failures also fail the action.
 Repository-owned Trivy configuration and ignore files follow Trivy's normal
 behavior; review changes to them as security policy changes.
 
 Each invocation uploads a uniquely named `frontend-scan-*` artifact containing
-`trivy.json`, including findings of every severity, unfixed vulnerabilities, and
-secrets. Reports remain available when the gate fails and expire after seven days.
-Treat them as sensitive: secret findings can include source snippets. Logs show
-the report summary and the blocking vulnerabilities, without listing secrets.
+`trivy.json`, including dependency findings of every severity and unfixed
+vulnerabilities. Reports remain available when the gate fails and expire after
+seven days. Logs show the report summary and the blocking vulnerabilities.
 
 Run this action once in a separate job with `contents: read`, no deployment
 credentials, and no inherited secrets. Require it through `needs` on every build

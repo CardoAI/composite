@@ -58,7 +58,6 @@ class FrontendScanTest(unittest.TestCase):
         result = self.run_scan()
         self.assertEqual(result.returncode, 0, result.stderr)
         report, summary, gate = self.commands()
-        self.assertEqual(report[report.index('--scanners') + 1], 'vuln,secret')
         self.assertIn('--ignore-unfixed=false', report)
         self.assertEqual(report[report.index('--exit-code') + 1], '0')
         self.assertEqual(report[report.index('--severity') + 1], 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL')
@@ -68,6 +67,7 @@ class FrontendScanTest(unittest.TestCase):
         self.assertIn('--ignore-unfixed', gate)
         self.assertEqual(gate[gate.index('--exit-code') + 1], '1')
         for command in (report, gate):
+            self.assertEqual(command[command.index('--scanners') + 1], 'vuln')
             self.assertIn('--include-dev-deps', command)
             self.assertEqual(command[-1], '.')
 

@@ -1,5 +1,5 @@
 name: "Scan frontend"
-description: "Scan dependencies and secrets; fail on fixable CRITICAL dependency vulnerabilities."
+description: "Scan dependencies; fail on fixable CRITICAL dependency vulnerabilities."
 
 inputs:
   working-directory:
