@@ -1,0 +1,59 @@
+name: "Scan frontend"
+description: "Scan dependencies and secrets; fail on fixable CRITICAL dependency vulnerabilities."
+
+inputs:
+  working-directory:
+    description: Directory containing package.json and a supported frontend lockfile.
+    default: "."
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare scan report
+      id: report
+      shell: bash
+      run: |
+        report_dir=$(mktemp -d "${RUNNER_TEMP}/frontend-scan.XXXXXX")
+        echo "directory=${report_dir}" >> "$GITHUB_OUTPUT"
+        echo "name=$(basename "$report_dir")" >> "$GITHUB_OUTPUT"
+        echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+    - name: Install Trivy
+      uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+      with:
+        version: v0.76.1
+        path: ${{ runner.temp }}/frontend-trivy
+        cache: "true"
+
+    - name: Cache Trivy database
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: ${{ runner.temp }}/frontend-trivy-cache
+        key: frontend-trivy-${{ runner.os }}-${{ runner.arch }}-${{ steps.report.outputs.date }}
+        restore-keys: |
+          frontend-trivy-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Scan frontend
+      id: scan
+      shell: bash
+      env:
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
+        TRIVY_CACHE_DIR: ${{ runner.temp }}/frontend-trivy-cache
+      run: bash "${GITHUB_ACTION_PATH}/scan.sh"
+
+    - name: Upload findings
+      if: ${{ !cancelled() && steps.scan.outcome != 'skipped' }}
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: ${{ steps.report.outputs.name }}
+        path: ${{ steps.report.outputs.directory }}/trivy.json
+        if-no-files-found: ignore
+        retention-days: 7
+
+    - name: Remove local report
+      if: ${{ always() && steps.report.outcome == 'success' }}
+      shell: bash
+      env:
+        REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
+      run: rm -rf -- "$REPORT_DIRECTORY"
