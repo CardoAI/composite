@@ -158,6 +158,37 @@ class SummaryTest(unittest.TestCase):
         self.assertNotIn('[click](https://example.com)', summary)
         self.assertNotIn('\nnext', summary)
 
+    def test_ten_or_fewer_findings_do_not_need_a_disclosure(self):
+        for count in (0, 1, 10):
+            with self.subTest(count=count):
+                self.summary.write_text('')
+                self.write_report([self.vuln() for _ in range(count)])
+                result, summary = self.render()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertNotIn('<details>', summary)
+                self.assertNotIn('<summary>', summary)
+                self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in summary.splitlines()), count)
+
+    def test_more_than_ten_findings_are_collapsed_with_matching_headers(self):
+        self.write_report([self.vuln('HIGH') for _ in range(10)] + [self.vuln()])
+        for mode, heading in [('normal', 'Blocks deployment'), ('report-only', 'Blocks in normal mode')]:
+            with self.subTest(mode=mode):
+                self.summary.write_text('')
+                result, summary = self.render(SCAN_MODE=mode)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                visible, hidden = summary.split('<details>', 1)
+                hidden, after = hidden.split('</details>', 1)
+                self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in visible.splitlines()), 10)
+                self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in hidden.splitlines()), 1)
+                self.assertIn('| CRITICAL |', visible)
+                self.assertNotIn('| CRITICAL |', hidden)
+                self.assertIn('<summary>Show 1 more</summary>\n\n| Vulnerability', hidden)
+                self.assertIn('\n\n<details>', summary)
+                self.assertIn(heading, visible)
+                self.assertIn(heading, hidden)
+                self.assertNotIn('CVE-TEST-', after)
+                self.assertNotIn('<details open', summary)
+
     def test_large_reports_limit_details_but_keep_complete_counts(self):
         self.write_report([self.vuln(PkgName='x' * 2000) for _ in range(110)])
         result, summary = self.render()
@@ -165,6 +196,11 @@ class SummaryTest(unittest.TestCase):
         self.assertIn('| 110 | 0 | 0 | 0 | 0 | 110 | 110 |', summary)
         self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in summary.splitlines()), 100)
         self.assertIn('Showing the first 100 findings', summary)
+        visible, hidden = summary.split('<details>', 1)
+        self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in visible.splitlines()), 10)
+        self.assertEqual(sum(line.startswith('| CVE-TEST-') for line in hidden.splitlines()), 90)
+        self.assertIn('<summary>Show 90 more</summary>', hidden)
+        self.assertIn('</details>\n\nShowing the first 100 findings', summary)
         self.assertIn('See the scan logs for all findings', summary)
         self.assertNotIn('x' * 121, summary)
         self.assertLess(len(summary.encode()), 1024 * 1024)

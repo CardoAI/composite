@@ -69,7 +69,9 @@ selected mode, fixable critical count, and dependency vulnerability details. In
 report-only mode it labels the scan as non-enforcing and identifies findings that
 would block in normal mode. The summary is also
 published after scan failures; missing or invalid reports are marked incomplete. Details are limited
-to 100 findings, ordered by severity, with long fields shortened. Workflow logs
+to 100 findings, ordered by severity, with long fields shortened. The first 10 are
+visible immediately; an expandable "Show more" section contains the remaining
+summary rows. Workflow logs
 contain all dependency findings, including lower severities and unfixed issues.
 No scan artifact is uploaded: the temporary JSON report is used to render the
 logs and summary, then removed even when the gate fails.
