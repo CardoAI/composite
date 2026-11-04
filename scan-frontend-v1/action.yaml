@@ -8,9 +8,6 @@ inputs:
   mode:
     description: "normal blocks fixable CRITICAL vulnerabilities; report-only does not block findings. Scanner errors fail in both modes."
     default: "normal"
-  trivy-version:
-    description: "Stable Trivy version, with or without v. Defaults to 0.76.1 when omitted or empty."
-    default: ""
 
 runs:
   using: composite
@@ -19,7 +16,7 @@ runs:
       id: report
       shell: bash
       env:
-        TRIVY_VERSION: ${{ inputs.trivy-version || '0.76.1' }}
+        TRIVY_VERSION: "0.76.1"
       run: |
         version="${TRIVY_VERSION#v}"
         if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then

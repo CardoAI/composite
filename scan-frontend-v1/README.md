@@ -22,7 +22,6 @@ jobs:
       - uses: CardoAI/composite/scan-frontend-v1@main
         with:
           mode: normal
-          trivy-version: ${{ vars.TRIVY_VERSION }}
           # working-directory: frontend
 
   build:
@@ -30,19 +29,14 @@ jobs:
     # Existing build and deployment steps.
 ```
 
-The reusable frontend workflows pass the GitHub Actions configuration variable
-`TRIVY_VERSION` into the action's `trivy-version` input, as in the example above.
-Define the variable at the organization level with access to the calling
-frontend repositories, or in an individual frontend
-repository. Variables defined only in `composite` or `reusable-workflows` do not
-configure runs called from other repositories.
-
-Direct callers can pass an explicit `trivy-version` input instead. If the input
-is omitted or empty, the action uses the tested default `0.76.1`. Versions such
-as `0.76.1` and `v0.76.1` select the same release and cache entry. Use an explicit stable version;
-aliases such as `latest`, branches, and prereleases are rejected before caching
-or downloading. Selected versions must support the scanner flags and report
-templates used by this action.
+The scanner version is configured in one place: `TRIVY_VERSION` in the
+`Prepare scan report` step's `env` block in `action.yaml`, currently `0.76.1`.
+Change that value in composite to upgrade all callers. The version is used for
+the release download, checksum lookup, and archive cache key.
+Versions such as `0.76.1` and `v0.76.1` select the same release and cache entry.
+Use an explicit stable version; aliases such as `latest`, branches, and
+prereleases are rejected before caching or downloading. Selected versions must
+support the scanner flags and report templates used by this action.
 
 The working directory defaults to `.` and must contain `package.json` and a
 supported lockfile: `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, or `bun.lock`.
