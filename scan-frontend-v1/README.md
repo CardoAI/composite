@@ -29,6 +29,15 @@ jobs:
     # Existing build and deployment steps.
 ```
 
+The scanner version is configured in one place: `TRIVY_VERSION` in the
+`Prepare scan report` step's `env` block in `action.yaml`, currently `0.76.1`.
+Change that value in composite to upgrade all callers. The version is used for
+the release download, checksum lookup, and archive cache key.
+Versions such as `0.76.1` and `v0.76.1` select the same release and cache entry.
+Use an explicit stable version; aliases such as `latest`, branches, and
+prereleases are rejected before caching or downloading. Selected versions must
+support the scanner flags and report templates used by this action.
+
 The working directory defaults to `.` and must contain `package.json` and a
 supported lockfile: `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, or `bun.lock`.
 Use the workspace root for monorepos so the shared
@@ -89,11 +98,15 @@ It needs Bash, curl, tar (or unzip for Windows), a SHA-256 tool, and outbound
 access to GitHub releases and the Trivy database registries, and works without
 Docker. Trivy is downloaded directly from GitHub Releases, following the
 [setup-trivy workaround](https://github.com/aquasecurity/setup-trivy/issues/42),
-with bounded retries and visible connection errors. Release archives are checked
-against the committed `trivy-checksums.txt` before extraction, including on cache
-hits. Update that file together with the version in `action.yaml` when upgrading
-Trivy. Upstream actions are pinned. Only the release archive is cached across
-runs, with a key scoped by version, OS, and architecture.
+with bounded retries and visible connection errors. The selected release's
+official checksum file is downloaded from GitHub on every install, including
+archive cache hits. Archives must match the release's SHA-256 before extraction
+or execution. Changing `TRIVY_VERSION` therefore needs no checksum-file update in
+this repository; verification trusts the selected release's published checksums.
+Missing checksums, failed downloads, and mismatches fail the action in both
+modes. Upstream actions are pinned. Only the release archive is cached across
+runs, with a key scoped by the normalized version, OS, and architecture; checksums
+are not taken from that cache.
 Every scan job uses a fresh database directory inside its unique temporary report
 directory. The first pass explicitly enables database updates and downloads the
 database; the gate pass disables database updates and reuses that same snapshot.
