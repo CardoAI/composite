@@ -8,6 +8,9 @@ inputs:
   mode:
     description: "normal blocks fixable CRITICAL vulnerabilities; report-only does not block findings. Scanner errors fail in both modes."
     default: "normal"
+  trivy-version:
+    description: "Stable Trivy version, with or without v. Defaults to 0.76.1 when omitted or empty."
+    default: ""
 
 runs:
   using: composite
@@ -15,10 +18,17 @@ runs:
     - name: Prepare scan report
       id: report
       shell: bash
+      env:
+        TRIVY_VERSION: ${{ inputs.trivy-version || '0.76.1' }}
       run: |
+        version="${TRIVY_VERSION#v}"
+        if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::Trivy version must be a stable release such as 0.76.1 or v0.76.1."
+          exit 1
+        fi
         report_dir=$(mktemp -d "${RUNNER_TEMP}/frontend-scan.XXXXXX")
         echo "directory=${report_dir}" >> "$GITHUB_OUTPUT"
-        echo "trivy-version=0.76.1" >> "$GITHUB_OUTPUT"
+        echo "trivy-version=${version}" >> "$GITHUB_OUTPUT"
 
     - name: Cache Trivy release archive
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1

@@ -1,7 +1,0 @@
-d9d8aad58d9683cffc3378eb98bde164c92b7e24bde40d833dee1a69d38377c2  trivy_0.76.1_Linux-32bit.tar.gz
-c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0  trivy_0.76.1_Linux-64bit.tar.gz
-524514e99e0e8abeea276d0638b80827aaa6d191cfb9f308cda20d9713349eae  trivy_0.76.1_Linux-ARM.tar.gz
-e174dff2a6dba5e3ae41f8d0537a6324405bd08132497340304c6b20e0f16a1f  trivy_0.76.1_Linux-ARM64.tar.gz
-7aa762eacd582052d053b62dcf972a1ab058abe39a57ccae234ed8894945b6b7  trivy_0.76.1_macOS-64bit.tar.gz
-11a9b6cd2752011b54f01ea4bd0dbfa9f0c41dc6538d5a3f9d23955f471bf4e5  trivy_0.76.1_macOS-ARM64.tar.gz
-1051f49cb22d5284f43425f72aad9cda63ca12ceb92e7caa06903490c82dc9bf  trivy_0.76.1_windows-64bit.zip
