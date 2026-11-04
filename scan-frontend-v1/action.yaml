@@ -18,13 +18,20 @@ runs:
       run: |
         report_dir=$(mktemp -d "${RUNNER_TEMP}/frontend-scan.XXXXXX")
         echo "directory=${report_dir}" >> "$GITHUB_OUTPUT"
+        echo "trivy-version=0.76.1" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Trivy release archive
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ runner.temp }}/frontend-trivy-download
+        key: frontend-trivy-archive-v1-${{ steps.report.outputs.trivy-version }}-${{ runner.os }}-${{ runner.arch }}
 
     - name: Install Trivy
-      uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
-      with:
-        version: v0.76.1
-        path: ${{ runner.temp }}/frontend-trivy
-        cache: "true"
+      shell: bash
+      env:
+        TRIVY_VERSION: ${{ steps.report.outputs.trivy-version }}
+        REPORT_DIRECTORY: ${{ steps.report.outputs.directory }}
+      run: bash "${GITHUB_ACTION_PATH}/install-trivy.sh"
 
     - name: Scan frontend
       id: scan

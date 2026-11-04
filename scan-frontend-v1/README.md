@@ -83,9 +83,15 @@ credentials, and no inherited secrets. Require it through `needs` on build jobs.
 Run it only for the workflow's supported build branches; promotion jobs reuse the
 build's security decision rather than rescanning tag source unrelated to the
 copied assets. Establish artifact identity in the promotion process independently.
-It needs Bash and outbound access to GitHub releases and the
-Trivy database registries, and works without Docker. The scanner version and
-upstream actions are pinned. Only the Trivy executable is cached across runs.
+It needs Bash, curl, tar (or unzip for Windows), a SHA-256 tool, and outbound
+access to GitHub releases and the Trivy database registries, and works without
+Docker. Trivy is downloaded directly from GitHub Releases, following the
+[setup-trivy workaround](https://github.com/aquasecurity/setup-trivy/issues/42),
+with bounded retries and visible connection errors. Release archives are checked
+against the committed `trivy-checksums.txt` before extraction, including on cache
+hits. Update that file together with the version in `action.yaml` when upgrading
+Trivy. Upstream actions are pinned. Only the release archive is cached across
+runs, with a key scoped by version, OS, and architecture.
 Every scan job uses a fresh database directory inside its unique temporary report
 directory. The first pass explicitly enables database updates and downloads the
 database; the gate pass disables database updates and reuses that same snapshot.
