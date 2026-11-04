@@ -6,14 +6,14 @@ scan_mode="${SCAN_MODE:-normal}"
 case "$scan_mode" in
     normal|report-only) ;;
     *)
-        printf '### Frontend dependency scan\n\n**Scan incomplete:** mode must be normal or report-only.\n' >> "$GITHUB_STEP_SUMMARY"
+        printf '## 🛡️ Frontend dependency scan\n\n⚠️ **Scan incomplete:** mode must be normal or report-only.\n' >> "$GITHUB_STEP_SUMMARY"
         exit 1
         ;;
 esac
 summary_status=0
 {
-    printf '### Frontend dependency scan\n\n'
-    printf 'Includes development dependencies. Secret scanning is disabled.\n\n'
+    printf '## 🛡️ Frontend dependency scan\n\n'
+    printf '_Includes production and development dependencies. Secret scanning is disabled._\n\n'
     printf '**Mode: %s**\n\n' "$scan_mode"
     if [[ "$scan_mode" == 'report-only' ]]; then
         printf 'Vulnerability findings do not block deployment. Scanner errors and incomplete coverage still fail the job.\n\n'
@@ -31,22 +31,22 @@ summary_status=0
             case "${SCAN_OUTCOME:-skipped}" in
                 success)
                     if [[ "$scan_mode" == 'report-only' ]]; then
-                        printf '**Report-only scan completed.** Findings are reported without enforcing the vulnerability gate.\n\n'
+                        printf 'ℹ️ **Report-only scan completed.** Findings are reported without enforcing the vulnerability gate.\n\n'
                     else
-                        printf '**Dependency gate passed.**\n\n'
+                        printf '✅ **Dependency gate passed.**\n\n'
                     fi
                     ;;
-                failed) printf '**Build and deployment blocked:** the scan did not pass. Review the findings and scan logs.\n\n' ;;
-                *) printf '**Scan incomplete:** the scan did not finish successfully. Review the scan logs.\n\n' ;;
+                failure) printf '❌ **Build and deployment blocked:** the scan did not pass. Review the findings and scan logs.\n\n' ;;
+                *) printf '⚠️ **Scan incomplete:** the scan did not finish successfully. Review the scan logs.\n\n' ;;
             esac
             cat "$summary_fragment"
         else
-            printf '**Scan report unavailable:** the JSON report could not be rendered. Review the scan logs.\n'
+            printf '⚠️ **Scan report unavailable:** the JSON report could not be rendered. Review the scan logs.\n'
             summary_status=1
         fi
         rm -f -- "$summary_fragment"
     else
-        printf '**Scan incomplete:** no complete dependency report with verified coverage was produced. Review the scan logs.\n'
+        printf '⚠️ **Scan incomplete:** no complete dependency report with verified coverage was produced. Review the scan logs.\n'
         summary_status=1
     fi
 } >> "$GITHUB_STEP_SUMMARY"

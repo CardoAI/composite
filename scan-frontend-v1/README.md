@@ -64,10 +64,12 @@ behavior; review changes to them as security policy changes. Output paths are
 controlled by the action so repository output settings cannot overwrite scan
 inputs or redirect the findings away from the logs.
 
-The workflow run's GitHub job summary shows the scan outcome, severity counts,
-selected mode, fixable critical count, and dependency vulnerability details. In
-report-only mode it labels the scan as non-enforcing and identifies findings that
-would block in normal mode. The summary is also
+The workflow run's GitHub job summary uses the CrowdStrike report's colored
+severity icons, section headings, and bold totals. It shows the scan outcome,
+severity counts, selected mode, fixable critical count, and dependency
+vulnerability details. Status and severity labels remain readable alongside the
+icons. In report-only mode it labels the scan as non-enforcing and identifies
+findings that would block in normal mode. The summary is also
 published after scan failures; missing or invalid reports are marked incomplete. Details are limited
 to 100 findings, ordered by severity, with long fields shortened. The first 10 are
 visible immediately; an expandable "Show more" section contains the remaining
