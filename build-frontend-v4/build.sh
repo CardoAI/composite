@@ -8,28 +8,41 @@
 # Ensure failure on any command failure (set -e)
 set -euo pipefail
 
-export YARN_ENABLE_TELEMETRY=0
-export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+# Yarn 2+ (Berry) is selected by the "packageManager" field of package.json, anything else is Yarn classic (v1)
+if grep -Eq '"packageManager"[[:space:]]*:[[:space:]]*"yarn@([2-9]|[1-9][0-9])\.' package.json; then
+    echo "Detected Yarn 2+ (packageManager field), using Corepack"
 
-# Yarn 4 is provisioned by Corepack, using the "packageManager" field of package.json
-command -v corepack &>/dev/null || npm install -g corepack
-corepack enable
+    export YARN_ENABLE_TELEMETRY=0
+    export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
-if ! grep -Eq '"packageManager"[[:space:]]*:[[:space:]]*"yarn@([4-9]|[1-9][0-9])\.' package.json; then
-    echo "Error: package.json must declare \"packageManager\": \"yarn@4.x.x\" (run 'yarn set version stable')."
-    exit 1
+    command -v corepack &>/dev/null || npm install -g corepack
+    corepack enable
+    echo "Using Yarn $(yarn --version)"
+
+    # Configure the CodeArtifact registry for the @cardoai scope.
+    # Written to the user-level ~/.yarnrc.yml so the repository's .yarnrc.yml is left untouched.
+    yarn config set --home 'npmScopes["cardoai"].npmRegistryServer' "$CODEARTIFACT_REGISTRY"
+    yarn config set --home 'npmScopes["cardoai"].npmAlwaysAuth' true
+    yarn config set --home 'npmScopes["cardoai"].npmAuthToken' "$CODEARTIFACT_AUTH_TOKEN"
+
+    INSTALL_CMD=(yarn install --immutable)
+else
+    echo "No Yarn 2+ packageManager field found, using Yarn classic"
+
+    # Install Yarn globally only if not already available
+    command -v yarn &>/dev/null || npm install -g yarn
+
+    # Configure npm registry
+    echo "registry=https://registry.npmjs.org/" > .npmrc
+    echo "@cardoai:registry=$CODEARTIFACT_REGISTRY" >> .npmrc
+    echo "//$(echo $CODEARTIFACT_REGISTRY | sed -e 's|https://||'):_authToken=$CODEARTIFACT_AUTH_TOKEN" >> .npmrc
+
+    INSTALL_CMD=(yarn install --frozen-lockfile --ignore-engines --prefer-offline)
 fi
-echo "Using Yarn $(yarn --version)"
-
-# Configure the CodeArtifact registry for the @cardoai scope.
-# Written to the user-level ~/.yarnrc.yml so the repository's .yarnrc.yml is left untouched.
-yarn config set --home 'npmScopes["cardoai"].npmRegistryServer' "$CODEARTIFACT_REGISTRY"
-yarn config set --home 'npmScopes["cardoai"].npmAlwaysAuth' true
-yarn config set --home 'npmScopes["cardoai"].npmAuthToken' "$CODEARTIFACT_AUTH_TOKEN"
 
 # Install dependencies
 echo "Installing dependencies..."
-yarn install --immutable
+"${INSTALL_CMD[@]}"
 
 # Build the project
 echo "Building the project..."

@@ -1,9 +1,9 @@
 name: "Build frontend v4"
-description: "This action builds frontend with Yarn 4 (Berry) via Corepack, with node_modules caching"
+description: "This action builds frontend with node_modules caching, supporting both Yarn classic (v1) and Yarn 2+/4 (auto-detected from the packageManager field)"
 
 inputs:
   working-directory:
-    description: Directory containing package.json (with a "packageManager": "yarn@4.x" field) and yarn.lock.
+    description: Directory containing package.json and yarn.lock.
     default: "."
   cleanup-bucket:
     description: "Delete files from s3 that no longer exist on build."
