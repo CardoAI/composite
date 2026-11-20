@@ -56,4 +56,4 @@ runs:
 
         # 3) expose them as this step’s outputs
         echo "token=$TOKEN"       >> "$GITHUB_OUTPUT"
-        echo "registry=${REGISTRY}/" >> "$GITHUB_OUTPUT"
+        echo "registry=${REGISTRY%/}/" >> "$GITHUB_OUTPUT"
